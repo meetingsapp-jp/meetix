@@ -109,6 +109,16 @@ export async function deletePassenger(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// Quick VIP/group toggle used by the transport view (keeps is_vip and
+// transport_type in sync).
+export async function setPassengerVip(id: string, isVip: boolean): Promise<void> {
+  const { error } = await client()
+    .from('passengers')
+    .update({ is_vip: isVip, transport_type: isVip ? 'vip' : 'group' })
+    .eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
 // --- Hotels (needed by the passenger form) ---
 export async function listHotels(eventId: string): Promise<Hotel[]> {
   const { data, error } = await client().from('hotels').select('*').eq('event_id', eventId).order('name');

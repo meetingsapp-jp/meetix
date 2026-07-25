@@ -49,5 +49,13 @@
       "emergency": "Contacto de emergencia", "notes": "Notas"
     }
   },
-  "transport": { "title": "Transporte terrestre", "subtitle": "Vista VIP vs. grupo y exportación de la lista VIP." }
+  "transport": {
+    "title": "Transporte terrestre", "subtitle": "Filtra pasajeros VIP vs. grupo y exporta la lista VIP para el proveedor.",
+    "selectEvent": "— Selecciona un evento —", "pickEventHint": "Selecciona un evento para ver sus pasajeros.",
+    "emptyList": "No hay pasajeros que coincidan con este filtro.",
+    "exportPdf": "Exportar VIP (PDF)", "exportCsv": "Exportar VIP (CSV)",
+    "exportTitle": "Lista VIP — Transporte", "generated": "Generado",
+    "toggleHint": "Clic para cambiar entre VIP y Grupo",
+    "filter": { "all": "Todos", "vip": "VIP", "group": "Grupo" }
+  }
 }
