@@ -19,6 +19,6 @@ export const ROLES: { id: Role; label: string }[] = [
 export const PERMISSIONS: Record<Role, { manageEvents: boolean; managePassengers: boolean; exportData: boolean }> = {
   director_general:  { manageEvents: true,  managePassengers: true,  exportData: true },
   director_eventos:  { manageEvents: true,  managePassengers: true,  exportData: true },
-  planificador:      { manageEvents: false, managePassengers: true,  exportData: true },
+  planificador:      { manageEvents: true,  managePassengers: true,  exportData: true },
   guia_coordinador:  { manageEvents: false, managePassengers: false, exportData: true },
 };

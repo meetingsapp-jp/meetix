@@ -42,6 +42,30 @@ export interface EventWithMeta extends EventRow {
   passenger_count: number;
 }
 
+export interface Hotel {
+  id: string;
+  agency_id: string;
+  event_id: string;
+  name: string;
+  address: string | null;
+  check_in: string | null;
+  check_out: string | null;
+  created_at: string;
+}
+
+export interface Flight {
+  id: string;
+  agency_id: string;
+  passenger_id: string;
+  direction: FlightDirection;
+  airline: string | null;
+  flight_number: string | null;
+  flight_datetime: string | null;
+  origin_airport: string | null;
+  destination_airport: string | null;
+  created_at: string;
+}
+
 export interface Passenger {
   id: string;
   agency_id: string;
@@ -60,4 +84,10 @@ export interface Passenger {
   notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// Passenger joined with hotel name and its flights (for list/edit).
+export interface PassengerWithMeta extends Passenger {
+  hotel: { name: string } | null;
+  flights: Flight[];
 }

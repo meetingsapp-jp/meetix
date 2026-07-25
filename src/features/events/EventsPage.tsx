@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
 import { useRole } from '../../auth/RoleContext';
@@ -120,6 +121,12 @@ export default function EventsPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <Link
+                      to={`/events/${ev.id}/passengers`}
+                      className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
+                    >
+                      {t('events.viewPassengers')}
+                    </Link>
                     {can.manageEvents && (
                       <>
                         <Button variant="ghost" onClick={() => openEdit(ev)}>{t('common.edit')}</Button>

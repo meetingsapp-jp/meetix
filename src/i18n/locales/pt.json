@@ -19,7 +19,7 @@
     "title": "Eventos", "subtitle": "Lista e gestão de eventos.",
     "new": "Novo evento", "editTitle": "Editar evento",
     "empty": "Ainda não há eventos. Crie o primeiro.",
-    "dates": "Datas", "passengers": "Passageiros",
+    "dates": "Datas", "passengers": "Passageiros", "viewPassengers": "Passageiros",
     "confirmDelete": "Excluir o evento \"{{name}}\"? Isso também remove seus passageiros.",
     "form": {
       "name": "Nome do evento", "client": "Cliente", "noClient": "— Sem cliente —",
@@ -31,6 +31,22 @@
     "status": {
       "planificacion": "Planejamento", "confirmado": "Confirmado", "en_curso": "Em andamento",
       "finalizado": "Finalizado", "cancelado": "Cancelado"
+    }
+  },
+  "passengers": {
+    "title": "Passageiros", "new": "Novo passageiro", "editTitle": "Editar passageiro",
+    "empty": "Ainda não há passageiros neste evento.",
+    "transport": "Transporte", "group": "Grupo", "flights": "Voos",
+    "confirmDelete": "Excluir o passageiro \"{{name}}\"?",
+    "form": {
+      "fullName": "Nome completo", "email": "E-mail", "phone": "Telefone",
+      "documentId": "Passaporte / ID", "nationality": "Nacionalidade",
+      "vip": "VIP (transporte privado)",
+      "hotel": "Hotel", "noHotel": "— Sem hotel —", "newHotel": "Novo hotel", "hotelName": "Nome do hotel",
+      "roomNumber": "Quarto",
+      "arrival": "Voo de chegada", "departure": "Voo de saída",
+      "airline": "Companhia aérea", "flightNumber": "Nº do voo",
+      "emergency": "Contato de emergência", "notes": "Notas"
     }
   },
   "transport": { "title": "Transporte terrestre", "subtitle": "Visão VIP vs. grupo e exportação da lista VIP." }

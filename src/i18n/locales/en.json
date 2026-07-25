@@ -19,7 +19,7 @@
     "title": "Events", "subtitle": "Event list and management.",
     "new": "New event", "editTitle": "Edit event",
     "empty": "No events yet. Create the first one.",
-    "dates": "Dates", "passengers": "Passengers",
+    "dates": "Dates", "passengers": "Passengers", "viewPassengers": "Passengers",
     "confirmDelete": "Delete the event \"{{name}}\"? This also removes its passengers.",
     "form": {
       "name": "Event name", "client": "Client", "noClient": "— No client —",
@@ -31,6 +31,22 @@
     "status": {
       "planificacion": "Planning", "confirmado": "Confirmed", "en_curso": "In progress",
       "finalizado": "Finished", "cancelado": "Cancelled"
+    }
+  },
+  "passengers": {
+    "title": "Passengers", "new": "New passenger", "editTitle": "Edit passenger",
+    "empty": "No passengers in this event yet.",
+    "transport": "Transport", "group": "Group", "flights": "Flights",
+    "confirmDelete": "Delete passenger \"{{name}}\"?",
+    "form": {
+      "fullName": "Full name", "email": "Email", "phone": "Phone",
+      "documentId": "Passport / ID", "nationality": "Nationality",
+      "vip": "VIP (private transport)",
+      "hotel": "Hotel", "noHotel": "— No hotel —", "newHotel": "New hotel", "hotelName": "Hotel name",
+      "roomNumber": "Room",
+      "arrival": "Arrival flight", "departure": "Departure flight",
+      "airline": "Airline", "flightNumber": "Flight no.",
+      "emergency": "Emergency contact", "notes": "Notes"
     }
   },
   "transport": { "title": "Ground transport", "subtitle": "VIP vs. group view and VIP list export." }
