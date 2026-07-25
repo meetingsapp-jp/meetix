@@ -10,8 +10,9 @@ interface AuthContextValue {
   agency: Agency | null;
   role: Role | null;
   can: (typeof PERMISSIONS)[Role] | { manageEvents: false; managePassengers: false; exportData: false };
+  isPlatformAdmin: boolean;
   loading: boolean;
-  /** session exists but the user is not linked to any agency row */
+  /** session exists but the user is neither in an agency nor a platform admin */
   notProvisioned: boolean;
   signOut: () => Promise<void>;
 }
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [agency, setAgency] = useState<Agency | null>(null);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,19 +45,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!session) {
         setAppUser(null);
         setAgency(null);
+        setIsPlatformAdmin(false);
         setLoading(false);
         return;
       }
       setLoading(true);
-      const { data: user } = await supabase
-        .from('app_users')
-        .select('*')
-        .eq('auth_user_id', session.user.id)
-        .maybeSingle();
+      const [{ data: user }, { data: admin }] = await Promise.all([
+        supabase.from('app_users').select('*').eq('auth_user_id', session.user.id).maybeSingle(),
+        supabase.from('platform_admins').select('id').eq('auth_user_id', session.user.id).maybeSingle(),
+      ]);
       if (!active) return;
       setAppUser((user as AppUser) ?? null);
+      setIsPlatformAdmin(Boolean(admin));
       if (user) {
-        const { data: ag } = await supabase.from('agencies').select('*').limit(1).maybeSingle();
+        const { data: ag } = await supabase.from('agencies').select('*').eq('id', (user as AppUser).agency_id).maybeSingle();
         if (active) setAgency((ag as Agency) ?? null);
       } else {
         setAgency(null);
@@ -75,13 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       agency,
       role,
       can: role ? PERMISSIONS[role] : NO_PERMS,
+      isPlatformAdmin,
       loading,
-      notProvisioned: Boolean(session && !loading && !appUser),
+      notProvisioned: Boolean(session && !loading && !appUser && !isPlatformAdmin),
       signOut: async () => {
         await supabase?.auth.signOut();
       },
     };
-  }, [session, appUser, agency, loading]);
+  }, [session, appUser, agency, isPlatformAdmin, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

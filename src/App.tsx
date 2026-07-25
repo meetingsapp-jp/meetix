@@ -9,6 +9,7 @@ import PassengersPage from './features/passengers/PassengersPage';
 import TransportPage from './features/transport/TransportPage';
 import LoginPage from './features/auth/LoginPage';
 import ResetPasswordPage from './features/auth/ResetPasswordPage';
+import AdminPage from './features/admin/AdminPage';
 
 function NotProvisioned() {
   const { t } = useTranslation();
@@ -26,7 +27,7 @@ function NotProvisioned() {
 
 export default function App() {
   const { t } = useTranslation();
-  const { session, loading, notProvisioned } = useAuth();
+  const { session, loading, notProvisioned, isPlatformAdmin, appUser } = useAuth();
   const location = useLocation();
 
   // The reset/invite page must work with or without a full session.
@@ -43,6 +44,12 @@ export default function App() {
   }
 
   if (!session) return <LoginPage />;
+
+  // Platform super-admin at /admin, or with no agency of their own.
+  if (isPlatformAdmin && (location.pathname === '/admin' || !appUser)) {
+    return <AdminPage />;
+  }
+
   if (notProvisioned) return <NotProvisioned />;
 
   return (

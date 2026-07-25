@@ -28,6 +28,17 @@
     "yes": "Sí", "no": "No",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
   },
+  "admin": {
+    "title": "Administración", "agencies": "Agencias", "newAgency": "Nueva agencia",
+    "noAgencies": "Aún no hay agencias.",
+    "agencyName": "Nombre de la agencia", "owner": "Dueño (Director)", "users": "Usuarios", "created": "Creada",
+    "ownerName": "Nombre del dueño", "ownerEmail": "Correo del dueño", "language": "Idioma por defecto",
+    "createAgency": "Crear agencia",
+    "inviteNote": "Se creará la agencia y se enviará al dueño un correo para establecer su contraseña.",
+    "createdOk": "Agencia creada. Se envió una invitación a {{email}} para establecer la contraseña.",
+    "errNotAdmin": "No tienes permisos de super-administrador.",
+    "errMissing": "Faltan datos obligatorios.", "errGeneric": "No se pudo crear la agencia."
+  },
   "dashboard": {
     "title": "Panel", "subtitle": "Resumen de eventos y pasajeros.",
     "totalEvents": "Eventos", "activeEvents": "Activos", "totalPassengers": "Pasajeros",

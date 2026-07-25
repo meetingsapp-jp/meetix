@@ -13,7 +13,7 @@ const nav = [
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
-  const { appUser, agency, signOut } = useAuth();
+  const { appUser, agency, signOut, isPlatformAdmin } = useAuth();
 
   return (
     <div className="min-h-full flex flex-col">
@@ -33,6 +33,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {t(n.key)}
               </NavLink>
             ))}
+            {isPlatformAdmin && (
+              <NavLink to="/admin" className="px-3 py-1.5 rounded text-sm hover:bg-white/10">
+                {t('admin.title')}
+              </NavLink>
+            )}
           </nav>
 
           <select

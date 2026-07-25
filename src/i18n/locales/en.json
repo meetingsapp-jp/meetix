@@ -28,6 +28,17 @@
     "yes": "Yes", "no": "No",
     "noAgency": "No agency found. Check the database connection."
   },
+  "admin": {
+    "title": "Administration", "agencies": "Agencies", "newAgency": "New agency",
+    "noAgencies": "No agencies yet.",
+    "agencyName": "Agency name", "owner": "Owner (Director)", "users": "Users", "created": "Created",
+    "ownerName": "Owner name", "ownerEmail": "Owner email", "language": "Default language",
+    "createAgency": "Create agency",
+    "inviteNote": "The agency will be created and the owner will get an email to set their password.",
+    "createdOk": "Agency created. An invitation was sent to {{email}} to set the password.",
+    "errNotAdmin": "You don't have super-admin permissions.",
+    "errMissing": "Required fields are missing.", "errGeneric": "Could not create the agency."
+  },
   "dashboard": {
     "title": "Dashboard", "subtitle": "Overview of events and passengers.",
     "totalEvents": "Events", "activeEvents": "Active", "totalPassengers": "Passengers",
