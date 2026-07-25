@@ -9,6 +9,19 @@
     "guia_coordinador": "Guía / Coordinador"
   },
   "language": { "label": "Idioma", "es": "Español", "en": "Inglés", "pt": "Portugués" },
+  "auth": {
+    "email": "Correo electrónico", "password": "Contraseña",
+    "signIn": "Iniciar sesión", "signingIn": "Entrando…", "signOut": "Cerrar sesión",
+    "forgot": "¿Olvidaste tu contraseña?", "forgotHint": "Te enviaremos un enlace para restablecerla.",
+    "sendReset": "Enviar enlace", "backToLogin": "Volver a iniciar sesión",
+    "resetSent": "Si el correo existe, te enviamos un enlace para restablecer la contraseña.",
+    "invalidCredentials": "Correo o contraseña incorrectos.",
+    "setPassword": "Establecer contraseña", "newPassword": "Nueva contraseña", "confirmPassword": "Confirmar contraseña",
+    "savePassword": "Guardar contraseña", "passwordMismatch": "Las contraseñas no coinciden.",
+    "passwordUpdated": "Contraseña actualizada. Ya puedes usar la app.", "goToApp": "Ir a la app",
+    "resetLinkInvalid": "El enlace no es válido o expiró. Solicita uno nuevo desde el login.",
+    "noAccessTitle": "Cuenta sin acceso", "noAccessBody": "La cuenta {{email}} aún no está asignada a una agencia. Contacta al administrador."
+  },
   "common": {
     "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",

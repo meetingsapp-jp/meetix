@@ -1,10 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRole } from '../auth/RoleContext';
-import { ROLES } from '../auth/roles';
+import { useAuth } from '../auth/AuthContext';
 import { SUPPORTED_LANGUAGES } from '../i18n';
-import { isSupabaseConfigured } from '../lib/supabaseClient';
+import Button from './ui/Button';
 
 const nav = [
   { to: '/', key: 'nav.dashboard', end: true },
@@ -13,8 +12,8 @@ const nav = [
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const { role, setRole } = useRole();
   const { t, i18n } = useTranslation();
+  const { appUser, agency, signOut } = useAuth();
 
   return (
     <div className="min-h-full flex flex-col">
@@ -36,40 +35,31 @@ export default function Layout({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
-          <label className="text-xs flex items-center gap-1.5">
-            <span className="opacity-70">{t('language.label')}:</span>
-            <select
-              value={i18n.resolvedLanguage}
-              onChange={(e) => i18n.changeLanguage(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded px-2 py-1 text-white"
-            >
-              {SUPPORTED_LANGUAGES.map((lng) => (
-                <option key={lng} value={lng} className="text-slate-900">
-                  {t(`language.${lng}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <select
+            value={i18n.resolvedLanguage}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            className="bg-white/10 border border-white/20 rounded px-2 py-1 text-xs text-white"
+            aria-label={t('language.label')}
+          >
+            {SUPPORTED_LANGUAGES.map((lng) => (
+              <option key={lng} value={lng} className="text-slate-900">{t(`language.${lng}`)}</option>
+            ))}
+          </select>
 
-          <label className="text-xs flex items-center gap-1.5">
-            <span className="opacity-70">{t('roles.label')}:</span>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as typeof role)}
-              className="bg-white/10 border border-white/20 rounded px-2 py-1 text-white"
-            >
-              {ROLES.map((r) => (
-                <option key={r.id} value={r.id} className="text-slate-900">
-                  {t(`roles.${r.id}`)}
-                </option>
-              ))}
-            </select>
-          </label>
+          {appUser && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="text-right leading-tight">
+                <div className="font-medium">{appUser.full_name}</div>
+                <div className="opacity-70">{t(`roles.${appUser.role}`)}</div>
+              </div>
+              <Button variant="ghost" className="text-white hover:bg-white/10" onClick={signOut}>
+                {t('auth.signOut')}
+              </Button>
+            </div>
+          )}
         </div>
-        {!isSupabaseConfigured && (
-          <div className="bg-amber-500 text-amber-950 text-xs text-center py-1 px-2">
-            {t('app.demoBanner')}
-          </div>
+        {agency && (
+          <div className="bg-white/5 text-xs text-white/70 text-center py-1">{agency.name}</div>
         )}
       </header>
       <main className="flex-1 mx-auto max-w-6xl w-full px-4 py-6">{children}</main>

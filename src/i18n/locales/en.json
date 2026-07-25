@@ -9,6 +9,19 @@
     "guia_coordinador": "Guide / Coordinator"
   },
   "language": { "label": "Language", "es": "Spanish", "en": "English", "pt": "Portuguese" },
+  "auth": {
+    "email": "Email", "password": "Password",
+    "signIn": "Sign in", "signingIn": "Signing in…", "signOut": "Sign out",
+    "forgot": "Forgot your password?", "forgotHint": "We'll email you a reset link.",
+    "sendReset": "Send link", "backToLogin": "Back to sign in",
+    "resetSent": "If the email exists, we sent a password reset link.",
+    "invalidCredentials": "Incorrect email or password.",
+    "setPassword": "Set password", "newPassword": "New password", "confirmPassword": "Confirm password",
+    "savePassword": "Save password", "passwordMismatch": "Passwords do not match.",
+    "passwordUpdated": "Password updated. You can use the app now.", "goToApp": "Go to app",
+    "resetLinkInvalid": "The link is invalid or expired. Request a new one from the login.",
+    "noAccessTitle": "No access", "noAccessBody": "The account {{email}} is not assigned to an agency yet. Contact your administrator."
+  },
   "common": {
     "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",

@@ -6,6 +6,17 @@ export type EventStatus = 'planificacion' | 'confirmado' | 'en_curso' | 'finaliz
 export type TransportType = 'vip' | 'group';
 export type FlightDirection = 'arrival' | 'departure';
 
+export interface AppUser {
+  id: string;
+  agency_id: string;
+  auth_user_id: string | null;
+  full_name: string;
+  role: UserRole;
+  email: string | null;
+  preferred_language: Language;
+  created_at: string;
+}
+
 export interface Agency {
   id: string;
   name: string;
