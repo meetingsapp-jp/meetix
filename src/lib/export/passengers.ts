@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx';
 import type { EventRow, PassengerWithMeta } from '../../types';
 import { exportCsv } from './csv';
 import { downloadBlob, slug } from './download';
@@ -70,7 +69,9 @@ export function exportPassengersCsv(event: EventRow, passengers: PassengerWithMe
   exportCsv(`pasajeros-${slug(event.name)}.csv`, headers(L), rows(passengers, L));
 }
 
-export function exportPassengersXlsx(event: EventRow, passengers: PassengerWithMeta[], L: PassengerExportLabels) {
+export async function exportPassengersXlsx(event: EventRow, passengers: PassengerWithMeta[], L: PassengerExportLabels) {
+  // SheetJS is loaded on demand to keep the initial bundle small.
+  const XLSX = await import('xlsx');
   const ws = XLSX.utils.aoa_to_sheet([headers(L), ...rows(passengers, L)]);
   ws['!cols'] = headers(L).map(() => ({ wch: 18 }));
   const wb = XLSX.utils.book_new();

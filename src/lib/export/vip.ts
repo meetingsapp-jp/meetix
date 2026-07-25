@@ -1,5 +1,3 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import type { EventRow, PassengerWithMeta } from '../../types';
 import { exportCsv } from './csv';
 import { downloadBlob, slug } from './download';
@@ -54,7 +52,12 @@ export function exportVipCsv(event: EventRow, passengers: PassengerWithMeta[], L
   exportCsv(`vip-${slug(event.name)}.csv`, headers, vipRows(passengers));
 }
 
-export function exportVipPdf(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+export async function exportVipPdf(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+  // Heavy PDF libs are loaded on demand so they don't bloat the initial bundle.
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ]);
   const doc = new jsPDF({ orientation: 'landscape' });
   doc.setFontSize(14);
   doc.text(L.title, 14, 16);
