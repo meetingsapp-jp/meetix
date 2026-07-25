@@ -14,7 +14,11 @@
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
   },
-  "dashboard": { "title": "Panel", "subtitle": "Resumen de eventos y pasajeros." },
+  "dashboard": {
+    "title": "Panel", "subtitle": "Resumen de eventos y pasajeros.",
+    "totalEvents": "Eventos", "activeEvents": "Activos", "totalPassengers": "Pasajeros",
+    "avgPassengers": "Promedio por evento", "statusOverview": "Resumen por estado", "eventsList": "Eventos"
+  },
   "events": {
     "title": "Eventos", "subtitle": "Listado y gestión de eventos.",
     "new": "Nuevo evento", "editTitle": "Editar evento",

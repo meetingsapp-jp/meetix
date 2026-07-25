@@ -14,7 +14,11 @@
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
     "noAgency": "No agency found. Check the database connection."
   },
-  "dashboard": { "title": "Dashboard", "subtitle": "Overview of events and passengers." },
+  "dashboard": {
+    "title": "Dashboard", "subtitle": "Overview of events and passengers.",
+    "totalEvents": "Events", "activeEvents": "Active", "totalPassengers": "Passengers",
+    "avgPassengers": "Avg. per event", "statusOverview": "Status overview", "eventsList": "Events"
+  },
   "events": {
     "title": "Events", "subtitle": "Event list and management.",
     "new": "New event", "editTitle": "Edit event",
