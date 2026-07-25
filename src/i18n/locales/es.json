@@ -1,0 +1,16 @@
+{
+  "app": { "name": "EventOps", "demoBanner": "Modo demostración — sin base de datos conectada (esperando credenciales de Supabase)." },
+  "nav": { "dashboard": "Panel", "events": "Eventos", "transport": "Transporte" },
+  "roles": {
+    "label": "Rol",
+    "director_general": "Director General",
+    "director_eventos": "Director de Eventos",
+    "planificador": "Planificador",
+    "guia_coordinador": "Guía / Coordinador"
+  },
+  "language": { "label": "Idioma", "es": "Español", "en": "Inglés", "pt": "Portugués" },
+  "dashboard": { "title": "Panel", "subtitle": "Resumen de eventos y pasajeros." },
+  "events": { "title": "Eventos", "subtitle": "Listado y gestión de eventos." },
+  "transport": { "title": "Transporte terrestre", "subtitle": "Vista VIP vs. grupo y exportación de la lista VIP." },
+  "common": { "pendingModule": "Módulo por construir tras aprobar el esquema." }
+}

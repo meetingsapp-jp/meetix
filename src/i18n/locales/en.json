@@ -1,0 +1,16 @@
+{
+  "app": { "name": "EventOps", "demoBanner": "Demo mode — no database connected (waiting for Supabase credentials)." },
+  "nav": { "dashboard": "Dashboard", "events": "Events", "transport": "Transport" },
+  "roles": {
+    "label": "Role",
+    "director_general": "General Director",
+    "director_eventos": "Events Director",
+    "planificador": "Planner",
+    "guia_coordinador": "Guide / Coordinator"
+  },
+  "language": { "label": "Language", "es": "Spanish", "en": "English", "pt": "Portuguese" },
+  "dashboard": { "title": "Dashboard", "subtitle": "Overview of events and passengers." },
+  "events": { "title": "Events", "subtitle": "Event list and management." },
+  "transport": { "title": "Ground transport", "subtitle": "VIP vs. group view and VIP list export." },
+  "common": { "pendingModule": "Module to be built after the schema is approved." }
+}
