@@ -6,11 +6,33 @@ import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import { Field, inputClass } from '../../components/ui/Field';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
-import type { Agency, AppUser, Language } from '../../types';
+import type { Agency, Language } from '../../types';
 
 interface AgencyOverview extends Agency {
   users: number;
   owner: string | null;
+  ownerEmail: string | null;
+}
+
+function CopyLink({ link }: { link: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-slate-600">{t('admin.linkShareNote')}</p>
+      <div className="flex gap-2">
+        <input readOnly className={`${inputClass} text-xs`} value={link} onFocus={(e) => e.target.select()} />
+        <Button
+          type="button"
+          onClick={async () => {
+            try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
+          }}
+        >
+          {copied ? t('admin.copied') : t('admin.copy')}
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminPage() {
@@ -20,6 +42,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [linkModal, setLinkModal] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
@@ -28,11 +51,11 @@ export default function AdminPage() {
     try {
       const [{ data: agencies, error: e1 }, { data: users, error: e2 }] = await Promise.all([
         supabase.from('agencies').select('*').order('created_at', { ascending: false }),
-        supabase.from('app_users').select('agency_id, full_name, role'),
+        supabase.from('app_users').select('agency_id, full_name, role, email'),
       ]);
       if (e1) throw new Error(e1.message);
       if (e2) throw new Error(e2.message);
-      const byAgency = new Map<string, AppUser[]>();
+      const byAgency = new Map<string, any[]>();
       (users ?? []).forEach((u: any) => {
         const list = byAgency.get(u.agency_id) ?? [];
         list.push(u);
@@ -41,11 +64,8 @@ export default function AdminPage() {
       setRows(
         (agencies ?? []).map((a: any) => {
           const list = byAgency.get(a.id) ?? [];
-          return {
-            ...a,
-            users: list.length,
-            owner: list.find((u) => u.role === 'director_general')?.full_name ?? null,
-          };
+          const owner = list.find((u) => u.role === 'director_general');
+          return { ...a, users: list.length, owner: owner?.full_name ?? null, ownerEmail: owner?.email ?? null };
         }),
       );
     } catch (e) {
@@ -58,6 +78,19 @@ export default function AdminPage() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  async function getAccessLink(ownerEmail: string | null) {
+    if (!supabase || !ownerEmail) return;
+    setError(null);
+    const { data, error } = await supabase.functions.invoke('admin-create-agency', {
+      body: { action: 'access_link', ownerEmail, redirectTo: `${window.location.origin}/reset` },
+    });
+    if (error || !(data as any)?.actionLink) {
+      setError(t('admin.errGeneric'));
+      return;
+    }
+    setLinkModal((data as any).actionLink);
+  }
 
   return (
     <div className="min-h-full bg-slate-100">
@@ -91,9 +124,7 @@ export default function AdminPage() {
         {loading ? (
           <p className="text-slate-500">{t('common.loading')}</p>
         ) : rows.length === 0 ? (
-          <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">
-            {t('admin.noAgencies')}
-          </p>
+          <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('admin.noAgencies')}</p>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
             <table className="w-full text-sm">
@@ -103,15 +134,24 @@ export default function AdminPage() {
                   <th className="px-3 py-2">{t('admin.owner')}</th>
                   <th className="px-3 py-2">{t('admin.users')}</th>
                   <th className="px-3 py-2">{t('admin.created')}</th>
+                  <th className="px-3 py-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((a) => (
                   <tr key={a.id} className="border-t border-slate-100">
                     <td className="px-3 py-2 font-medium">{a.name}</td>
-                    <td className="px-3 py-2 text-slate-600">{a.owner ?? '—'}</td>
+                    <td className="px-3 py-2 text-slate-600">
+                      {a.owner ?? '—'}
+                      {a.ownerEmail && <div className="text-xs text-slate-400">{a.ownerEmail}</div>}
+                    </td>
                     <td className="px-3 py-2 text-slate-600">{a.users}</td>
                     <td className="px-3 py-2 text-slate-600">{new Date(a.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 py-2 text-right">
+                      {a.ownerEmail && (
+                        <Button variant="ghost" onClick={() => getAccessLink(a.ownerEmail)}>{t('admin.accessLink')}</Button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -121,13 +161,11 @@ export default function AdminPage() {
       </main>
 
       <Modal open={modalOpen} title={t('admin.newAgency')} onClose={() => setModalOpen(false)}>
-        <NewAgencyForm
-          onDone={() => {
-            setModalOpen(false);
-            refresh();
-          }}
-          onCancel={() => setModalOpen(false)}
-        />
+        <NewAgencyForm onDone={() => { setModalOpen(false); refresh(); }} onCancel={() => setModalOpen(false)} />
+      </Modal>
+
+      <Modal open={Boolean(linkModal)} title={t('admin.linkTitle')} onClose={() => setLinkModal(null)}>
+        {linkModal && <CopyLink link={linkModal} />}
       </Modal>
     </div>
   );
@@ -141,7 +179,7 @@ function NewAgencyForm({ onDone, onCancel }: { onDone: () => void; onCancel: () 
   const [language, setLanguage] = useState<Language>('es');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState(false);
+  const [createdLink, setCreatedLink] = useState<string | null>(null);
 
   const errorText = useMemo(
     () => (key: string | null) => {
@@ -170,25 +208,20 @@ function NewAgencyForm({ onDone, onCancel }: { onDone: () => void; onCancel: () 
     });
     setBusy(false);
     if (error) {
-      // Try to surface the function's JSON error body.
       let key: string | null = error.message;
-      try {
-        const ctx = (error as any).context;
-        if (ctx?.json) { const b = await ctx.json(); key = b.error ?? key; }
-      } catch { /* ignore */ }
+      try { const ctx = (error as any).context; if (ctx?.json) { const b = await ctx.json(); key = b.error ?? key; } } catch { /* ignore */ }
       setError(errorText(key));
       return;
     }
-    if ((data as any)?.ok) setOk(true);
+    if ((data as any)?.ok) setCreatedLink((data as any).actionLink ?? '');
     else setError(errorText((data as any)?.error ?? null));
   }
 
-  if (ok) {
+  if (createdLink !== null) {
     return (
       <div className="space-y-3">
-        <p className="rounded bg-green-50 px-3 py-2 text-sm text-green-700">
-          {t('admin.createdOk', { email: ownerEmail })}
-        </p>
+        <p className="rounded bg-green-50 px-3 py-2 text-sm text-green-700">{t('admin.createdOk', { email: ownerEmail })}</p>
+        {createdLink && <CopyLink link={createdLink} />}
         <div className="flex justify-end">
           <Button onClick={onDone}>{t('common.save')}</Button>
         </div>

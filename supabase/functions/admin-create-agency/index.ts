@@ -1,8 +1,9 @@
 // Edge Function: admin-create-agency
-// Creates a new agency + its owner (Director General) and emails the owner an
-// invite to set their password. Only callable by a platform super-admin.
-// Uses the service-role key (available in the Edge runtime env) — never exposed
-// to the browser.
+// Two actions (only callable by a platform super-admin):
+//  - default ('create'): create an agency + its owner (Director General) and
+//    return a set-password link the admin can share (no email dependency).
+//  - 'access_link': generate a fresh set-password link for an existing owner.
+// Uses the service-role key from the Edge runtime env — never exposed to the browser.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const cors = {
@@ -12,10 +13,7 @@ const cors = {
 };
 
 function json(status: number, body: unknown) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json' },
-  });
+  return new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 }
 
 Deno.serve(async (req) => {
@@ -28,53 +26,69 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get('Authorization') ?? '';
 
   try {
-    // 1) Identify the caller from their JWT.
     const caller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: uErr } = await caller.auth.getUser();
     if (uErr || !user) return json(401, { error: 'unauthorized' });
 
     const admin = createClient(url, serviceKey);
-
-    // 2) Only platform super-admins may proceed.
     const { data: pa } = await admin.from('platform_admins').select('id').eq('auth_user_id', user.id).maybeSingle();
     if (!pa) return json(403, { error: 'not_platform_admin' });
 
-    // 3) Validate input.
     const body = await req.json().catch(() => ({}));
-    const agencyName = String(body.agencyName ?? '').trim();
-    const ownerName = String(body.ownerName ?? '').trim();
-    const ownerEmail = String(body.ownerEmail ?? '').trim();
-    const language = ['es', 'en', 'pt'].includes(body.language) ? body.language : 'es';
+    const action = String(body.action ?? 'create');
     const redirectTo = typeof body.redirectTo === 'string' ? body.redirectTo : undefined;
-    if (!agencyName || !ownerName || !ownerEmail) return json(400, { error: 'missing_fields' });
+    const ownerEmail = String(body.ownerEmail ?? '').trim();
 
-    // 4) Create the agency.
-    const { data: agency, error: aErr } = await admin
-      .from('agencies')
-      .insert({ name: agencyName, default_language: language })
-      .select('id')
-      .single();
-    if (aErr) return json(400, { error: aErr.message });
-
-    // 5) Invite the owner (creates the auth user + sends the set-password email).
-    const { data: invited, error: iErr } = await admin.auth.admin.inviteUserByEmail(ownerEmail, { redirectTo });
-    if (iErr || !invited?.user) {
-      await admin.from('agencies').delete().eq('id', agency.id); // rollback
-      return json(400, { error: iErr?.message ?? 'invite_failed' });
+    // --- Generate a fresh set-password link for an existing owner ---
+    if (action === 'access_link') {
+      if (!ownerEmail) return json(400, { error: 'missing_fields' });
+      const { data: link, error } = await admin.auth.admin.generateLink({
+        type: 'recovery', email: ownerEmail, options: { redirectTo },
+      });
+      if (error) return json(400, { error: error.message });
+      return json(200, { ok: true, actionLink: link.properties?.action_link });
     }
 
-    // 6) Create the owner's app_users row as Director General, already linked.
+    // --- Create agency + owner ---
+    const agencyName = String(body.agencyName ?? '').trim();
+    const ownerName = String(body.ownerName ?? '').trim();
+    const language = ['es', 'en', 'pt'].includes(body.language) ? body.language : 'es';
+    if (!agencyName || !ownerName || !ownerEmail) return json(400, { error: 'missing_fields' });
+
+    const { data: agency, error: aErr } = await admin
+      .from('agencies').insert({ name: agencyName, default_language: language }).select('id').single();
+    if (aErr) return json(400, { error: aErr.message });
+
+    // Create the owner (ignore if the email already exists).
+    const { data: created, error: cErr } = await admin.auth.admin.createUser({ email: ownerEmail, email_confirm: true });
+    if (cErr && !/registered|already|exists/i.test(cErr.message)) {
+      await admin.from('agencies').delete().eq('id', agency.id);
+      return json(400, { error: cErr.message });
+    }
+
+    // Get a set-password link (also yields the user id).
+    const { data: link, error: lErr } = await admin.auth.admin.generateLink({
+      type: 'recovery', email: ownerEmail, options: { redirectTo },
+    });
+    if (lErr) {
+      await admin.from('agencies').delete().eq('id', agency.id);
+      return json(400, { error: lErr.message });
+    }
+    const userId = created?.user?.id ?? link.user?.id ?? null;
+
     const { error: pErr } = await admin.from('app_users').insert({
       agency_id: agency.id,
-      auth_user_id: invited.user.id,
+      auth_user_id: userId,
       full_name: ownerName,
       role: 'director_general',
       email: ownerEmail,
       preferred_language: language,
     });
-    if (pErr) return json(400, { error: pErr.message });
+    if (pErr && !/duplicate|unique/i.test(pErr.message)) {
+      return json(400, { error: pErr.message });
+    }
 
-    return json(200, { ok: true, agencyId: agency.id });
+    return json(200, { ok: true, agencyId: agency.id, actionLink: link.properties?.action_link });
   } catch (e) {
     return json(500, { error: String(e) });
   }

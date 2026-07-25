@@ -34,8 +34,11 @@
     "agencyName": "Nome da agência", "owner": "Dono (Diretor)", "users": "Usuários", "created": "Criada",
     "ownerName": "Nome do dono", "ownerEmail": "E-mail do dono", "language": "Idioma padrão",
     "createAgency": "Criar agência",
-    "inviteNote": "A agência será criada e o dono receberá um e-mail para definir sua senha.",
-    "createdOk": "Agência criada. Um convite foi enviado para {{email}} para definir a senha.",
+    "inviteNote": "A agência será criada e um link será gerado para o dono definir sua senha.",
+    "createdOk": "Agência criada para {{email}}. Copie o link abaixo e envie ao dono.",
+    "accessLink": "Link de acesso", "linkTitle": "Link de acesso do dono",
+    "linkShareNote": "Envie este link ao dono para definir a senha e entrar. (Expira em algumas horas.)",
+    "copy": "Copiar", "copied": "Copiado!",
     "errNotAdmin": "Você não tem permissões de super-administrador.",
     "errMissing": "Faltam campos obrigatórios.", "errGeneric": "Não foi possível criar a agência."
   },

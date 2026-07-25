@@ -34,8 +34,11 @@
     "agencyName": "Nombre de la agencia", "owner": "Dueño (Director)", "users": "Usuarios", "created": "Creada",
     "ownerName": "Nombre del dueño", "ownerEmail": "Correo del dueño", "language": "Idioma por defecto",
     "createAgency": "Crear agencia",
-    "inviteNote": "Se creará la agencia y se enviará al dueño un correo para establecer su contraseña.",
-    "createdOk": "Agencia creada. Se envió una invitación a {{email}} para establecer la contraseña.",
+    "inviteNote": "Se creará la agencia y se generará un enlace para que el dueño establezca su contraseña.",
+    "createdOk": "Agencia creada para {{email}}. Copia el enlace de abajo y envíaselo al dueño.",
+    "accessLink": "Enlace de acceso", "linkTitle": "Enlace de acceso del dueño",
+    "linkShareNote": "Envía este enlace al dueño para que establezca su contraseña y entre. (Vence en unas horas.)",
+    "copy": "Copiar", "copied": "¡Copiado!",
     "errNotAdmin": "No tienes permisos de super-administrador.",
     "errMissing": "Faltan datos obligatorios.", "errGeneric": "No se pudo crear la agencia."
   },

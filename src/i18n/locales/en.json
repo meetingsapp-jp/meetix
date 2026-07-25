@@ -34,8 +34,11 @@
     "agencyName": "Agency name", "owner": "Owner (Director)", "users": "Users", "created": "Created",
     "ownerName": "Owner name", "ownerEmail": "Owner email", "language": "Default language",
     "createAgency": "Create agency",
-    "inviteNote": "The agency will be created and the owner will get an email to set their password.",
-    "createdOk": "Agency created. An invitation was sent to {{email}} to set the password.",
+    "inviteNote": "The agency will be created and a link generated for the owner to set their password.",
+    "createdOk": "Agency created for {{email}}. Copy the link below and send it to the owner.",
+    "accessLink": "Access link", "linkTitle": "Owner access link",
+    "linkShareNote": "Send this link to the owner so they can set their password and sign in. (Expires in a few hours.)",
+    "copy": "Copy", "copied": "Copied!",
     "errNotAdmin": "You don't have super-admin permissions.",
     "errMissing": "Required fields are missing.", "errGeneric": "Could not create the agency."
   },
