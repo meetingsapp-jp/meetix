@@ -9,8 +9,29 @@
     "guia_coordinador": "Guide / Coordinator"
   },
   "language": { "label": "Language", "es": "Spanish", "en": "English", "pt": "Portuguese" },
+  "common": {
+    "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit",
+    "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
+    "noAgency": "No agency found. Check the database connection."
+  },
   "dashboard": { "title": "Dashboard", "subtitle": "Overview of events and passengers." },
-  "events": { "title": "Events", "subtitle": "Event list and management." },
-  "transport": { "title": "Ground transport", "subtitle": "VIP vs. group view and VIP list export." },
-  "common": { "pendingModule": "Module to be built after the schema is approved." }
+  "events": {
+    "title": "Events", "subtitle": "Event list and management.",
+    "new": "New event", "editTitle": "Edit event",
+    "empty": "No events yet. Create the first one.",
+    "dates": "Dates", "passengers": "Passengers",
+    "confirmDelete": "Delete the event \"{{name}}\"? This also removes its passengers.",
+    "form": {
+      "name": "Event name", "client": "Client", "noClient": "— No client —",
+      "newClient": "New client", "clientName": "Client name", "clientCountry": "Country",
+      "startDate": "Start date", "endDate": "End date",
+      "destinations": "Destinations", "destinationsHint": "Comma-separated (e.g.: Cancun, Miami)",
+      "status": "Status"
+    },
+    "status": {
+      "planificacion": "Planning", "confirmado": "Confirmed", "en_curso": "In progress",
+      "finalizado": "Finished", "cancelado": "Cancelled"
+    }
+  },
+  "transport": { "title": "Ground transport", "subtitle": "VIP vs. group view and VIP list export." }
 }

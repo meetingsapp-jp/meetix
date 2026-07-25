@@ -9,8 +9,29 @@
     "guia_coordinador": "Guia / Coordenador"
   },
   "language": { "label": "Idioma", "es": "Espanhol", "en": "Inglês", "pt": "Português" },
+  "common": {
+    "save": "Salvar", "saving": "Salvando…", "cancel": "Cancelar", "edit": "Editar",
+    "delete": "Excluir", "loading": "Carregando…", "pendingModule": "Módulo a construir.",
+    "noAgency": "Nenhuma agência encontrada. Verifique a conexão com o banco de dados."
+  },
   "dashboard": { "title": "Painel", "subtitle": "Resumo de eventos e passageiros." },
-  "events": { "title": "Eventos", "subtitle": "Lista e gestão de eventos." },
-  "transport": { "title": "Transporte terrestre", "subtitle": "Visão VIP vs. grupo e exportação da lista VIP." },
-  "common": { "pendingModule": "Módulo a construir após a aprovação do esquema." }
+  "events": {
+    "title": "Eventos", "subtitle": "Lista e gestão de eventos.",
+    "new": "Novo evento", "editTitle": "Editar evento",
+    "empty": "Ainda não há eventos. Crie o primeiro.",
+    "dates": "Datas", "passengers": "Passageiros",
+    "confirmDelete": "Excluir o evento \"{{name}}\"? Isso também remove seus passageiros.",
+    "form": {
+      "name": "Nome do evento", "client": "Cliente", "noClient": "— Sem cliente —",
+      "newClient": "Novo cliente", "clientName": "Nome do cliente", "clientCountry": "País",
+      "startDate": "Data de início", "endDate": "Data de término",
+      "destinations": "Destinos", "destinationsHint": "Separados por vírgulas (ex.: Cancún, Miami)",
+      "status": "Status"
+    },
+    "status": {
+      "planificacion": "Planejamento", "confirmado": "Confirmado", "en_curso": "Em andamento",
+      "finalizado": "Finalizado", "cancelado": "Cancelado"
+    }
+  },
+  "transport": { "title": "Transporte terrestre", "subtitle": "Visão VIP vs. grupo e exportação da lista VIP." }
 }

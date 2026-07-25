@@ -3,15 +3,18 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { RoleProvider } from './auth/RoleContext';
+import { AgencyProvider } from './auth/AgencyContext';
 import './i18n';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <RoleProvider>
-        <App />
-      </RoleProvider>
+      <AgencyProvider>
+        <RoleProvider>
+          <App />
+        </RoleProvider>
+      </AgencyProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );
