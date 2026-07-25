@@ -1,0 +1,13 @@
+import { createClient } from '@supabase/supabase-js';
+
+// Reads credentials from environment ONLY. No hardcoded / invented values.
+// Until you provide a real .env, the client stays null and the app runs in
+// role-stub mode (no live database calls).
+const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+export const isSupabaseConfigured = Boolean(url && anonKey);
+
+export const supabase = isSupabaseConfigured
+  ? createClient(url as string, anonKey as string)
+  : null;
