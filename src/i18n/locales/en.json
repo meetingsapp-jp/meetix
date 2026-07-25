@@ -12,6 +12,7 @@
   "common": {
     "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
+    "yes": "Yes", "no": "No",
     "noAgency": "No agency found. Check the database connection."
   },
   "dashboard": {
@@ -41,6 +42,8 @@
     "title": "Passengers", "new": "New passenger", "editTitle": "Edit passenger",
     "empty": "No passengers in this event yet.",
     "transport": "Transport", "group": "Group", "flights": "Flights",
+    "exportExcel": "Export Excel", "exportCsv": "Export CSV",
+    "export": { "arrivalTime": "Arrival date/time", "departureTime": "Departure date/time" },
     "confirmDelete": "Delete passenger \"{{name}}\"?",
     "form": {
       "fullName": "Full name", "email": "Email", "phone": "Phone",

@@ -16,12 +16,33 @@ import {
   type PassengerInput,
 } from '../../data/passengers';
 import PassengerForm from './PassengerForm';
+import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
   const { t } = useTranslation();
   const { agency } = useAgency();
   const { can } = useRole();
+
+  const exportLabels = (): PassengerExportLabels => ({
+    sheet: t('passengers.title'),
+    name: t('passengers.form.fullName'),
+    email: t('passengers.form.email'),
+    phone: t('passengers.form.phone'),
+    documentId: t('passengers.form.documentId'),
+    nationality: t('passengers.form.nationality'),
+    vip: 'VIP',
+    yes: t('common.yes'),
+    no: t('common.no'),
+    hotel: t('passengers.form.hotel'),
+    room: t('passengers.form.roomNumber'),
+    arrivalFlight: t('passengers.form.arrival'),
+    arrivalTime: t('passengers.export.arrivalTime'),
+    departureFlight: t('passengers.form.departure'),
+    departureTime: t('passengers.export.departureTime'),
+    emergency: t('passengers.form.emergency'),
+    notes: t('passengers.form.notes'),
+  });
 
   const [event, setEvent] = useState<EventRow | null>(null);
   const [passengers, setPassengers] = useState<PassengerWithMeta[]>([]);
@@ -97,7 +118,19 @@ export default function PassengersPage() {
           {t('passengers.title')}{' '}
           <span className="text-base font-normal text-slate-500">({passengers.length})</span>
         </h1>
-        {can.managePassengers && <Button onClick={openCreate}>+ {t('passengers.new')}</Button>}
+        <div className="flex gap-2">
+          {can.exportData && event && passengers.length > 0 && (
+            <>
+              <Button variant="secondary" onClick={() => exportPassengersXlsx(event, passengers, exportLabels())}>
+                {t('passengers.exportExcel')}
+              </Button>
+              <Button variant="secondary" onClick={() => exportPassengersCsv(event, passengers, exportLabels())}>
+                {t('passengers.exportCsv')}
+              </Button>
+            </>
+          )}
+          {can.managePassengers && <Button onClick={openCreate}>+ {t('passengers.new')}</Button>}
+        </div>
       </div>
 
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}

@@ -12,6 +12,7 @@
   "common": {
     "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
+    "yes": "Sí", "no": "No",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
   },
   "dashboard": {
@@ -41,6 +42,8 @@
     "title": "Pasajeros", "new": "Nuevo pasajero", "editTitle": "Editar pasajero",
     "empty": "Aún no hay pasajeros en este evento.",
     "transport": "Transporte", "group": "Grupo", "flights": "Vuelos",
+    "exportExcel": "Exportar Excel", "exportCsv": "Exportar CSV",
+    "export": { "arrivalTime": "Fecha/hora llegada", "departureTime": "Fecha/hora salida" },
     "confirmDelete": "¿Eliminar al pasajero \"{{name}}\"?",
     "form": {
       "fullName": "Nombre completo", "email": "Correo", "phone": "Teléfono",
