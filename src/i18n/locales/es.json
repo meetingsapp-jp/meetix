@@ -83,6 +83,16 @@
       "emergency": "Contacto de emergencia", "notes": "Notas"
     }
   },
+  "import": {
+    "button": "Importar Excel", "title": "Importar pasajeros desde Excel",
+    "intro": "Descargá la plantilla, completala con tus pasajeros y subila. Solo el nombre completo es obligatorio.",
+    "downloadTemplate": "Descargar plantilla", "chooseFile": "Elegir archivo",
+    "empty": "El archivo no tiene filas de pasajeros.",
+    "willImport": "Se importarán {{count}} pasajeros", "skipped": "{{count}} sin nombre (se omiten)",
+    "missingName": "(sin nombre)", "more": "…y {{count}} más",
+    "importAction": "Importar {{count}}", "importing": "Importando…",
+    "done": "¡Listo! Se importaron {{count}} pasajeros."
+  },
   "transport": {
     "title": "Transporte terrestre", "subtitle": "Filtra pasajeros VIP vs. grupo y exporta la lista VIP para el proveedor.",
     "selectEvent": "— Selecciona un evento —", "pickEventHint": "Selecciona un evento para ver sus pasajeros.",

@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import type { EventRow, FlightDirection, Hotel, PassengerWithMeta } from '../types';
+import type { ParsedRow } from '../lib/import/passengers';
 
 function client() {
   if (!supabase) throw new Error('Supabase no está configurado (.env).');
@@ -117,6 +118,85 @@ export async function setPassengerVip(id: string, isVip: boolean): Promise<void>
     .update({ is_vip: isVip, transport_type: isVip ? 'vip' : 'group' })
     .eq('id', id);
   if (error) throw new Error(error.message);
+}
+
+// Bulk import from a parsed spreadsheet: auto-creates missing hotels, then
+// inserts all passengers and their flights. Uses client-generated ids so we can
+// attach flights without relying on insert order.
+export async function bulkImportPassengers(
+  agencyId: string,
+  eventId: string,
+  rows: ParsedRow[],
+): Promise<{ inserted: number }> {
+  const valid = rows.filter((r) => r.full_name.trim());
+  if (!valid.length) return { inserted: 0 };
+  const db = client();
+
+  // 1) Ensure every referenced hotel exists (match by name, create the rest).
+  const existing = await listHotels(eventId);
+  const hotelId = new Map(existing.map((h) => [h.name.trim().toLowerCase(), h.id]));
+  const missing = [...new Set(valid.map((r) => r.hotel?.trim()).filter(Boolean) as string[])].filter(
+    (name) => !hotelId.has(name.toLowerCase()),
+  );
+  if (missing.length) {
+    const { data, error } = await db
+      .from('hotels')
+      .insert(missing.map((name) => ({ agency_id: agencyId, event_id: eventId, name })))
+      .select('id, name');
+    if (error) throw new Error(error.message);
+    (data ?? []).forEach((h: { id: string; name: string }) => hotelId.set(h.name.trim().toLowerCase(), h.id));
+  }
+
+  // 2) Build passenger rows with explicit ids.
+  const pax = valid.map((r) => ({
+    id: crypto.randomUUID(),
+    row: r,
+    record: {
+      id: undefined as unknown as string, // filled below
+      agency_id: agencyId,
+      event_id: eventId,
+      full_name: r.full_name.trim(),
+      email: r.email,
+      phone: r.phone,
+      document_id: r.document_id,
+      nationality: r.nationality,
+      is_vip: r.is_vip,
+      transport_type: r.is_vip ? 'vip' : 'group',
+      transport_provider_id: null,
+      hotel_id: r.hotel ? hotelId.get(r.hotel.trim().toLowerCase()) ?? null : null,
+      room_number: r.room_number,
+      emergency_contact: r.emergency_contact,
+      notes: r.notes,
+    },
+  }));
+  pax.forEach((p) => (p.record.id = p.id));
+
+  const { error: pErr } = await db.from('passengers').insert(pax.map((p) => p.record));
+  if (pErr) throw new Error(pErr.message);
+
+  // 3) Flights (arrival/departure) for rows that carry any flight data.
+  const flights: Record<string, unknown>[] = [];
+  for (const p of pax) {
+    for (const dir of ['arrival', 'departure'] as FlightDirection[]) {
+      const f = p.row[dir];
+      if (f.airline || f.flight_number || f.flight_datetime) {
+        flights.push({
+          agency_id: agencyId,
+          passenger_id: p.id,
+          direction: dir,
+          airline: f.airline,
+          flight_number: f.flight_number,
+          flight_datetime: f.flight_datetime,
+        });
+      }
+    }
+  }
+  if (flights.length) {
+    const { error: fErr } = await db.from('flights').insert(flights);
+    if (fErr) throw new Error(fErr.message);
+  }
+
+  return { inserted: pax.length };
 }
 
 // --- Hotels (needed by the passenger form) ---

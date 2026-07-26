@@ -16,6 +16,7 @@ import {
   type PassengerInput,
 } from '../../data/passengers';
 import PassengerForm from './PassengerForm';
+import ImportModal from './ImportModal';
 import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
 
 export default function PassengersPage() {
@@ -49,6 +50,7 @@ export default function PassengersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<PassengerWithMeta | null>(null);
 
   const refresh = useCallback(async () => {
@@ -129,6 +131,9 @@ export default function PassengersPage() {
               </Button>
             </>
           )}
+          {can.managePassengers && (
+            <Button variant="secondary" onClick={() => setImportOpen(true)}>{t('import.button')}</Button>
+          )}
           {can.managePassengers && <Button onClick={openCreate}>+ {t('passengers.new')}</Button>}
         </div>
       </div>
@@ -205,6 +210,16 @@ export default function PassengersPage() {
           />
         )}
       </Modal>
+
+      {agency && (
+        <ImportModal
+          agencyId={agency.id}
+          eventId={eventId}
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          onImported={refresh}
+        />
+      )}
     </div>
   );
 }

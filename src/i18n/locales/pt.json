@@ -83,6 +83,16 @@
       "emergency": "Contato de emergência", "notes": "Notas"
     }
   },
+  "import": {
+    "button": "Importar Excel", "title": "Importar passageiros do Excel",
+    "intro": "Baixe o modelo, preencha com seus passageiros e envie. Apenas o nome completo é obrigatório.",
+    "downloadTemplate": "Baixar modelo", "chooseFile": "Escolher arquivo",
+    "empty": "O arquivo não tem linhas de passageiros.",
+    "willImport": "{{count}} passageiros serão importados", "skipped": "{{count}} sem nome (ignorados)",
+    "missingName": "(sem nome)", "more": "…e mais {{count}}",
+    "importAction": "Importar {{count}}", "importing": "Importando…",
+    "done": "Pronto! {{count}} passageiros importados."
+  },
   "transport": {
     "title": "Transporte terrestre", "subtitle": "Filtre passageiros VIP vs. grupo e exporte a lista VIP para o fornecedor.",
     "selectEvent": "— Selecione um evento —", "pickEventHint": "Selecione um evento para ver seus passageiros.",

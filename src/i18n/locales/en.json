@@ -83,6 +83,16 @@
       "emergency": "Emergency contact", "notes": "Notes"
     }
   },
+  "import": {
+    "button": "Import Excel", "title": "Import passengers from Excel",
+    "intro": "Download the template, fill it with your passengers and upload it. Only full name is required.",
+    "downloadTemplate": "Download template", "chooseFile": "Choose file",
+    "empty": "The file has no passenger rows.",
+    "willImport": "{{count}} passengers will be imported", "skipped": "{{count}} without a name (skipped)",
+    "missingName": "(no name)", "more": "…and {{count}} more",
+    "importAction": "Import {{count}}", "importing": "Importing…",
+    "done": "Done! {{count}} passengers imported."
+  },
   "transport": {
     "title": "Ground transport", "subtitle": "Filter passengers VIP vs. group and export the VIP list for the provider.",
     "selectEvent": "— Select an event —", "pickEventHint": "Select an event to see its passengers.",
