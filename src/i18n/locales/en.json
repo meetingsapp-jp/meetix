@@ -86,6 +86,13 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerary", "passenger": "Passenger", "contact": "Contact"
   },
+  "team": {
+    "title": "Team", "invite": "Invite", "sendInvite": "Create invitation",
+    "name": "Name", "email": "Email", "you": "you",
+    "inviteNote": "The user will be created and a link generated to set their password.",
+    "invitedOk": "Invitation created for {{email}}. Copy the link and send it to them.",
+    "errNotAllowed": "Only a Director can invite the team."
+  },
   "import": {
     "button": "Import Excel", "title": "Import passengers from Excel",
     "intro": "Download the template, fill it with your passengers and upload it. Only full name is required.",

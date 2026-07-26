@@ -6,33 +6,13 @@ import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import { Field, inputClass } from '../../components/ui/Field';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
+import CopyLink from '../../components/ui/CopyLink';
 import type { Agency, Language } from '../../types';
 
 interface AgencyOverview extends Agency {
   users: number;
   owner: string | null;
   ownerEmail: string | null;
-}
-
-function CopyLink({ link }: { link: string }) {
-  const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className="space-y-2">
-      <p className="text-sm text-slate-600">{t('admin.linkShareNote')}</p>
-      <div className="flex gap-2">
-        <input readOnly className={`${inputClass} text-xs`} value={link} onFocus={(e) => e.target.select()} />
-        <Button
-          type="button"
-          onClick={async () => {
-            try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ }
-          }}
-        >
-          {copied ? t('admin.copied') : t('admin.copy')}
-        </Button>
-      </div>
-    </div>
-  );
 }
 
 export default function AdminPage() {

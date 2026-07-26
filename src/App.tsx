@@ -7,6 +7,7 @@ import DashboardPage from './features/dashboard/DashboardPage';
 import EventsPage from './features/events/EventsPage';
 import PassengersPage from './features/passengers/PassengersPage';
 import TransportPage from './features/transport/TransportPage';
+import TeamPage from './features/team/TeamPage';
 import LoginPage from './features/auth/LoginPage';
 import ResetPasswordPage from './features/auth/ResetPasswordPage';
 import AdminPage from './features/admin/AdminPage';
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/:eventId/passengers" element={<PassengersPage />} />
         <Route path="/transport" element={<TransportPage />} />
+        <Route path="/team" element={<TeamPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

@@ -13,7 +13,7 @@ const nav = [
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
-  const { appUser, agency, signOut, isPlatformAdmin } = useAuth();
+  const { appUser, agency, signOut, isPlatformAdmin, can } = useAuth();
 
   return (
     <div className="min-h-full flex flex-col">
@@ -33,6 +33,16 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {t(n.key)}
               </NavLink>
             ))}
+            {can.manageTeam && (
+              <NavLink
+                to="/team"
+                className={({ isActive }) =>
+                  `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`
+                }
+              >
+                {t('team.title')}
+              </NavLink>
+            )}
             {isPlatformAdmin && (
               <NavLink to="/admin" className="px-3 py-1.5 rounded text-sm hover:bg-white/10">
                 {t('admin.title')}

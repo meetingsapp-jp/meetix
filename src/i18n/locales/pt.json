@@ -86,6 +86,13 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
   },
+  "team": {
+    "title": "Equipe", "invite": "Convidar", "sendInvite": "Criar convite",
+    "name": "Nome", "email": "E-mail", "you": "você",
+    "inviteNote": "O usuário será criado e um link será gerado para definir a senha.",
+    "invitedOk": "Convite criado para {{email}}. Copie o link e envie a ele.",
+    "errNotAllowed": "Apenas um Diretor pode convidar a equipe."
+  },
   "import": {
     "button": "Importar Excel", "title": "Importar passageiros do Excel",
     "intro": "Baixe o modelo, preencha com seus passageiros e envie. Apenas o nome completo é obrigatório.",

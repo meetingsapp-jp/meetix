@@ -16,9 +16,9 @@ export const ROLES: { id: Role; label: string }[] = [
 ];
 
 // Coarse permission map used to gate UI. Refined per module as we build.
-export const PERMISSIONS: Record<Role, { manageEvents: boolean; managePassengers: boolean; exportData: boolean }> = {
-  director_general:  { manageEvents: true,  managePassengers: true,  exportData: true },
-  director_eventos:  { manageEvents: true,  managePassengers: true,  exportData: true },
-  planificador:      { manageEvents: true,  managePassengers: true,  exportData: true },
-  guia_coordinador:  { manageEvents: false, managePassengers: false, exportData: true },
+export const PERMISSIONS: Record<Role, { manageEvents: boolean; managePassengers: boolean; exportData: boolean; manageTeam: boolean }> = {
+  director_general:  { manageEvents: true,  managePassengers: true,  exportData: true, manageTeam: true },
+  director_eventos:  { manageEvents: true,  managePassengers: true,  exportData: true, manageTeam: true },
+  planificador:      { manageEvents: true,  managePassengers: true,  exportData: true, manageTeam: false },
+  guia_coordinador:  { manageEvents: false, managePassengers: false, exportData: true, manageTeam: false },
 };

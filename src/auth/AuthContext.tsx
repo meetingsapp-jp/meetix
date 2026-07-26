@@ -9,7 +9,7 @@ interface AuthContextValue {
   appUser: AppUser | null;
   agency: Agency | null;
   role: Role | null;
-  can: (typeof PERMISSIONS)[Role] | { manageEvents: false; managePassengers: false; exportData: false };
+  can: (typeof PERMISSIONS)[Role] | { manageEvents: false; managePassengers: false; exportData: false; manageTeam: false };
   isPlatformAdmin: boolean;
   loading: boolean;
   /** session exists but the user is neither in an agency nor a platform admin */
@@ -17,7 +17,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-const NO_PERMS = { manageEvents: false, managePassengers: false, exportData: false } as const;
+const NO_PERMS = { manageEvents: false, managePassengers: false, exportData: false, manageTeam: false } as const;
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
