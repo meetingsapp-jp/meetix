@@ -18,6 +18,7 @@ import {
 import PassengerForm from './PassengerForm';
 import ImportModal from './ImportModal';
 import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
+import { exportPassengerItinerary, type ItineraryLabels } from '../../lib/export/itinerary';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -43,6 +44,25 @@ export default function PassengersPage() {
     departureTime: t('passengers.export.departureTime'),
     emergency: t('passengers.form.emergency'),
     notes: t('passengers.form.notes'),
+  });
+
+  const itineraryLabels = (): ItineraryLabels => ({
+    itinerary: t('itinerary.title'),
+    event: t('events.title'),
+    passenger: t('itinerary.passenger'),
+    flights: t('passengers.flights'),
+    arrival: t('passengers.form.arrival'),
+    departure: t('passengers.form.departure'),
+    hotel: t('passengers.form.hotel'),
+    room: t('passengers.form.roomNumber'),
+    contact: t('itinerary.contact'),
+    email: t('passengers.form.email'),
+    phone: t('passengers.form.phone'),
+    emergency: t('passengers.form.emergency'),
+    notes: t('passengers.form.notes'),
+    vip: 'VIP',
+    generated: t('transport.generated'),
+    none: '—',
   });
 
   const [event, setEvent] = useState<EventRow | null>(null);
@@ -179,6 +199,15 @@ export default function PassengersPage() {
                   </td>
                   <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{flightSummary(p)}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
+                    {can.exportData && event && agency && (
+                      <Button
+                        variant="ghost"
+                        className="text-brand-accent"
+                        onClick={() => exportPassengerItinerary(agency.name, event, p, itineraryLabels())}
+                      >
+                        {t('itinerary.button')}
+                      </Button>
+                    )}
                     {can.managePassengers && (
                       <>
                         <Button variant="ghost" onClick={() => openEdit(p)}>{t('common.edit')}</Button>

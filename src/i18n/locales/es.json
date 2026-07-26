@@ -83,6 +83,9 @@
       "emergency": "Contacto de emergencia", "notes": "Notas"
     }
   },
+  "itinerary": {
+    "button": "PDF", "title": "Itinerario", "passenger": "Pasajero", "contact": "Contacto"
+  },
   "import": {
     "button": "Importar Excel", "title": "Importar pasajeros desde Excel",
     "intro": "Descargá la plantilla, completala con tus pasajeros y subila. Solo el nombre completo es obligatorio.",

@@ -83,6 +83,9 @@
       "emergency": "Contato de emergência", "notes": "Notas"
     }
   },
+  "itinerary": {
+    "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
+  },
   "import": {
     "button": "Importar Excel", "title": "Importar passageiros do Excel",
     "intro": "Baixe o modelo, preencha com seus passageiros e envie. Apenas o nome completo é obrigatório.",
