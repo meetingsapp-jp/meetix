@@ -6,6 +6,7 @@ import Button from './components/ui/Button';
 import DashboardPage from './features/dashboard/DashboardPage';
 import EventsPage from './features/events/EventsPage';
 import PassengersPage from './features/passengers/PassengersPage';
+import ChecklistPage from './features/checklist/ChecklistPage';
 import TransportPage from './features/transport/TransportPage';
 import TeamPage from './features/team/TeamPage';
 import SettingsPage from './features/settings/SettingsPage';
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/:eventId/passengers" element={<PassengersPage />} />
+        <Route path="/events/:eventId/checklist" element={<ChecklistPage />} />
         <Route path="/transport" element={<TransportPage />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/settings" element={<SettingsPage />} />

@@ -127,6 +127,12 @@ export default function EventsPage() {
                     >
                       {t('events.viewPassengers')}
                     </Link>
+                    <Link
+                      to={`/events/${ev.id}/checklist`}
+                      className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
+                    >
+                      {t('checklist.title')}
+                    </Link>
                     {can.manageEvents && (
                       <>
                         <Button variant="ghost" onClick={() => openEdit(ev)}>{t('common.edit')}</Button>

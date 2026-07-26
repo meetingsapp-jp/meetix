@@ -86,6 +86,12 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
   },
+  "checklist": {
+    "title": "Checklist", "task": "Tarefa", "taskPlaceholder": "Ex.: Confirmar traslados com o fornecedor",
+    "assignee": "Responsável", "due": "Vence", "add": "Adicionar",
+    "empty": "Ainda não há tarefas. Adicione a primeira.",
+    "progress": "{{done}} de {{total}} concluídas"
+  },
   "settings": {
     "nav": "Ajustes", "title": "Marca da agência",
     "subtitle": "Personalize o logo e a cor; aplicam-se no app e nos PDFs.",
