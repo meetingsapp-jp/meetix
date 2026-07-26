@@ -86,6 +86,14 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
   },
+  "settings": {
+    "nav": "Ajustes", "title": "Marca da agência",
+    "subtitle": "Personalize o logo e a cor; aplicam-se no app e nos PDFs.",
+    "logo": "Logo", "noLogo": "Sem logo", "uploadLogo": "Enviar logo", "uploading": "Enviando…",
+    "logoHint": "PNG ou JPG, de preferência quadrado.",
+    "color": "Cor da marca", "preview": "Prévia", "save": "Salvar alterações", "saved": "Alterações salvas!",
+    "onlyDirectors": "Apenas um Diretor pode editar a marca."
+  },
   "team": {
     "title": "Equipe", "invite": "Convidar", "sendInvite": "Criar convite",
     "name": "Nome", "email": "E-mail", "you": "você",

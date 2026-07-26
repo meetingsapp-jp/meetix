@@ -15,11 +15,16 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { appUser, agency, signOut, isPlatformAdmin, can } = useAuth();
 
+  const brand = agency?.brand_color || undefined;
+
   return (
     <div className="min-h-full flex flex-col">
-      <header className="bg-brand text-white">
+      <header className="bg-brand text-white" style={brand ? { backgroundColor: brand } : undefined}>
         <div className="mx-auto max-w-6xl px-4 py-3 flex flex-wrap items-center gap-3">
-          <span className="font-bold text-lg">{t('app.name')}</span>
+          {agency?.logo_url ? (
+            <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 rounded object-contain bg-white/10" />
+          ) : null}
+          <span className="font-bold text-lg">{agency?.name ?? t('app.name')}</span>
           <nav className="flex gap-1 flex-1 min-w-0">
             {nav.map((n) => (
               <NavLink
@@ -41,6 +46,16 @@ export default function Layout({ children }: { children: ReactNode }) {
                 }
               >
                 {t('team.title')}
+              </NavLink>
+            )}
+            {can.manageTeam && (
+              <NavLink
+                to="/settings"
+                className={({ isActive }) =>
+                  `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`
+                }
+              >
+                {t('settings.nav')}
               </NavLink>
             )}
             {isPlatformAdmin && (
@@ -73,9 +88,6 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           )}
         </div>
-        {agency && (
-          <div className="bg-white/5 text-xs text-white/70 text-center py-1">{agency.name}</div>
-        )}
       </header>
       <main className="flex-1 mx-auto max-w-6xl w-full px-4 py-6">{children}</main>
     </div>

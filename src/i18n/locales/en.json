@@ -86,6 +86,14 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerary", "passenger": "Passenger", "contact": "Contact"
   },
+  "settings": {
+    "nav": "Settings", "title": "Agency branding",
+    "subtitle": "Customize the logo and color; they apply in the app and on PDFs.",
+    "logo": "Logo", "noLogo": "No logo", "uploadLogo": "Upload logo", "uploading": "Uploading…",
+    "logoHint": "PNG or JPG, ideally square.",
+    "color": "Brand color", "preview": "Preview", "save": "Save changes", "saved": "Changes saved!",
+    "onlyDirectors": "Only a Director can edit branding."
+  },
   "team": {
     "title": "Team", "invite": "Invite", "sendInvite": "Create invitation",
     "name": "Name", "email": "Email", "you": "you",

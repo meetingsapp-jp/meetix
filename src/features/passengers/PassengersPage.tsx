@@ -203,7 +203,7 @@ export default function PassengersPage() {
                       <Button
                         variant="ghost"
                         className="text-brand-accent"
-                        onClick={() => exportPassengerItinerary(agency.name, event, p, itineraryLabels())}
+                        onClick={() => exportPassengerItinerary(agency.name, agency.brand_color, event, p, itineraryLabels())}
                       >
                         {t('itinerary.button')}
                       </Button>

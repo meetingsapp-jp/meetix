@@ -27,8 +27,17 @@ function fmt(iso: string | null): string {
 }
 
 // A clean one-page PDF itinerary for a single passenger, branded with the agency.
+function hexToRgb(hex: string | null | undefined, fallback: [number, number, number]): [number, number, number] {
+  if (!hex) return fallback;
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return fallback;
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
 export async function exportPassengerItinerary(
   agencyName: string,
+  brandColor: string | null,
   event: EventRow,
   p: PassengerWithMeta,
   L: ItineraryLabels,
@@ -37,8 +46,8 @@ export async function exportPassengerItinerary(
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const W = 210;
   const M = 18;
-  const navy: [number, number, number] = [15, 23, 42];
-  const accent: [number, number, number] = [37, 99, 235];
+  const navy = hexToRgb(brandColor, [15, 23, 42]);
+  const accent = hexToRgb(brandColor, [37, 99, 235]);
 
   // Header band
   doc.setFillColor(...navy);

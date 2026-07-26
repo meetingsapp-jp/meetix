@@ -21,6 +21,8 @@ export interface Agency {
   id: string;
   name: string;
   default_language: Language;
+  brand_color: string | null;
+  logo_url: string | null;
   created_at: string;
 }
 

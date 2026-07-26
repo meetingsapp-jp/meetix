@@ -15,6 +15,7 @@ interface AuthContextValue {
   /** session exists but the user is neither in an agency nor a platform admin */
   notProvisioned: boolean;
   signOut: () => Promise<void>;
+  refreshAgency: () => Promise<void>;
 }
 
 const NO_PERMS = { manageEvents: false, managePassengers: false, exportData: false, manageTeam: false } as const;
@@ -83,6 +84,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       notProvisioned: Boolean(session && !loading && !appUser && !isPlatformAdmin),
       signOut: async () => {
         await supabase?.auth.signOut();
+      },
+      refreshAgency: async () => {
+        if (!supabase || !appUser) return;
+        const { data } = await supabase.from('agencies').select('*').eq('id', appUser.agency_id).maybeSingle();
+        setAgency((data as Agency | null) ?? null);
       },
     };
   }, [session, appUser, agency, isPlatformAdmin, loading]);
