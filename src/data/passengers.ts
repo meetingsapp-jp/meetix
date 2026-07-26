@@ -44,7 +44,7 @@ export async function getEvent(eventId: string): Promise<EventRow> {
 export async function listPassengers(eventId: string): Promise<PassengerWithMeta[]> {
   const { data, error } = await client()
     .from('passengers')
-    .select('*, hotel:hotels(name), flights(*)')
+    .select('*, hotel:hotels(name), transport_provider:transport_providers(name), flights(*)')
     .eq('event_id', eventId)
     .order('full_name');
   if (error) throw new Error(error.message);

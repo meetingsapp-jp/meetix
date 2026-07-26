@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
 import { useRole } from '../../auth/RoleContext';
 import Button from '../../components/ui/Button';
-import { inputClass } from '../../components/ui/Field';
-import type { EventWithMeta, PassengerWithMeta } from '../../types';
+import Modal from '../../components/ui/Modal';
+import { Field, inputClass } from '../../components/ui/Field';
+import type { EventWithMeta, PassengerWithMeta, TransportProvider } from '../../types';
 import { listEvents } from '../../data/events';
 import { listPassengers, setPassengerVip } from '../../data/passengers';
+import { createProvider, listProviders, setPassengerProvider } from '../../data/transport';
 import { exportVipCsv, exportVipPdf, vipCount, type VipLabels } from '../../lib/export/vip';
 
 type Filter = 'all' | 'vip' | 'group';
@@ -19,9 +21,11 @@ export default function TransportPage() {
   const [events, setEvents] = useState<EventWithMeta[]>([]);
   const [eventId, setEventId] = useState('');
   const [passengers, setPassengers] = useState<PassengerWithMeta[]>([]);
+  const [providers, setProviders] = useState<TransportProvider[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [providerModal, setProviderModal] = useState(false);
 
   useEffect(() => {
     if (!agency) return;
@@ -34,12 +38,14 @@ export default function TransportPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agency]);
 
-  const loadPassengers = useCallback(async () => {
+  const load = useCallback(async () => {
     if (!eventId) return;
     setLoading(true);
     setError(null);
     try {
-      setPassengers(await listPassengers(eventId));
+      const [pax, prov] = await Promise.all([listPassengers(eventId), listProviders(eventId)]);
+      setPassengers(pax);
+      setProviders(prov);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -48,14 +54,28 @@ export default function TransportPage() {
   }, [eventId]);
 
   useEffect(() => {
-    if (eventId) loadPassengers();
-  }, [eventId, loadPassengers]);
+    if (eventId) load();
+  }, [eventId, load]);
 
   async function toggleVip(p: PassengerWithMeta) {
     try {
       await setPassengerVip(p.id, !p.is_vip);
+      setPassengers((prev) => prev.map((x) => (x.id === p.id ? { ...x, is_vip: !p.is_vip } : x)));
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+
+  async function assignProvider(p: PassengerWithMeta, providerId: string) {
+    try {
+      await setPassengerProvider(p.id, providerId || null);
+      const prov = providers.find((x) => x.id === providerId) ?? null;
       setPassengers((prev) =>
-        prev.map((x) => (x.id === p.id ? { ...x, is_vip: !p.is_vip } : x)),
+        prev.map((x) =>
+          x.id === p.id
+            ? { ...x, transport_provider_id: providerId || null, transport_provider: prov ? { name: prov.name } : null }
+            : x,
+        ),
       );
     } catch (e) {
       setError((e as Error).message);
@@ -63,9 +83,7 @@ export default function TransportPage() {
   }
 
   const selectedEvent = events.find((e) => e.id === eventId) ?? null;
-  const shown = passengers.filter((p) =>
-    filter === 'all' ? true : filter === 'vip' ? p.is_vip : !p.is_vip,
-  );
+  const shown = passengers.filter((p) => (filter === 'all' ? true : filter === 'vip' ? p.is_vip : !p.is_vip));
   const nVip = vipCount(passengers);
 
   const labels: VipLabels = {
@@ -78,6 +96,7 @@ export default function TransportPage() {
     hotel: t('passengers.form.hotel'),
     room: t('passengers.form.roomNumber'),
     phone: t('passengers.form.phone'),
+    provider: t('transport.provider'),
   };
 
   const flightCell = (p: PassengerWithMeta, dir: 'arrival' | 'departure') => {
@@ -101,7 +120,10 @@ export default function TransportPage() {
           ))}
         </select>
 
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap gap-2">
+          {can.managePassengers && eventId && (
+            <Button variant="secondary" onClick={() => setProviderModal(true)}>{t('transport.providers')}</Button>
+          )}
           <Button
             variant="secondary"
             disabled={!selectedEvent || nVip === 0}
@@ -156,7 +178,7 @@ export default function TransportPage() {
                     <th className="px-3 py-2">{t('passengers.form.arrival')}</th>
                     <th className="px-3 py-2">{t('passengers.form.departure')}</th>
                     <th className="px-3 py-2">{t('passengers.form.hotel')}</th>
-                    <th className="px-3 py-2">{t('passengers.form.phone')}</th>
+                    <th className="px-3 py-2">{t('transport.provider')}</th>
                     <th className="px-3 py-2">{t('passengers.transport')}</th>
                   </tr>
                 </thead>
@@ -169,7 +191,22 @@ export default function TransportPage() {
                       <td className="px-3 py-2 text-slate-600">
                         {p.hotel?.name ?? '—'}{p.room_number ? ` · ${p.room_number}` : ''}
                       </td>
-                      <td className="px-3 py-2 text-slate-600">{p.phone ?? '—'}</td>
+                      <td className="px-3 py-2">
+                        {can.managePassengers ? (
+                          <select
+                            value={p.transport_provider_id ?? ''}
+                            onChange={(e) => assignProvider(p, e.target.value)}
+                            className="rounded border border-slate-300 px-2 py-1 text-xs"
+                          >
+                            <option value="">{t('transport.noProvider')}</option>
+                            {providers.map((pr) => (
+                              <option key={pr.id} value={pr.id}>{pr.name}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-slate-600">{p.transport_provider?.name ?? '—'}</span>
+                        )}
+                      </td>
                       <td className="px-3 py-2">
                         {can.managePassengers ? (
                           <button
@@ -193,6 +230,94 @@ export default function TransportPage() {
           )}
         </>
       )}
+
+      <Modal open={providerModal} title={t('transport.providers')} onClose={() => setProviderModal(false)}>
+        {agency && (
+          <ProvidersPanel
+            agencyId={agency.id}
+            eventId={eventId}
+            providers={providers}
+            onChange={(list) => setProviders(list)}
+          />
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+function ProvidersPanel({
+  agencyId,
+  eventId,
+  providers,
+  onChange,
+}: {
+  agencyId: string;
+  eventId: string;
+  providers: TransportProvider[];
+  onChange: (list: TransportProvider[]) => void;
+}) {
+  const { t } = useTranslation();
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const created = await createProvider(agencyId, eventId, {
+        name: name.trim(),
+        contact_phone: phone.trim() || null,
+        notes: notes.trim() || null,
+      });
+      onChange([...providers, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setName('');
+      setPhone('');
+      setNotes('');
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      {providers.length > 0 ? (
+        <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
+          {providers.map((p) => (
+            <li key={p.id} className="px-3 py-2 text-sm">
+              <span className="font-medium">{p.name}</span>
+              {p.contact_phone && <span className="text-slate-500"> · {p.contact_phone}</span>}
+              {p.notes && <div className="text-xs text-slate-400">{p.notes}</div>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-slate-500">{t('transport.noProviders')}</p>
+      )}
+
+      <form onSubmit={add} className="space-y-2 border-t border-slate-200 pt-3">
+        {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        <Field label={t('transport.providerName')}>
+          <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
+        </Field>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label={t('transport.providerPhone')}>
+            <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </Field>
+          <Field label={t('transport.providerNotes')}>
+            <input className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </Field>
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" disabled={busy}>{busy ? t('common.saving') : t('transport.addProvider')}</Button>
+        </div>
+      </form>
     </div>
   );
 }

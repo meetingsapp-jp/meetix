@@ -13,6 +13,7 @@ export interface VipLabels {
   hotel: string;
   room: string;
   phone: string;
+  provider: string;
 }
 
 function fmtDateTime(iso: string | null): string {
@@ -40,6 +41,7 @@ function vipRows(passengers: PassengerWithMeta[]): string[][] {
       p.hotel?.name ?? '',
       p.room_number ?? '',
       p.phone ?? '',
+      p.transport_provider?.name ?? '',
     ]);
 }
 
@@ -48,7 +50,7 @@ export function vipCount(passengers: PassengerWithMeta[]): number {
 }
 
 export function exportVipCsv(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
-  const headers = [L.name, L.arrival, L.departure, L.hotel, L.room, L.phone];
+  const headers = [L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider];
   exportCsv(`vip-${slug(event.name)}.csv`, headers, vipRows(passengers));
 }
 
@@ -68,7 +70,7 @@ export async function exportVipPdf(event: EventRow, passengers: PassengerWithMet
 
   autoTable(doc, {
     startY: 33,
-    head: [[L.name, L.arrival, L.departure, L.hotel, L.room, L.phone]],
+    head: [[L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider]],
     body: vipRows(passengers),
     styles: { fontSize: 9, cellPadding: 2 },
     headStyles: { fillColor: [15, 23, 42] },

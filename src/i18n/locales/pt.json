@@ -110,6 +110,10 @@
     "exportPdf": "Exportar VIP (PDF)", "exportCsv": "Exportar VIP (CSV)",
     "exportTitle": "Lista VIP — Transporte", "generated": "Gerado",
     "toggleHint": "Clique para alternar entre VIP e Grupo",
+    "provider": "Fornecedor", "noProvider": "— Sem fornecedor —",
+    "providers": "Fornecedores", "noProviders": "Ainda não há fornecedores.",
+    "addProvider": "Adicionar fornecedor", "providerName": "Nome do fornecedor",
+    "providerPhone": "Telefone", "providerNotes": "Notas",
     "filter": { "all": "Todos", "vip": "VIP", "group": "Grupo" }
   }
 }

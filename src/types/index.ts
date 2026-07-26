@@ -64,6 +64,16 @@ export interface Hotel {
   created_at: string;
 }
 
+export interface TransportProvider {
+  id: string;
+  agency_id: string;
+  event_id: string;
+  name: string;
+  contact_phone: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 export interface Flight {
   id: string;
   agency_id: string;
@@ -97,8 +107,9 @@ export interface Passenger {
   updated_at: string;
 }
 
-// Passenger joined with hotel name and its flights (for list/edit).
+// Passenger joined with hotel name, transport provider and its flights.
 export interface PassengerWithMeta extends Passenger {
   hotel: { name: string } | null;
+  transport_provider: { name: string } | null;
   flights: Flight[];
 }
