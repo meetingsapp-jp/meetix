@@ -86,6 +86,7 @@
   "itinerary": {
     "button": "PDF", "title": "Itinerary", "passenger": "Passenger", "contact": "Contact"
   },
+  "pwa": { "updateAvailable": "A new version is available.", "update": "Update" },
   "checklist": {
     "title": "Checklist", "task": "Task", "taskPlaceholder": "e.g.: Confirm transfers with provider",
     "assignee": "Assignee", "due": "Due", "add": "Add",

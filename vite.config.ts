@@ -2,13 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// EventOps PWA config — installable on mobile + desktop.
+// EventOps PWA config — installable on mobile + desktop, with controlled updates.
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: false, // we register + control updates from src/pwa
       includeAssets: ['favicon.svg'],
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'EventOps',
         short_name: 'EventOps',
