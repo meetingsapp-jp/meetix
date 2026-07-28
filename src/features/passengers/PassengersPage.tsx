@@ -167,7 +167,8 @@ export default function PassengersPage() {
           {t('passengers.empty')}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <>
+        <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
@@ -222,6 +223,44 @@ export default function PassengersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile: stacked cards */}
+        <div className="space-y-2 md:hidden">
+          {passengers.map((p) => (
+            <div key={p.id} className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="font-medium">{p.full_name}</div>
+                  {p.email && <div className="text-xs text-slate-400">{p.email}</div>}
+                </div>
+                {p.is_vip ? (
+                  <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">VIP</span>
+                ) : (
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{t('passengers.group')}</span>
+                )}
+              </div>
+              <div className="mt-1 space-y-0.5 text-sm text-slate-500">
+                {p.document_id && <div>{t('passengers.form.documentId')}: {p.document_id}</div>}
+                {p.hotel?.name && <div>{p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}</div>}
+                <div>{flightSummary(p)}</div>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {can.exportData && event && agency && (
+                  <Button variant="secondary" onClick={() => exportPassengerItinerary(agency.name, agency.brand_color, event, p, itineraryLabels())}>
+                    {t('itinerary.button')}
+                  </Button>
+                )}
+                {can.managePassengers && (
+                  <>
+                    <Button variant="ghost" onClick={() => openEdit(p)}>{t('common.edit')}</Button>
+                    <Button variant="ghost" className="text-red-600" onClick={() => handleDelete(p)}>{t('common.delete')}</Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        </>
       )}
 
       <Modal

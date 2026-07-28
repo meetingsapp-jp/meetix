@@ -170,7 +170,8 @@ export default function TransportPage() {
               {t('transport.emptyList')}
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+            <>
+            <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-left text-slate-600">
                   <tr>
@@ -227,6 +228,51 @@ export default function TransportPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile: stacked cards */}
+            <div className="space-y-2 md:hidden">
+              {shown.map((p) => (
+                <div key={p.id} className="rounded-lg border border-slate-200 bg-white p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="font-medium">{p.full_name}</div>
+                    {can.managePassengers ? (
+                      <button
+                        onClick={() => toggleVip(p)}
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${p.is_vip ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}
+                      >
+                        {p.is_vip ? 'VIP' : t('passengers.group')}
+                      </button>
+                    ) : (
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${p.is_vip ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>
+                        {p.is_vip ? 'VIP' : t('passengers.group')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 space-y-0.5 text-sm text-slate-500">
+                    <div>↓ {flightCell(p, 'arrival')}</div>
+                    <div>↑ {flightCell(p, 'departure')}</div>
+                    {p.hotel?.name && <div>{p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}</div>}
+                  </div>
+                  <div className="mt-2">
+                    {can.managePassengers ? (
+                      <select
+                        value={p.transport_provider_id ?? ''}
+                        onChange={(e) => assignProvider(p, e.target.value)}
+                        className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+                      >
+                        <option value="">{t('transport.noProvider')}</option>
+                        {providers.map((pr) => (
+                          <option key={pr.id} value={pr.id}>{pr.name}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-sm text-slate-600">{t('transport.provider')}: {p.transport_provider?.name ?? '—'}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
         </>
       )}

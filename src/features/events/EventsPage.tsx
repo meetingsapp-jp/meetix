@@ -92,7 +92,8 @@ export default function EventsPage() {
           {t('events.empty')}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <>
+        <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-600">
               <tr>
@@ -147,6 +148,45 @@ export default function EventsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile: stacked cards */}
+        <div className="space-y-2 md:hidden">
+          {events.map((ev) => (
+            <div key={ev.id} className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-medium">{ev.name}</div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${statusColors[ev.status] ?? ''}`}>
+                  {t(`events.status.${ev.status}`)}
+                </span>
+              </div>
+              <div className="mt-1 text-sm text-slate-500">
+                {ev.client?.name ?? '—'}
+                {(ev.start_date || ev.end_date) ? (
+                  <span> · {ev.start_date ?? ''}{ev.end_date ? ` → ${ev.end_date}` : ''}</span>
+                ) : null}
+              </div>
+              <div className="mt-0.5 text-sm text-slate-500">
+                {t('events.passengers')}: {ev.passenger_count}
+                {ev.destinations.length ? ` · ${ev.destinations.join(', ')}` : ''}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Link to={`/events/${ev.id}/passengers`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
+                  {t('events.viewPassengers')}
+                </Link>
+                <Link to={`/events/${ev.id}/checklist`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
+                  {t('checklist.title')}
+                </Link>
+                {can.manageEvents && (
+                  <>
+                    <Button variant="ghost" onClick={() => openEdit(ev)}>{t('common.edit')}</Button>
+                    <Button variant="ghost" className="text-red-600" onClick={() => handleDelete(ev)}>{t('common.delete')}</Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        </>
       )}
 
       <Modal
