@@ -22,12 +22,10 @@ export interface Incident {
 
 // --- Arrival check-in (who has landed) ---------------------------------------
 
-// Passenger ids (of this event) that are marked as arrived.
-export async function listArrivedIds(eventId: string): Promise<string[]> {
-  const { data, error } = await client()
-    .from('arrival_checkins')
-    .select('passenger_id, passengers!inner(event_id)')
-    .eq('passengers.event_id', eventId);
+// Passenger ids marked as arrived. RLS scopes rows to the agency; the caller
+// intersects with the event's passengers, so no event filter is needed here.
+export async function listArrivedIds(_eventId?: string): Promise<string[]> {
+  const { data, error } = await client().from('arrival_checkins').select('passenger_id');
   if (error) throw new Error(error.message);
   return (data ?? []).map((r: { passenger_id: string }) => r.passenger_id);
 }
