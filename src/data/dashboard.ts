@@ -30,13 +30,14 @@ export async function listAgencyPassengers(agencyId: string): Promise<DashboardP
   const { data, error } = await client()
     .from('passengers')
     .select(
-      'id, full_name, is_vip, hotel_id, room_number, event_id, ' +
+      'id, is_vip, hotel_id, room_number, event_id, person:people(full_name), ' +
         'event:events(name, status), flights(direction, airline, flight_number, flight_datetime)',
     )
     .eq('agency_id', agencyId);
   if (error) throw new Error(error.message);
   return (data ?? []).map((row: any) => ({
     ...row,
+    full_name: row.person?.full_name ?? '',
     event: row.event ?? null,
     flights: row.flights ?? [],
   })) as DashboardPassenger[];

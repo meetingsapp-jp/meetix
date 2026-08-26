@@ -137,10 +137,10 @@ export default function PassengersPage() {
     setModalOpen(true);
   }
 
-  async function handleSubmit(input: PassengerInput, flights: FlightsInput) {
+  async function handleSubmit(input: PassengerInput, flights: FlightsInput, personId: string | null) {
     if (!agency) return;
-    if (editing) await updatePassenger(agency.id, editing.id, input, flights);
-    else await createPassenger(agency.id, eventId, input, flights);
+    if (editing) await updatePassenger(agency.id, editing.id, editing.person_id, input, flights);
+    else await createPassenger(agency.id, eventId, input, flights, personId);
     setModalOpen(false);
     await refresh();
   }

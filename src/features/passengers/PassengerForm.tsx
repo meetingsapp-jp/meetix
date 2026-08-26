@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
-import type { Flight, Hotel, PassengerWithMeta } from '../../types';
+import type { Flight, Hotel, PassengerWithMeta, Person } from '../../types';
 import {
   createHotel,
   listHotels,
+  listPeople,
   type FlightInput,
   type FlightsInput,
   type PassengerInput,
@@ -15,7 +16,7 @@ interface Props {
   agencyId: string;
   eventId: string;
   initial?: PassengerWithMeta | null;
-  onSubmit: (input: PassengerInput, flights: FlightsInput) => Promise<void>;
+  onSubmit: (input: PassengerInput, flights: FlightsInput, personId: string | null) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -34,6 +35,12 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const { t } = useTranslation();
   const [hotels, setHotels] = useState<Hotel[]>([]);
 
+  // Directory (reuse a person across events). Only offered when creating.
+  const [people, setPeople] = useState<Person[]>([]);
+  const [personId, setPersonId] = useState<string | null>(initial?.person_id ?? null);
+  const [dirSearch, setDirSearch] = useState('');
+  const [dirOpen, setDirOpen] = useState(false);
+
   const [fullName, setFullName] = useState(initial?.full_name ?? '');
   const [email, setEmail] = useState(initial?.email ?? '');
   const [phone, setPhone] = useState(initial?.phone ?? '');
@@ -42,6 +49,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [isVip, setIsVip] = useState(initial?.is_vip ?? false);
   const [hotelId, setHotelId] = useState(initial?.hotel_id ?? '');
   const [roomNumber, setRoomNumber] = useState(initial?.room_number ?? '');
+  const [costCenter, setCostCenter] = useState(initial?.cost_center ?? '');
   const [emergency, setEmergency] = useState(initial?.emergency_contact ?? '');
   const [dietary, setDietary] = useState(initial?.dietary ?? '');
   const [allergies, setAllergies] = useState(initial?.allergies ?? '');
@@ -60,6 +68,35 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   useEffect(() => {
     listHotels(eventId).then(setHotels).catch((e) => setError(e.message));
   }, [eventId]);
+
+  useEffect(() => {
+    if (!initial) listPeople(agencyId).then(setPeople).catch(() => {});
+  }, [agencyId, initial]);
+
+  const dirResults = useMemo(() => {
+    const q = dirSearch.trim().toLowerCase();
+    if (!q) return [];
+    return people
+      .filter((p) =>
+        [p.full_name, p.document_id, p.email].some((v) => v?.toLowerCase().includes(q)),
+      )
+      .slice(0, 6);
+  }, [people, dirSearch]);
+
+  function pickPerson(p: Person) {
+    setPersonId(p.id);
+    setFullName(p.full_name);
+    setEmail(p.email ?? '');
+    setPhone(p.phone ?? '');
+    setDocumentId(p.document_id ?? '');
+    setNationality(p.nationality ?? '');
+    setDietary(p.dietary ?? '');
+    setAllergies(p.allergies ?? '');
+    setSpecialNeeds(p.special_needs ?? '');
+    setEmergency(p.emergency_contact ?? '');
+    setDirSearch('');
+    setDirOpen(false);
+  }
 
   async function handleAddHotel() {
     if (!newHotel.trim()) return;
@@ -91,6 +128,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           is_vip: isVip,
           hotel_id: hotelId || null,
           room_number: clean(roomNumber),
+          cost_center: clean(costCenter),
           emergency_contact: clean(emergency),
           dietary: clean(dietary),
           allergies: clean(allergies),
@@ -101,6 +139,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null, terminal: clean(arrival.terminal ?? '') },
           departure: { airline: clean(departure.airline ?? ''), flight_number: clean(departure.flight_number ?? ''), flight_datetime: departure.flight_datetime || null, terminal: clean(departure.terminal ?? '') },
         },
+        personId,
       );
     } catch (e) {
       setError((e as Error).message);
@@ -149,6 +188,38 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+
+      {!initial && (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-2">
+          <div className="mb-1 text-xs font-medium text-slate-600">{t('passengers.form.reuseTitle')}</div>
+          <input
+            className={inputClass}
+            placeholder={t('passengers.form.searchDirectory')}
+            value={dirSearch}
+            onChange={(e) => { setDirSearch(e.target.value); setDirOpen(true); }}
+          />
+          {dirOpen && dirResults.length > 0 && (
+            <ul className="mt-1 divide-y divide-slate-100 rounded border border-slate-200 bg-white">
+              {dirResults.map((p) => (
+                <li key={p.id}>
+                  <button type="button" onClick={() => pickPerson(p)} className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50">
+                    <span className="font-medium">{p.full_name}</span>
+                    {(p.document_id || p.email) && <span className="text-slate-400"> · {p.document_id ?? p.email}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {personId && (
+            <div className="mt-1 flex items-center gap-2 text-xs text-emerald-700">
+              ✓ {t('passengers.form.reusing')}
+              <button type="button" className="text-slate-400 underline" onClick={() => setPersonId(null)}>
+                {t('passengers.form.asNew')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       <Field label={t('passengers.form.fullName')}>
         <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} required autoFocus />
@@ -201,9 +272,14 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
         )}
       </Field>
 
-      <Field label={t('passengers.form.roomNumber')}>
-        <input className={inputClass} value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} />
-      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label={t('passengers.form.roomNumber')}>
+          <input className={inputClass} value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} />
+        </Field>
+        <Field label={t('passengers.form.costCenter')}>
+          <input className={inputClass} value={costCenter} onChange={(e) => setCostCenter(e.target.value)} placeholder={t('passengers.form.costCenterPlaceholder')} />
+        </Field>
+      </div>
 
       {flightBlock(t('passengers.form.arrival'), arrival, setArrival)}
       {flightBlock(t('passengers.form.departure'), departure, setDeparture)}

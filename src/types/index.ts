@@ -91,31 +91,55 @@ export interface Flight {
   created_at: string;
 }
 
-export interface Passenger {
+// Stable person (a traveler in the agency's directory). Personal data lives
+// here once and is reused across events. See [[meetix-people-model]].
+export interface Person {
   id: string;
   agency_id: string;
-  event_id: string;
   full_name: string;
   email: string | null;
   phone: string | null;
   document_id: string | null;
   nationality: string | null;
+  dietary: string | null;
+  allergies: string | null;
+  special_needs: string | null;
+  emergency_contact: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// A passenger row is now a *participation*: a person in a specific event, with
+// only the event-specific data (VIP, hotel/room, transport, cost center…).
+export interface Passenger {
+  id: string;
+  agency_id: string;
+  event_id: string;
+  person_id: string;
   is_vip: boolean;
   transport_type: TransportType;
   transport_provider_id: string | null;
   hotel_id: string | null;
   room_number: string | null;
-  emergency_contact: string | null;
-  dietary: string | null;
-  allergies: string | null;
-  special_needs: string | null;
+  cost_center: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
 }
 
-// Passenger joined with hotel name, transport provider and its flights.
+// Participation joined with the person's stable fields (flattened so existing
+// reads keep working), plus hotel, transport provider and flights.
 export interface PassengerWithMeta extends Passenger {
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  document_id: string | null;
+  nationality: string | null;
+  dietary: string | null;
+  allergies: string | null;
+  special_needs: string | null;
+  emergency_contact: string | null;
+  person: Person | null;
   hotel: { name: string } | null;
   transport_provider: { name: string } | null;
   flights: Flight[];
