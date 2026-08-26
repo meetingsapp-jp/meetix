@@ -113,6 +113,13 @@
     "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
   },
   "pwa": { "updateAvailable": "Há uma nova versão disponível.", "update": "Atualizar" },
+  "install": {
+    "button": "Instalar app",
+    "iosTitle": "Instalar no iPhone / iPad",
+    "iosStep1": "Toque no botão Compartilhar (o quadrado com a seta para cima) na barra do Safari.",
+    "iosStep2": "Escolha “Adicionar à Tela de Início”.",
+    "iosStep3": "Toque em “Adicionar”. O ícone do MEETIX aparecerá na sua tela inicial."
+  },
   "checklist": {
     "title": "Checklist", "task": "Tarefa", "taskPlaceholder": "Ex.: Confirmar traslados com o fornecedor",
     "assignee": "Responsável", "due": "Vence", "add": "Adicionar",

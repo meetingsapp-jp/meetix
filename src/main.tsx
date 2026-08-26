@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
 import UpdateBanner from './pwa/UpdateBanner';
+import InstallButton from './pwa/InstallButton';
 import './i18n';
 import './index.css';
 
@@ -15,5 +16,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </AuthProvider>
     </BrowserRouter>
     <UpdateBanner />
+    <InstallButton />
   </React.StrictMode>,
 );

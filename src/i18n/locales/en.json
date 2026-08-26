@@ -113,6 +113,13 @@
     "button": "PDF", "title": "Itinerary", "passenger": "Passenger", "contact": "Contact"
   },
   "pwa": { "updateAvailable": "A new version is available.", "update": "Update" },
+  "install": {
+    "button": "Install app",
+    "iosTitle": "Install on iPhone / iPad",
+    "iosStep1": "Tap the Share button (the square with an up arrow) in the Safari bar.",
+    "iosStep2": "Choose “Add to Home Screen”.",
+    "iosStep3": "Tap “Add”. The MEETIX icon will appear on your home screen."
+  },
   "checklist": {
     "title": "Checklist", "task": "Task", "taskPlaceholder": "e.g.: Confirm transfers with provider",
     "assignee": "Assignee", "due": "Due", "add": "Add",
