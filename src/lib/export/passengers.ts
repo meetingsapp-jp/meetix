@@ -18,6 +18,9 @@ export interface PassengerExportLabels {
   arrivalTime: string;
   departureFlight: string;
   departureTime: string;
+  dietary: string;
+  allergies: string;
+  specialNeeds: string;
   emergency: string;
   notes: string;
 }
@@ -42,7 +45,7 @@ function headers(L: PassengerExportLabels): string[] {
   return [
     L.name, L.email, L.phone, L.documentId, L.nationality, L.vip,
     L.hotel, L.room, L.arrivalFlight, L.arrivalTime, L.departureFlight, L.departureTime,
-    L.emergency, L.notes,
+    L.dietary, L.allergies, L.specialNeeds, L.emergency, L.notes,
   ];
 }
 
@@ -60,6 +63,9 @@ function rows(passengers: PassengerWithMeta[], L: PassengerExportLabels): string
     flightTime(p, 'arrival'),
     flightNo(p, 'departure'),
     flightTime(p, 'departure'),
+    p.dietary ?? '',
+    p.allergies ?? '',
+    p.special_needs ?? '',
     p.emergency_contact ?? '',
     p.notes ?? '',
   ]);

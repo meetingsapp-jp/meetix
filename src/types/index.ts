@@ -105,6 +105,9 @@ export interface Passenger {
   hotel_id: string | null;
   room_number: string | null;
   emergency_contact: string | null;
+  dietary: string | null;
+  allergies: string | null;
+  special_needs: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

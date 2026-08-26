@@ -17,6 +17,9 @@ export interface PassengerInput {
   hotel_id: string | null;
   room_number: string | null;
   emergency_contact: string | null;
+  dietary: string | null;
+  allergies: string | null;
+  special_needs: string | null;
   notes: string | null;
 }
 

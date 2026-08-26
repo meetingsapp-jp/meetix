@@ -106,7 +106,15 @@
       "roomNumber": "Habitación",
       "arrival": "Vuelo de llegada", "departure": "Vuelo de salida",
       "airline": "Aerolínea", "flightNumber": "Nº de vuelo",
-      "emergency": "Contacto de emergencia", "notes": "Notas"
+      "emergency": "Contacto de emergencia", "notes": "Notas",
+      "requirements": "Requerimientos", "dietary": "Dieta", "dietaryPlaceholder": "Ej.: Vegetariano, Sin TACC…",
+      "allergies": "Alergias", "specialNeeds": "Necesidades especiales",
+      "specialNeedsPlaceholder": "Ej.: Silla de ruedas, movilidad reducida…"
+    },
+    "wa": {
+      "button": "WhatsApp",
+      "greeting": "¡Hola {{name}}! Este es tu itinerario:",
+      "signature": "Ante cualquier cambio te avisamos"
     }
   },
   "itinerary": {

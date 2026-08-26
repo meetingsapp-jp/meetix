@@ -10,6 +10,10 @@ export interface ItineraryLabels {
   departure: string;
   hotel: string;
   room: string;
+  requirements: string;
+  dietary: string;
+  allergies: string;
+  specialNeeds: string;
   contact: string;
   email: string;
   phone: string;
@@ -118,6 +122,14 @@ export async function exportPassengerItinerary(
   section(L.hotel);
   line(L.hotel, [p.hotel?.name ?? '', p.room_number ? `(${L.room} ${p.room_number})` : ''].filter(Boolean).join(' '));
   y += 5;
+
+  if (p.dietary || p.allergies || p.special_needs) {
+    section(L.requirements);
+    if (p.dietary) line(L.dietary, p.dietary);
+    if (p.allergies) line(L.allergies, p.allergies);
+    if (p.special_needs) line(L.specialNeeds, p.special_needs);
+    y += 5;
+  }
 
   section(L.contact);
   line(L.email, p.email ?? '');

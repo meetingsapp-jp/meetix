@@ -106,7 +106,15 @@
       "roomNumber": "Quarto",
       "arrival": "Voo de chegada", "departure": "Voo de saída",
       "airline": "Companhia aérea", "flightNumber": "Nº do voo",
-      "emergency": "Contato de emergência", "notes": "Notas"
+      "emergency": "Contato de emergência", "notes": "Notas",
+      "requirements": "Requisitos", "dietary": "Dieta", "dietaryPlaceholder": "Ex.: Vegetariano, Sem glúten…",
+      "allergies": "Alergias", "specialNeeds": "Necessidades especiais",
+      "specialNeedsPlaceholder": "Ex.: Cadeira de rodas, mobilidade reduzida…"
+    },
+    "wa": {
+      "button": "WhatsApp",
+      "greeting": "Olá {{name}}! Este é o seu itinerário:",
+      "signature": "Avisamos você sobre qualquer mudança"
     }
   },
   "itinerary": {

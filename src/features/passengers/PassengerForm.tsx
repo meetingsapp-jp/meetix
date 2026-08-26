@@ -42,6 +42,9 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [hotelId, setHotelId] = useState(initial?.hotel_id ?? '');
   const [roomNumber, setRoomNumber] = useState(initial?.room_number ?? '');
   const [emergency, setEmergency] = useState(initial?.emergency_contact ?? '');
+  const [dietary, setDietary] = useState(initial?.dietary ?? '');
+  const [allergies, setAllergies] = useState(initial?.allergies ?? '');
+  const [specialNeeds, setSpecialNeeds] = useState(initial?.special_needs ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
 
   const [arrival, setArrival] = useState<FlightInput>(flightOf(initial?.flights, 'arrival'));
@@ -88,6 +91,9 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           hotel_id: hotelId || null,
           room_number: clean(roomNumber),
           emergency_contact: clean(emergency),
+          dietary: clean(dietary),
+          allergies: clean(allergies),
+          special_needs: clean(specialNeeds),
           notes: clean(notes),
         },
         {
@@ -196,6 +202,43 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
       <Field label={t('passengers.form.emergency')}>
         <input className={inputClass} value={emergency} onChange={(e) => setEmergency(e.target.value)} />
       </Field>
+
+      <fieldset className="rounded border border-slate-200 p-3">
+        <legend className="px-1 text-sm font-medium text-slate-600">{t('passengers.form.requirements')}</legend>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.dietary')}</span>
+            <input
+              className={inputClass}
+              list="dietary-options"
+              placeholder={t('passengers.form.dietaryPlaceholder')}
+              value={dietary}
+              onChange={(e) => setDietary(e.target.value)}
+            />
+            <datalist id="dietary-options">
+              <option value="Vegetariano" />
+              <option value="Vegano" />
+              <option value="Sin TACC (celíaco)" />
+              <option value="Kosher" />
+              <option value="Halal" />
+              <option value="Sin lactosa" />
+            </datalist>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.allergies')}</span>
+            <input className={inputClass} value={allergies} onChange={(e) => setAllergies(e.target.value)} />
+          </label>
+        </div>
+        <label className="mt-2 block">
+          <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.specialNeeds')}</span>
+          <input
+            className={inputClass}
+            placeholder={t('passengers.form.specialNeedsPlaceholder')}
+            value={specialNeeds}
+            onChange={(e) => setSpecialNeeds(e.target.value)}
+          />
+        </label>
+      </fieldset>
 
       <Field label={t('passengers.form.notes')}>
         <textarea className={inputClass} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />

@@ -106,7 +106,15 @@
       "roomNumber": "Room",
       "arrival": "Arrival flight", "departure": "Departure flight",
       "airline": "Airline", "flightNumber": "Flight no.",
-      "emergency": "Emergency contact", "notes": "Notes"
+      "emergency": "Emergency contact", "notes": "Notes",
+      "requirements": "Requirements", "dietary": "Diet", "dietaryPlaceholder": "e.g. Vegetarian, Gluten-free…",
+      "allergies": "Allergies", "specialNeeds": "Special needs",
+      "specialNeedsPlaceholder": "e.g. Wheelchair, reduced mobility…"
+    },
+    "wa": {
+      "button": "WhatsApp",
+      "greeting": "Hi {{name}}! Here is your itinerary:",
+      "signature": "We'll let you know of any changes"
     }
   },
   "itinerary": {

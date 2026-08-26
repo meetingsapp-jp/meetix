@@ -20,6 +20,7 @@ import ImportModal from './ImportModal';
 import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
 import { exportPassengerItinerary, type ItineraryLabels } from '../../lib/export/itinerary';
 import { exportRoomingPdf, type RoomingLabels } from '../../lib/export/rooming';
+import { openWhatsApp, passengerItineraryText, type WhatsAppLabels } from '../../lib/share/whatsapp';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -43,6 +44,9 @@ export default function PassengersPage() {
     arrivalTime: t('passengers.export.arrivalTime'),
     departureFlight: t('passengers.form.departure'),
     departureTime: t('passengers.export.departureTime'),
+    dietary: t('passengers.form.dietary'),
+    allergies: t('passengers.form.allergies'),
+    specialNeeds: t('passengers.form.specialNeeds'),
     emergency: t('passengers.form.emergency'),
     notes: t('passengers.form.notes'),
   });
@@ -59,6 +63,22 @@ export default function PassengersPage() {
     noHotel: t('rooming.noHotel'),
   });
 
+  const waLabels = (): WhatsAppLabels => ({
+    greeting: t('passengers.wa.greeting'),
+    hotel: t('passengers.form.hotel'),
+    room: t('passengers.form.roomNumber'),
+    arrival: t('passengers.form.arrival'),
+    departure: t('passengers.form.departure'),
+    dietary: t('passengers.form.dietary'),
+    vip: 'VIP',
+    signature: t('passengers.wa.signature'),
+  });
+
+  function shareWhatsApp(p: PassengerWithMeta) {
+    if (!event || !agency) return;
+    openWhatsApp(p.phone, passengerItineraryText(agency.name, event, p, waLabels()));
+  }
+
   const itineraryLabels = (): ItineraryLabels => ({
     itinerary: t('itinerary.title'),
     event: t('events.title'),
@@ -68,6 +88,10 @@ export default function PassengersPage() {
     departure: t('passengers.form.departure'),
     hotel: t('passengers.form.hotel'),
     room: t('passengers.form.roomNumber'),
+    requirements: t('passengers.form.requirements'),
+    dietary: t('passengers.form.dietary'),
+    allergies: t('passengers.form.allergies'),
+    specialNeeds: t('passengers.form.specialNeeds'),
     contact: t('itinerary.contact'),
     email: t('passengers.form.email'),
     phone: t('passengers.form.phone'),
@@ -202,6 +226,19 @@ export default function PassengersPage() {
                   <td className="px-3 py-2 font-medium">
                     {p.full_name}
                     {p.email && <div className="text-xs text-slate-400">{p.email}</div>}
+                    {(p.dietary || p.allergies || p.special_needs) && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {p.dietary && (
+                          <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] text-emerald-700">🍽️ {p.dietary}</span>
+                        )}
+                        {p.allergies && (
+                          <span className="rounded bg-red-50 px-1.5 py-0.5 text-[11px] font-medium text-red-700">⚠️ {p.allergies}</span>
+                        )}
+                        {p.special_needs && (
+                          <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">♿ {p.special_needs}</span>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-slate-600">{p.document_id ?? '—'}</td>
                   <td className="px-3 py-2">
@@ -223,6 +260,11 @@ export default function PassengersPage() {
                         onClick={() => exportPassengerItinerary(agency.name, agency.brand_color, event, p, itineraryLabels())}
                       >
                         {t('itinerary.button')}
+                      </Button>
+                    )}
+                    {can.exportData && event && agency && (
+                      <Button variant="ghost" className="text-green-600" onClick={() => shareWhatsApp(p)}>
+                        {t('passengers.wa.button')}
                       </Button>
                     )}
                     {can.managePassengers && (
@@ -260,10 +302,28 @@ export default function PassengersPage() {
                 {p.hotel?.name && <div>{p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}</div>}
                 <div>{flightSummary(p)}</div>
               </div>
+              {(p.dietary || p.allergies || p.special_needs) && (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {p.dietary && (
+                    <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] text-emerald-700">🍽️ {p.dietary}</span>
+                  )}
+                  {p.allergies && (
+                    <span className="rounded bg-red-50 px-1.5 py-0.5 text-[11px] font-medium text-red-700">⚠️ {p.allergies}</span>
+                  )}
+                  {p.special_needs && (
+                    <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[11px] text-blue-700">♿ {p.special_needs}</span>
+                  )}
+                </div>
+              )}
               <div className="mt-2 flex flex-wrap gap-2">
                 {can.exportData && event && agency && (
                   <Button variant="secondary" onClick={() => exportPassengerItinerary(agency.name, agency.brand_color, event, p, itineraryLabels())}>
                     {t('itinerary.button')}
+                  </Button>
+                )}
+                {can.exportData && event && agency && (
+                  <Button variant="secondary" className="text-green-600" onClick={() => shareWhatsApp(p)}>
+                    {t('passengers.wa.button')}
                   </Button>
                 )}
                 {can.managePassengers && (
