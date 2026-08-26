@@ -15,8 +15,8 @@ export default defineConfig({
         clientsClaim: true,
       },
       manifest: {
-        name: 'EventOps',
-        short_name: 'EventOps',
+        name: 'MEETIX',
+        short_name: 'MEETIX',
         description: 'Event / MICE management platform',
         theme_color: '#0f172a',
         background_color: '#0f172a',

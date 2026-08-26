@@ -5,6 +5,7 @@ export type UserRole = 'director_general' | 'director_eventos' | 'planificador' 
 export type EventStatus = 'planificacion' | 'confirmado' | 'en_curso' | 'finalizado' | 'cancelado';
 export type TransportType = 'vip' | 'group';
 export type FlightDirection = 'arrival' | 'departure';
+export type SessionType = 'charla' | 'comida' | 'traslado' | 'actividad' | 'libre';
 
 export interface AppUser {
   id: string;
@@ -114,4 +115,21 @@ export interface PassengerWithMeta extends Passenger {
   hotel: { name: string } | null;
   transport_provider: { name: string } | null;
   flights: Flight[];
+}
+
+export interface Session {
+  id: string;
+  agency_id: string;
+  event_id: string;
+  name: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  session_type: SessionType | null;
+  location: string | null;
+  created_at: string;
+}
+
+// Session joined with its attendance count (for the agenda list).
+export interface SessionWithMeta extends Session {
+  attendee_count: number;
 }

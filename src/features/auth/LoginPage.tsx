@@ -42,7 +42,7 @@ export default function LoginPage() {
     <div className="flex min-h-full items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-brand">EventOps</h1>
+          <h1 className="text-xl font-bold text-brand">MEETIX</h1>
           <select
             value={i18n.resolvedLanguage}
             onChange={(e) => i18n.changeLanguage(e.target.value)}

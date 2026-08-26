@@ -129,6 +129,12 @@ export default function EventsPage() {
                       {t('events.viewPassengers')}
                     </Link>
                     <Link
+                      to={`/events/${ev.id}/agenda`}
+                      className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
+                    >
+                      {t('agenda.title')}
+                    </Link>
+                    <Link
                       to={`/events/${ev.id}/checklist`}
                       className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
                     >
@@ -172,6 +178,9 @@ export default function EventsPage() {
               <div className="mt-2 flex flex-wrap gap-2">
                 <Link to={`/events/${ev.id}/passengers`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
                   {t('events.viewPassengers')}
+                </Link>
+                <Link to={`/events/${ev.id}/agenda`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
+                  {t('agenda.title')}
                 </Link>
                 <Link to={`/events/${ev.id}/checklist`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
                   {t('checklist.title')}

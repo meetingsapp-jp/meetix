@@ -19,6 +19,7 @@ import PassengerForm from './PassengerForm';
 import ImportModal from './ImportModal';
 import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
 import { exportPassengerItinerary, type ItineraryLabels } from '../../lib/export/itinerary';
+import { exportRoomingPdf, type RoomingLabels } from '../../lib/export/rooming';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -44,6 +45,18 @@ export default function PassengersPage() {
     departureTime: t('passengers.export.departureTime'),
     emergency: t('passengers.form.emergency'),
     notes: t('passengers.form.notes'),
+  });
+
+  const roomingLabels = (): RoomingLabels => ({
+    title: t('rooming.title'),
+    event: t('events.title'),
+    generated: t('transport.generated'),
+    hotel: t('passengers.form.hotel'),
+    room: t('passengers.form.roomNumber'),
+    guest: t('rooming.guest'),
+    vip: 'VIP',
+    phone: t('passengers.form.phone'),
+    noHotel: t('rooming.noHotel'),
   });
 
   const itineraryLabels = (): ItineraryLabels => ({
@@ -148,6 +161,9 @@ export default function PassengersPage() {
               </Button>
               <Button variant="secondary" onClick={() => exportPassengersCsv(event, passengers, exportLabels())}>
                 {t('passengers.exportCsv')}
+              </Button>
+              <Button variant="secondary" onClick={() => exportRoomingPdf(event, passengers, roomingLabels(), agency?.brand_color)}>
+                {t('rooming.button')}
               </Button>
             </>
           )}

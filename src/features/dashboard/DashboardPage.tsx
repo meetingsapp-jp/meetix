@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
 import type { EventStatus, EventWithMeta } from '../../types';
 import { listEvents } from '../../data/events';
+import { listAgencyPassengers, type DashboardPassenger } from '../../data/dashboard';
 
 const STATUSES: EventStatus[] = ['planificacion', 'confirmado', 'en_curso', 'finalizado', 'cancelado'];
+const INACTIVE: EventStatus[] = ['finalizado', 'cancelado'];
 
 const statusColors: Record<string, string> = {
   planificacion: 'bg-slate-200 text-slate-700',
@@ -24,18 +26,30 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
   );
 }
 
+// Format straight from the ISO string (no timezone shift): "dd/mm · HH:mm".
+function fmtFlight(iso: string | null): string {
+  if (!iso) return '—';
+  const [, m, d] = iso.slice(0, 10).split('-');
+  const time = iso.slice(11, 16);
+  return `${d}/${m}${time ? ` · ${time}` : ''}`;
+}
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { agency, loading: agencyLoading } = useAgency();
   const [events, setEvents] = useState<EventWithMeta[]>([]);
+  const [pax, setPax] = useState<DashboardPassenger[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!agency) return;
     setLoading(true);
-    listEvents(agency.id)
-      .then(setEvents)
+    Promise.all([listEvents(agency.id), listAgencyPassengers(agency.id)])
+      .then(([ev, ps]) => {
+        setEvents(ev);
+        setPax(ps);
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [agency]);
@@ -43,9 +57,31 @@ export default function DashboardPage() {
   const totals = useMemo(() => {
     const passengers = events.reduce((sum, e) => sum + e.passenger_count, 0);
     const byStatus = STATUSES.map((s) => ({ status: s, count: events.filter((e) => e.status === s).length }));
-    const active = events.filter((e) => e.status !== 'finalizado' && e.status !== 'cancelado').length;
-    return { passengers, byStatus, active };
-  }, [events]);
+    const active = events.filter((e) => !INACTIVE.includes(e.status)).length;
+    const vip = pax.filter((p) => p.is_vip).length;
+    return { passengers, byStatus, active, vip };
+  }, [events, pax]);
+
+  // Next flights across the agency (from now on), soonest first.
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    const rows = pax.flatMap((p) =>
+      p.flights
+        .filter((f) => f.flight_datetime && new Date(f.flight_datetime).getTime() >= now)
+        .map((f) => ({ passenger: p.full_name, event: p.event?.name ?? '', ...f })),
+    );
+    rows.sort((a, b) => new Date(a.flight_datetime!).getTime() - new Date(b.flight_datetime!).getTime());
+    return rows.slice(0, 8);
+  }, [pax]);
+
+  // Data-quality alerts, only for passengers in active events.
+  const alerts = useMemo(() => {
+    const activePax = pax.filter((p) => p.event && !INACTIVE.includes(p.event.status));
+    const noHotel = activePax.filter((p) => !p.hotel_id).length;
+    const noRoom = activePax.filter((p) => p.hotel_id && !p.room_number).length;
+    const noArrival = activePax.filter((p) => !p.flights.some((f) => f.direction === 'arrival')).length;
+    return { noHotel, noRoom, noArrival };
+  }, [pax]);
 
   if (agencyLoading || loading) return <p className="text-slate-500">{t('common.loading')}</p>;
   if (error) return <p className="rounded bg-red-50 px-3 py-2 text-red-700">{error}</p>;
@@ -58,7 +94,62 @@ export default function DashboardPage() {
         <StatCard label={t('dashboard.totalEvents')} value={events.length} />
         <StatCard label={t('dashboard.activeEvents')} value={totals.active} />
         <StatCard label={t('dashboard.totalPassengers')} value={totals.passengers} />
-        <StatCard label={t('dashboard.avgPassengers')} value={events.length ? Math.round(totals.passengers / events.length) : 0} />
+        <StatCard label={t('dashboard.vip')} value={totals.vip} />
+      </div>
+
+      {/* Live operations: upcoming flights + alerts */}
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <div>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {t('dashboard.upcomingFlights')}
+          </h2>
+          {upcoming.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">
+              {t('dashboard.noUpcoming')}
+            </p>
+          ) : (
+            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+              {upcoming.map((f, i) => (
+                <li key={i} className="flex items-center gap-3 px-3 py-2 text-sm">
+                  <span className={f.direction === 'arrival' ? 'text-green-600' : 'text-blue-600'}>
+                    {f.direction === 'arrival' ? '↓' : '↑'}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium">{f.passenger}</div>
+                    <div className="truncate text-xs text-slate-400">
+                      {[f.airline, f.flight_number].filter(Boolean).join(' ')}
+                      {f.event ? ` · ${f.event}` : ''}
+                    </div>
+                  </div>
+                  <span className="shrink-0 whitespace-nowrap text-slate-500">{fmtFlight(f.flight_datetime)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            {t('dashboard.alerts')}
+          </h2>
+          {alerts.noHotel + alerts.noRoom + alerts.noArrival === 0 ? (
+            <p className="rounded-lg border border-green-200 bg-green-50 p-4 text-center text-sm text-green-700">
+              {t('dashboard.allGood')}
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {alerts.noArrival > 0 && (
+                <AlertRow label={t('dashboard.alertNoArrival')} count={alerts.noArrival} />
+              )}
+              {alerts.noHotel > 0 && (
+                <AlertRow label={t('dashboard.alertNoHotel')} count={alerts.noHotel} />
+              )}
+              {alerts.noRoom > 0 && (
+                <AlertRow label={t('dashboard.alertNoRoom')} count={alerts.noRoom} />
+              )}
+            </ul>
+          )}
+        </div>
       </div>
 
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('dashboard.statusOverview')}</h2>
@@ -141,5 +232,16 @@ export default function DashboardPage() {
         </>
       )}
     </div>
+  );
+}
+
+function AlertRow({ label, count }: { label: string; count: number }) {
+  return (
+    <li className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-200 font-semibold text-amber-800">
+        {count}
+      </span>
+      <span className="text-amber-900">{label}</span>
+    </li>
   );
 }

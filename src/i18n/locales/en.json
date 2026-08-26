@@ -1,5 +1,5 @@
 {
-  "app": { "name": "EventOps", "demoBanner": "Demo mode — no database connected (waiting for Supabase credentials)." },
+  "app": { "name": "MEETIX", "demoBanner": "Demo mode — no database connected (waiting for Supabase credentials)." },
   "nav": { "dashboard": "Dashboard", "events": "Events", "transport": "Transport" },
   "roles": {
     "label": "Role",
@@ -25,7 +25,7 @@
   "common": {
     "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
-    "yes": "Yes", "no": "No",
+    "yes": "Yes", "no": "No", "close": "Close",
     "noAgency": "No agency found. Check the database connection."
   },
   "admin": {
@@ -45,7 +45,33 @@
   "dashboard": {
     "title": "Dashboard", "subtitle": "Overview of events and passengers.",
     "totalEvents": "Events", "activeEvents": "Active", "totalPassengers": "Passengers",
-    "avgPassengers": "Avg. per event", "statusOverview": "Status overview", "eventsList": "Events"
+    "avgPassengers": "Avg. per event", "statusOverview": "Status overview", "eventsList": "Events",
+    "vip": "VIPs",
+    "upcomingFlights": "Upcoming flights", "noUpcoming": "No upcoming flights yet.",
+    "alerts": "Alerts", "allGood": "All set. Nothing pending.",
+    "alertNoArrival": "passengers without an arrival flight",
+    "alertNoHotel": "passengers without a hotel assigned",
+    "alertNoRoom": "passengers with a hotel but no room"
+  },
+  "agenda": {
+    "title": "Agenda", "new": "New session", "editTitle": "Edit session",
+    "empty": "No sessions yet. Add the first program activity.",
+    "noDate": "No date",
+    "attendance": "Attendance", "attendees": "{{count}} attendees",
+    "attendeesSelected": "{{count}} of {{total}} selected",
+    "confirmDelete": "Delete the session \"{{name}}\"?",
+    "form": {
+      "name": "Session name", "date": "Date", "start": "Start", "end": "End",
+      "type": "Type", "noType": "— No type —", "location": "Location / Room"
+    },
+    "types": {
+      "charla": "Talk", "comida": "Meal", "traslado": "Transfer",
+      "actividad": "Activity", "libre": "Free time"
+    }
+  },
+  "rooming": {
+    "button": "Rooming (PDF)", "title": "Rooming list",
+    "guest": "Guest", "noHotel": "No hotel"
   },
   "events": {
     "title": "Events", "subtitle": "Event list and management.",

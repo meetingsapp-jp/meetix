@@ -76,7 +76,7 @@ export default function AdminPage() {
     <div className="min-h-full bg-slate-100">
       <header className="bg-slate-900 text-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-3">
-          <span className="text-lg font-bold">EventOps · {t('admin.title')}</span>
+          <span className="text-lg font-bold">MEETIX · {t('admin.title')}</span>
           <div className="flex-1" />
           <select
             value={i18n.resolvedLanguage}

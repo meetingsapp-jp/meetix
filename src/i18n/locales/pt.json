@@ -1,5 +1,5 @@
 {
-  "app": { "name": "EventOps", "demoBanner": "Modo demonstração — sem banco de dados conectado (aguardando credenciais do Supabase)." },
+  "app": { "name": "MEETIX", "demoBanner": "Modo demonstração — sem banco de dados conectado (aguardando credenciais do Supabase)." },
   "nav": { "dashboard": "Painel", "events": "Eventos", "transport": "Transporte" },
   "roles": {
     "label": "Função",
@@ -25,7 +25,7 @@
   "common": {
     "save": "Salvar", "saving": "Salvando…", "cancel": "Cancelar", "edit": "Editar",
     "delete": "Excluir", "loading": "Carregando…", "pendingModule": "Módulo a construir.",
-    "yes": "Sim", "no": "Não",
+    "yes": "Sim", "no": "Não", "close": "Fechar",
     "noAgency": "Nenhuma agência encontrada. Verifique a conexão com o banco de dados."
   },
   "admin": {
@@ -45,7 +45,33 @@
   "dashboard": {
     "title": "Painel", "subtitle": "Resumo de eventos e passageiros.",
     "totalEvents": "Eventos", "activeEvents": "Ativos", "totalPassengers": "Passageiros",
-    "avgPassengers": "Média por evento", "statusOverview": "Resumo por status", "eventsList": "Eventos"
+    "avgPassengers": "Média por evento", "statusOverview": "Resumo por status", "eventsList": "Eventos",
+    "vip": "VIPs",
+    "upcomingFlights": "Próximos voos", "noUpcoming": "Nenhum voo próximo cadastrado.",
+    "alerts": "Alertas", "allGood": "Tudo certo. Nada pendente.",
+    "alertNoArrival": "passageiros sem voo de chegada",
+    "alertNoHotel": "passageiros sem hotel atribuído",
+    "alertNoRoom": "passageiros com hotel mas sem quarto"
+  },
+  "agenda": {
+    "title": "Agenda", "new": "Nova sessão", "editTitle": "Editar sessão",
+    "empty": "Ainda não há sessões. Adicione a primeira atividade do programa.",
+    "noDate": "Sem data",
+    "attendance": "Presença", "attendees": "{{count}} participantes",
+    "attendeesSelected": "{{count}} de {{total}} selecionados",
+    "confirmDelete": "Excluir a sessão \"{{name}}\"?",
+    "form": {
+      "name": "Nome da sessão", "date": "Data", "start": "Início", "end": "Fim",
+      "type": "Tipo", "noType": "— Sem tipo —", "location": "Local / Sala"
+    },
+    "types": {
+      "charla": "Palestra", "comida": "Refeição", "traslado": "Traslado",
+      "actividad": "Atividade", "libre": "Tempo livre"
+    }
+  },
+  "rooming": {
+    "button": "Rooming (PDF)", "title": "Lista de quartos",
+    "guest": "Hóspede", "noHotel": "Sem hotel"
   },
   "events": {
     "title": "Eventos", "subtitle": "Lista e gestão de eventos.",

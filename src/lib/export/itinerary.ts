@@ -136,7 +136,7 @@ export async function exportPassengerItinerary(
   // Footer
   doc.setFontSize(9);
   doc.setTextColor(150, 160, 175);
-  doc.text(`EventOps · ${L.generated}: ${new Date().toLocaleString()}`, M, 287);
+  doc.text(`MEETIX · ${L.generated}: ${new Date().toLocaleString()}`, M, 287);
 
   doc.save(`itinerario-${slug(p.full_name)}.pdf`);
 }
