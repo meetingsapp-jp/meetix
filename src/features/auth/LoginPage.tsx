@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabaseClient';
 import Button from '../../components/ui/Button';
+import Logo from '../../components/Logo';
 import { Field, inputClass } from '../../components/ui/Field';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
 
@@ -42,7 +43,7 @@ export default function LoginPage() {
     <div className="flex min-h-full items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-brand">MEETIX</h1>
+          <Logo variant="full" size={38} />
           <select
             value={i18n.resolvedLanguage}
             onChange={(e) => i18n.changeLanguage(e.target.value)}

@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#0f172a"/><text x="32" y="42" font-family="Arial, sans-serif" font-size="30" font-weight="bold" fill="#2563eb" text-anchor="middle">E</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111a33"/>
+      <stop offset="1" stop-color="#0a1122"/>
+    </linearGradient>
+    <linearGradient id="m" x1="14" y1="14" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.55" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <path d="M15 47 L23 20 L32 36 L41 20 L49 47" fill="none" stroke="url(#m)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="42" cy="18" r="3.6" fill="#A855F7"/>
+</svg>
