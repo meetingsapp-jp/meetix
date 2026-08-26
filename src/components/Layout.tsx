@@ -23,7 +23,10 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-full flex flex-col">
-      <header className="bg-brand text-white" style={brand ? { backgroundColor: brand } : undefined}>
+      <header
+        className="bg-brand text-white"
+        style={{ ...(brand ? { backgroundColor: brand } : {}), paddingTop: 'env(safe-area-inset-top)' }}
+      >
         {/* Top row: brand + language + user */}
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
           {agency?.logo_url ? (
@@ -78,7 +81,15 @@ export default function Layout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main className="flex-1 mx-auto max-w-6xl w-full px-4 py-6 pb-24">{children}</main>
+      <main
+        className="flex-1 mx-auto max-w-6xl w-full"
+        style={{
+          padding:
+            '1.5rem calc(1rem + env(safe-area-inset-right)) calc(6rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left))',
+        }}
+      >
+        {children}
+      </main>
     </div>
   );
 }

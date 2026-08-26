@@ -70,7 +70,13 @@ export default function InstallButton() {
 
   return (
     <>
-      <div className="fixed bottom-4 right-4 z-40 flex items-center">
+      <div
+        className="fixed z-40 flex items-center"
+        style={{
+          bottom: 'calc(1rem + env(safe-area-inset-bottom))',
+          right: 'calc(1rem + env(safe-area-inset-right))',
+        }}
+      >
         <button
           onClick={handleClick}
           className="flex items-center gap-2 rounded-full bg-brand py-2.5 pl-3 pr-4 text-sm font-medium text-white shadow-lg ring-1 ring-black/5 transition hover:brightness-110"

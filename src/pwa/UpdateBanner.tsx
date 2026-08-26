@@ -27,7 +27,10 @@ export default function UpdateBanner() {
   if (!needRefresh) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] flex items-center justify-center gap-3 bg-brand px-4 py-3 text-sm text-white shadow-lg">
+    <div
+      className="fixed inset-x-0 bottom-0 z-[60] flex items-center justify-center gap-3 bg-brand px-4 py-3 text-sm text-white shadow-lg"
+      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+    >
       <span>{t('pwa.updateAvailable')}</span>
       <button
         onClick={() => updateRef.current?.(true)}
