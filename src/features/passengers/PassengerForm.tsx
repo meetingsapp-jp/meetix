@@ -26,6 +26,7 @@ function flightOf(flights: Flight[] | undefined, dir: 'arrival' | 'departure'): 
     flight_number: f?.flight_number ?? '',
     // datetime-local wants "YYYY-MM-DDTHH:mm"
     flight_datetime: f?.flight_datetime ? f.flight_datetime.slice(0, 16) : '',
+    terminal: f?.terminal ?? '',
   };
 }
 
@@ -97,8 +98,8 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           notes: clean(notes),
         },
         {
-          arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null },
-          departure: { airline: clean(departure.airline ?? ''), flight_number: clean(departure.flight_number ?? ''), flight_datetime: departure.flight_datetime || null },
+          arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null, terminal: clean(arrival.terminal ?? '') },
+          departure: { airline: clean(departure.airline ?? ''), flight_number: clean(departure.flight_number ?? ''), flight_datetime: departure.flight_datetime || null, terminal: clean(departure.terminal ?? '') },
         },
       );
     } catch (e) {
@@ -128,12 +129,20 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           onChange={(e) => setValue({ ...value, flight_number: e.target.value })}
         />
       </div>
-      <input
-        type="datetime-local"
-        className={`${inputClass} mt-2`}
-        value={value.flight_datetime ?? ''}
-        onChange={(e) => setValue({ ...value, flight_datetime: e.target.value })}
-      />
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <input
+          type="datetime-local"
+          className={inputClass}
+          value={value.flight_datetime ?? ''}
+          onChange={(e) => setValue({ ...value, flight_datetime: e.target.value })}
+        />
+        <input
+          className={inputClass}
+          placeholder={t('passengers.form.terminal')}
+          value={value.terminal ?? ''}
+          onChange={(e) => setValue({ ...value, terminal: e.target.value })}
+        />
+      </div>
     </fieldset>
   );
 

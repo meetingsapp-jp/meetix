@@ -27,6 +27,7 @@ export interface FlightInput {
   airline: string | null;
   flight_number: string | null;
   flight_datetime: string | null;
+  terminal: string | null;
 }
 
 export interface FlightsInput {
@@ -35,7 +36,7 @@ export interface FlightsInput {
 }
 
 function hasFlightData(f: FlightInput): boolean {
-  return Boolean(f.airline || f.flight_number || f.flight_datetime);
+  return Boolean(f.airline || f.flight_number || f.flight_datetime || f.terminal);
 }
 
 export async function getEvent(eventId: string): Promise<EventRow> {
@@ -67,6 +68,7 @@ async function saveFlights(agencyId: string, passengerId: string, flights: Fligh
       airline: r.data.airline,
       flight_number: r.data.flight_number,
       flight_datetime: r.data.flight_datetime,
+      terminal: r.data.terminal,
     }));
   if (rows.length) {
     const { error } = await client().from('flights').insert(rows);

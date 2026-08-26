@@ -105,7 +105,7 @@
       "hotel": "Hotel", "noHotel": "— No hotel —", "newHotel": "New hotel", "hotelName": "Hotel name",
       "roomNumber": "Room",
       "arrival": "Arrival flight", "departure": "Departure flight",
-      "airline": "Airline", "flightNumber": "Flight no.",
+      "airline": "Airline", "flightNumber": "Flight no.", "terminal": "Terminal",
       "emergency": "Emergency contact", "notes": "Notes",
       "requirements": "Requirements", "dietary": "Diet", "dietaryPlaceholder": "e.g. Vegetarian, Gluten-free…",
       "allergies": "Allergies", "specialNeeds": "Special needs",
@@ -170,6 +170,12 @@
     "providers": "Providers", "noProviders": "No providers added yet.",
     "addProvider": "Add provider", "providerName": "Provider name",
     "providerPhone": "Phone", "providerNotes": "Notes",
-    "filter": { "all": "All", "vip": "VIP", "group": "Group" }
+    "filter": { "all": "All", "vip": "VIP", "group": "Group" },
+    "manifest": {
+      "pdf": "Manifest (PDF)", "csv": "Manifest (CSV)",
+      "title": "Transfer manifest", "arrivals": "Arrivals (IN)", "departures": "Departures (OUT)",
+      "date": "Date", "time": "Time", "destination": "Destination (hotel)", "origin": "Origin (hotel)",
+      "direction": "Direction", "in": "Arrival", "out": "Departure"
+    }
   }
 }

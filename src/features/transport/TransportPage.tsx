@@ -10,6 +10,7 @@ import { listEvents } from '../../data/events';
 import { listPassengers, setPassengerVip } from '../../data/passengers';
 import { createProvider, listProviders, setPassengerProvider } from '../../data/transport';
 import { exportVipCsv, exportVipPdf, vipCount, type VipLabels } from '../../lib/export/vip';
+import { exportManifestCsv, exportManifestPdf, type ManifestLabels } from '../../lib/export/manifest';
 
 type Filter = 'all' | 'vip' | 'group';
 
@@ -99,6 +100,26 @@ export default function TransportPage() {
     provider: t('transport.provider'),
   };
 
+  const manifestLabels = (): ManifestLabels => ({
+    title: t('transport.manifest.title'),
+    event: t('events.title'),
+    generated: t('transport.generated'),
+    arrivalsTitle: t('transport.manifest.arrivals'),
+    departuresTitle: t('transport.manifest.departures'),
+    date: t('transport.manifest.date'),
+    time: t('transport.manifest.time'),
+    passenger: t('passengers.form.fullName'),
+    flight: t('passengers.flights'),
+    terminal: t('passengers.form.terminal'),
+    phone: t('passengers.form.phone'),
+    destination: t('transport.manifest.destination'),
+    origin: t('transport.manifest.origin'),
+    direction: t('transport.manifest.direction'),
+    in: t('transport.manifest.in'),
+    out: t('transport.manifest.out'),
+    empty: t('transport.emptyList'),
+  });
+
   const flightCell = (p: PassengerWithMeta, dir: 'arrival' | 'departure') => {
     const f = p.flights.find((x) => x.direction === dir);
     if (!f) return '—';
@@ -126,12 +147,26 @@ export default function TransportPage() {
           )}
           <Button
             variant="secondary"
+            disabled={!selectedEvent || passengers.length === 0}
+            onClick={() => selectedEvent && exportManifestCsv(selectedEvent, passengers, manifestLabels())}
+          >
+            {t('transport.manifest.csv')}
+          </Button>
+          <Button
+            disabled={!selectedEvent || passengers.length === 0}
+            onClick={() => selectedEvent && exportManifestPdf(selectedEvent, passengers, manifestLabels(), agency?.brand_color)}
+          >
+            {t('transport.manifest.pdf')}
+          </Button>
+          <Button
+            variant="secondary"
             disabled={!selectedEvent || nVip === 0}
             onClick={() => selectedEvent && exportVipCsv(selectedEvent, passengers, labels)}
           >
             {t('transport.exportCsv')}
           </Button>
           <Button
+            variant="secondary"
             disabled={!selectedEvent || nVip === 0}
             onClick={() => selectedEvent && exportVipPdf(selectedEvent, passengers, labels)}
           >

@@ -85,6 +85,7 @@ export interface Flight {
   airline: string | null;
   flight_number: string | null;
   flight_datetime: string | null;
+  terminal: string | null;
   origin_airport: string | null;
   destination_airport: string | null;
   created_at: string;

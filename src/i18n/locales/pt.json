@@ -105,7 +105,7 @@
       "hotel": "Hotel", "noHotel": "— Sem hotel —", "newHotel": "Novo hotel", "hotelName": "Nome do hotel",
       "roomNumber": "Quarto",
       "arrival": "Voo de chegada", "departure": "Voo de saída",
-      "airline": "Companhia aérea", "flightNumber": "Nº do voo",
+      "airline": "Companhia aérea", "flightNumber": "Nº do voo", "terminal": "Terminal",
       "emergency": "Contato de emergência", "notes": "Notas",
       "requirements": "Requisitos", "dietary": "Dieta", "dietaryPlaceholder": "Ex.: Vegetariano, Sem glúten…",
       "allergies": "Alergias", "specialNeeds": "Necessidades especiais",
@@ -170,6 +170,12 @@
     "providers": "Fornecedores", "noProviders": "Ainda não há fornecedores.",
     "addProvider": "Adicionar fornecedor", "providerName": "Nome do fornecedor",
     "providerPhone": "Telefone", "providerNotes": "Notas",
-    "filter": { "all": "Todos", "vip": "VIP", "group": "Grupo" }
+    "filter": { "all": "Todos", "vip": "VIP", "group": "Grupo" },
+    "manifest": {
+      "pdf": "Manifesto (PDF)", "csv": "Manifesto (CSV)",
+      "title": "Manifesto de traslados", "arrivals": "Chegadas (IN)", "departures": "Saídas (OUT)",
+      "date": "Data", "time": "Hora", "destination": "Destino (hotel)", "origin": "Origem (hotel)",
+      "direction": "Sentido", "in": "Chegada", "out": "Saída"
+    }
   }
 }
