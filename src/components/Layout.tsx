@@ -9,6 +9,7 @@ const nav = [
   { to: '/', key: 'nav.dashboard', end: true },
   { to: '/events', key: 'nav.events' },
   { to: '/transport', key: 'nav.transport' },
+  { to: '/coordinador', key: 'coordinator.title' },
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {

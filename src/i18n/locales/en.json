@@ -177,5 +177,16 @@
       "date": "Date", "time": "Time", "destination": "Destination (hotel)", "origin": "Origin (hotel)",
       "direction": "Direction", "in": "Arrival", "out": "Departure"
     }
+  },
+  "coordinator": {
+    "title": "Coordinator", "onsite": "On-site",
+    "tabs": { "today": "Today", "passengers": "Passengers", "agenda": "Agenda", "transfers": "Transfers", "incidents": "Incidents" },
+    "arrived": "Arrived", "markArrived": "Mark arrived", "arrivedCount": "Arrived", "openIncidents": "Incidents",
+    "pendingArrivals": "Pending arrivals", "allArrived": "Everyone arrived ✓", "nextSessions": "Next activities",
+    "searchPassenger": "Search passenger…", "call": "Call", "fullAgenda": "See full agenda",
+    "incidentTitle": "What happened? (title)", "incidentDetail": "Detail (optional)", "addIncident": "Log",
+    "noIncidents": "No incidents logged.", "noPassenger": "— No passenger —",
+    "confirmDeleteIncident": "Delete this incident?", "reopen": "Reopen", "resolve": "Resolve",
+    "severity": { "info": "Info", "warning": "Attention", "urgent": "Urgent" }
   }
 }

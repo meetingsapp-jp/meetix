@@ -177,5 +177,16 @@
       "date": "Fecha", "time": "Hora", "destination": "Destino (hotel)", "origin": "Origen (hotel)",
       "direction": "Sentido", "in": "Llegada", "out": "Salida"
     }
+  },
+  "coordinator": {
+    "title": "Coordinador", "onsite": "En el lugar",
+    "tabs": { "today": "Hoy", "passengers": "Pasajeros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidencias" },
+    "arrived": "Llegó", "markArrived": "Marcar llegó", "arrivedCount": "Llegaron", "openIncidents": "Incidencias",
+    "pendingArrivals": "Llegadas pendientes", "allArrived": "Todos llegaron ✓", "nextSessions": "Próximas actividades",
+    "searchPassenger": "Buscar pasajero…", "call": "Llamar", "fullAgenda": "Ver agenda completa",
+    "incidentTitle": "¿Qué pasó? (título)", "incidentDetail": "Detalle (opcional)", "addIncident": "Registrar",
+    "noIncidents": "Sin incidencias registradas.", "noPassenger": "— Sin pasajero —",
+    "confirmDeleteIncident": "¿Eliminar esta incidencia?", "reopen": "Reabrir", "resolve": "Resolver",
+    "severity": { "info": "Info", "warning": "Atención", "urgent": "Urgente" }
   }
 }
