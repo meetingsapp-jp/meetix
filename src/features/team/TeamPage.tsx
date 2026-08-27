@@ -9,6 +9,7 @@ import { Field, inputClass } from '../../components/ui/Field';
 import type { AppUser, UserRole } from '../../types';
 
 const INVITE_ROLES: UserRole[] = ['director_eventos', 'planificador', 'guia_coordinador'];
+const ALL_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 
 export default function TeamPage() {
   const { t } = useTranslation();
@@ -17,6 +18,9 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingRole, setEditingRole] = useState<UserRole>('planificador');
+  const [sendInviteId, setSendInviteId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!supabase || !appUser) return;
@@ -35,6 +39,19 @@ export default function TeamPage() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const handleUpdateRole = async (memberId: string, newRole: UserRole) => {
+    if (!supabase) return;
+    const { error } = await supabase.from('app_users').update({ role: newRole }).eq('id', memberId);
+    if (error) setError(error.message);
+    else {
+      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
+      setEditingId(null);
+    }
+  };
+
+  const member = members.find((m) => m.id === editingId);
+  const inviteMember = members.find((m) => m.id === sendInviteId);
 
   return (
     <div>
@@ -55,6 +72,7 @@ export default function TeamPage() {
                 <th className="px-3 py-2">{t('team.name')}</th>
                 <th className="px-3 py-2">{t('team.email')}</th>
                 <th className="px-3 py-2">{t('roles.label')}</th>
+                {can.manageTeam && <th className="px-3 py-2">Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -66,6 +84,12 @@ export default function TeamPage() {
                   </td>
                   <td className="px-3 py-2 text-slate-600">{m.email ?? '—'}</td>
                   <td className="px-3 py-2 text-slate-600">{t(`roles.${m.role}`)}</td>
+                  {can.manageTeam && m.id !== appUser?.id && (
+                    <td className="px-3 py-2 space-x-2">
+                      <button onClick={() => { setEditingId(m.id); setEditingRole(m.role); }} className="text-xs text-brand hover:underline">Editar rol</button>
+                      <button onClick={() => setSendInviteId(m.id)} className="text-xs text-brand hover:underline">Enviar</button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -76,6 +100,95 @@ export default function TeamPage() {
       <Modal open={inviteOpen} title={t('team.invite')} onClose={() => setInviteOpen(false)}>
         <InviteForm onDone={() => { setInviteOpen(false); refresh(); }} onCancel={() => setInviteOpen(false)} />
       </Modal>
+
+      <Modal open={editingId !== null} title="Editar rol" onClose={() => setEditingId(null)}>
+        {member && (
+          <div className="space-y-3">
+            <p className="text-sm text-slate-600">{member.full_name}</p>
+            <Field label={t('roles.label')}>
+              <select className={inputClass} value={editingRole} onChange={(e) => setEditingRole(e.target.value as UserRole)}>
+                {ALL_ROLES.map((r) => (
+                  <option key={r} value={r}>{t(`roles.${r}`)}</option>
+                ))}
+              </select>
+            </Field>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setEditingId(null)}>Cancelar</Button>
+              <Button onClick={() => handleUpdateRole(member.id, editingRole)}>Guardar</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={sendInviteId !== null} title="Enviar invitación" onClose={() => setSendInviteId(null)}>
+        {inviteMember && (
+          <SendInviteOptions member={inviteMember} onDone={() => setSendInviteId(null)} />
+        )}
+      </Modal>
+    </div>
+  );
+}
+
+function SendInviteOptions({ member, onDone }: { member: AppUser; onDone: () => void }) {
+  const [link, setLink] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const generateLink = async () => {
+    if (!member.email || !supabase) return;
+    setBusy(true);
+    const { data, error } = await supabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: member.email,
+      options: { redirectTo: `${window.location.origin}/reset` },
+    });
+    setBusy(false);
+    if (error) alert(`Error: ${error.message}`);
+    else setLink(data?.properties?.action_link ?? '');
+  };
+
+  if (!member.email) {
+    return (
+      <div className="rounded bg-yellow-50 p-3 text-sm text-yellow-700">
+        No hay email registrado para este usuario. Agrega uno primero.
+      </div>
+    );
+  }
+
+  if (link) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-green-700">✓ Invitación generada</p>
+        <CopyLink link={link} />
+        <p className="text-xs text-slate-500">O comparte por:</p>
+        <div className="flex gap-2">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Hola ${member.full_name}, te invito a MEETIX: ${link}`)}`}
+            target="_blank"
+            rel="noopener"
+            className="flex-1 rounded bg-green-100 px-3 py-2 text-center text-sm text-green-700 hover:bg-green-200"
+          >
+            WhatsApp
+          </a>
+          <a
+            href={`mailto:${member.email}?subject=Invitación a MEETIX&body=Hola ${member.full_name},%0A%0AEsto es tu link para acceder:%0A${link}%0A%0aSaludos`}
+            className="flex-1 rounded bg-blue-100 px-3 py-2 text-center text-sm text-blue-700 hover:bg-blue-200"
+          >
+            Email
+          </a>
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={onDone}>Listo</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-slate-600">Generar link de invitación para <strong>{member.full_name}</strong></p>
+      <Button onClick={generateLink} disabled={busy} className="w-full">
+        {busy ? 'Generando...' : 'Generar link'}
+      </Button>
     </div>
   );
 }

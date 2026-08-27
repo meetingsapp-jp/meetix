@@ -19,6 +19,7 @@ import {
   type IncidentSeverity,
 } from '../../data/coordinator';
 import type { EventWithMeta, PassengerWithMeta, SessionType, SessionWithMeta } from '../../types';
+import PassengerTransportModal from './PassengerTransportModal';
 
 type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias';
 
@@ -58,6 +59,7 @@ export default function CoordinatorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('today');
+  const [selectedPassenger, setSelectedPassenger] = useState<PassengerWithMeta | null>(null);
 
   // Load events, default to the nearest non-finished one.
   useEffect(() => {
@@ -212,10 +214,10 @@ export default function CoordinatorPage() {
                 />
               )}
               {tab === 'recepcion' && (
-                <RecepcionTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
+                <RecepcionTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} onSelectPassenger={setSelectedPassenger} />
               )}
               {tab === 'despacho' && (
-                <DespachoTab passengers={passengers} />
+                <DespachoTab passengers={passengers} onSelectPassenger={setSelectedPassenger} />
               )}
               {tab === 'funciones' && <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
               {tab === 'pasajeros' && (
@@ -235,6 +237,12 @@ export default function CoordinatorPage() {
           )}
         </>
       )}
+
+      <PassengerTransportModal
+        open={selectedPassenger !== null}
+        passenger={selectedPassenger}
+        onClose={() => setSelectedPassenger(null)}
+      />
     </div>
   );
 }
@@ -508,10 +516,12 @@ function RecepcionTab({
   passengers,
   arrived,
   onToggleArrived,
+  onSelectPassenger,
 }: {
   passengers: PassengerWithMeta[];
   arrived: Set<string>;
   onToggleArrived: (p: PassengerWithMeta) => void;
+  onSelectPassenger: (p: PassengerWithMeta) => void;
 }) {
 
   const arrivals = passengers
@@ -532,7 +542,7 @@ function RecepcionTab({
               <li key={p.id} className="flex items-center gap-3 px-3 py-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
-                    <div className="font-semibold">{p.full_name}</div>
+                    <button onClick={() => onSelectPassenger(p)} className="font-semibold text-brand hover:underline text-left">{p.full_name}</button>
                     {p.is_vip && <span className="rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
                   </div>
                   <div className="mt-1 space-y-0.5 text-xs text-slate-500">
@@ -567,7 +577,7 @@ function RecepcionTab({
               <li key={p.id} className="flex items-center gap-2 px-3 py-2.5">
                 <span className="text-green-600">✓</span>
                 <div className="min-w-0 flex-1 text-sm">
-                  <div className="font-medium">{p.full_name}</div>
+                  <button onClick={() => onSelectPassenger(p)} className="font-medium text-brand hover:underline text-left">{p.full_name}</button>
                   <div className="text-xs text-green-600">{dm(f!.flight_datetime)} {isoTime(f!.flight_datetime)}</div>
                 </div>
                 <button onClick={() => onToggleArrived(p)} className="text-xs text-green-600 hover:underline">Desmarcar</button>
@@ -586,8 +596,10 @@ function RecepcionTab({
 
 function DespachoTab({
   passengers,
+  onSelectPassenger,
 }: {
   passengers: PassengerWithMeta[];
+  onSelectPassenger: (p: PassengerWithMeta) => void;
 }) {
 
   const departures = passengers
@@ -610,7 +622,7 @@ function DespachoTab({
             <div className="font-semibold text-slate-700">{isoTime(f!.flight_datetime)}</div>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="font-medium">{p.full_name}</div>
+            <button onClick={() => onSelectPassenger(p)} className="font-medium text-brand hover:underline text-left">{p.full_name}</button>
             <div className="text-xs text-slate-500">
               {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}{f!.terminal ? ` · Terminal ${f!.terminal}` : ''}
             </div>
