@@ -15,8 +15,6 @@ export interface AppUser {
   role: UserRole;
   email: string | null;
   preferred_language: Language;
-  disabled: boolean;
-  last_login: string | null;
   created_at: string;
 }
 

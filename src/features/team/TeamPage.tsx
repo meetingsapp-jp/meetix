@@ -79,22 +79,7 @@ export default function TeamPage() {
     }
   };
 
-  const handleToggleDisabled = async (memberId: string, currentDisabled: boolean) => {
-    if (!supabase) return;
-    const { error } = await supabase.from('app_users').update({ disabled: !currentDisabled }).eq('id', memberId);
-    if (error) {
-      setError(error.message);
-    } else {
-      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, disabled: !currentDisabled } : m)));
-    }
-  };
-
   const member = members.find((m) => m.id === selectedId);
-
-  const formatDate = (iso: string | null) => {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  };
 
   return (
     <div>
@@ -115,26 +100,18 @@ export default function TeamPage() {
                 <th className="px-3 py-2">{t('team.name')}</th>
                 <th className="px-3 py-2">{t('team.email')}</th>
                 <th className="px-3 py-2">{t('roles.label')}</th>
-                <th className="px-3 py-2">Último acceso</th>
-                <th className="px-3 py-2">Estado</th>
                 {can.manageTeam && <th className="px-3 py-2">Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {members.map((m) => (
-                <tr key={m.id} className={`border-t border-slate-100 ${m.disabled ? 'bg-slate-50 opacity-60' : ''}`}>
+                <tr key={m.id} className="border-t border-slate-100">
                   <td className="px-3 py-2 font-medium">
                     {m.full_name}
                     {m.id === appUser?.id && <span className="ml-2 text-xs text-slate-400">({t('team.you')})</span>}
                   </td>
                   <td className="px-3 py-2 text-slate-600 text-xs">{m.email ?? '—'}</td>
                   <td className="px-3 py-2 text-slate-600">{t(`roles.${m.role}`)}</td>
-                  <td className="px-3 py-2 text-xs text-slate-500">{formatDate(m.last_login)}</td>
-                  <td className="px-3 py-2">
-                    <span className={`text-xs px-2 py-1 rounded ${m.disabled ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                      {m.disabled ? 'Suspendido' : 'Activo'}
-                    </span>
-                  </td>
                   {can.manageTeam && (
                     <td className="px-3 py-2 space-x-1">
                       {m.id !== appUser?.id && (
@@ -142,9 +119,6 @@ export default function TeamPage() {
                           <button onClick={() => { setSelectedId(m.id); setEditingRole(m.role); setModal('role'); }} className="text-xs text-blue-600 hover:underline">Rol</button>
                           <button onClick={() => { setSelectedId(m.id); setEditingName(m.full_name); setEditingEmail(m.email ?? ''); setModal('edit'); }} className="text-xs text-blue-600 hover:underline">Editar</button>
                           <button onClick={() => { setSelectedId(m.id); setModal('password'); }} className="text-xs text-blue-600 hover:underline">Reset</button>
-                          <button onClick={() => handleToggleDisabled(m.id, m.disabled)} className={`text-xs hover:underline ${m.disabled ? 'text-green-600' : 'text-amber-600'}`}>
-                            {m.disabled ? 'Activar' : 'Suspender'}
-                          </button>
                           <button onClick={() => handleDelete(m.id)} className="text-xs text-red-600 hover:underline">Eliminar</button>
                         </>
                       )}
