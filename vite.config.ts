@@ -7,12 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       injectRegister: false, // we register + control updates from src/pwa
       includeAssets: ['favicon.svg'],
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
+        skipWaiting: true, // new deploy takes over immediately
       },
       manifest: {
         name: 'MEETIX',

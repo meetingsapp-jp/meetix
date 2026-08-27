@@ -12,6 +12,31 @@ const nav = [
   { to: '/coordinador', key: 'coordinator.title' },
 ];
 
+const iconProps = {
+  width: 22,
+  height: 22,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
+const icons: Record<string, JSX.Element> = {
+  dashboard: <svg {...iconProps}><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>,
+  events: <svg {...iconProps}><rect x="3" y="4.5" width="18" height="16" rx="2" /><path d="M3 9h18M8 2.5v4M16 2.5v4" /></svg>,
+  transport: <svg {...iconProps}><rect x="3" y="6" width="18" height="9" rx="2" /><path d="M3 11h18" /><circle cx="7.5" cy="18" r="1.6" /><circle cx="16.5" cy="18" r="1.6" /></svg>,
+  coordinator: <svg {...iconProps}><rect x="6" y="4" width="12" height="17" rx="2" /><path d="M9 3.5h6v3H9zM9 11l2 2 4-4" /></svg>,
+  settings: <svg {...iconProps}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>,
+};
+
+const bottomNav = [
+  { to: '/', key: 'nav.dashboard', end: true, icon: 'dashboard' },
+  { to: '/events', key: 'nav.events', icon: 'events' },
+  { to: '/transport', key: 'nav.transport', icon: 'transport' },
+  { to: '/coordinador', key: 'coordinator.title', icon: 'coordinator' },
+];
+
 export default function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { appUser, agency, signOut, isPlatformAdmin, can } = useAuth();
@@ -61,8 +86,8 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Second row: nav, horizontally scrollable on small screens */}
-        <div className="mx-auto max-w-6xl px-2 pb-2">
+        {/* Second row: full nav on desktop; on mobile a bottom bar is used. */}
+        <div className="mx-auto hidden max-w-6xl px-2 pb-2 md:block">
           <nav className="flex gap-1 overflow-x-auto">
             {nav.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end} className={navClass}>
@@ -90,6 +115,37 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
+
+      {/* Mobile bottom navigation */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] md:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {bottomNav.map((n) => (
+          <NavLink
+            key={n.to}
+            to={n.to}
+            end={n.end}
+            className={({ isActive }) =>
+              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+            }
+          >
+            {icons[n.icon]}
+            <span className="leading-none">{t(n.key)}</span>
+          </NavLink>
+        ))}
+        {can.manageTeam && (
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+            }
+          >
+            {icons.settings}
+            <span className="leading-none">{t('settings.nav')}</span>
+          </NavLink>
+        )}
+      </nav>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
@@ -109,6 +109,17 @@ export default function PassengersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<PassengerWithMeta | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setExportOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [exportOpen]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -179,17 +190,28 @@ export default function PassengersPage() {
         </h1>
         <div className="flex flex-wrap gap-2">
           {can.exportData && event && passengers.length > 0 && (
-            <>
-              <Button variant="secondary" onClick={() => exportPassengersXlsx(event, passengers, exportLabels())}>
-                {t('passengers.exportExcel')}
+            <div className="relative" ref={exportRef}>
+              <Button variant="secondary" onClick={() => setExportOpen((o) => !o)}>
+                {t('passengers.export.menu')} ▾
               </Button>
-              <Button variant="secondary" onClick={() => exportPassengersCsv(event, passengers, exportLabels())}>
-                {t('passengers.exportCsv')}
-              </Button>
-              <Button variant="secondary" onClick={() => exportRoomingPdf(event, passengers, roomingLabels(), agency?.brand_color)}>
-                {t('rooming.button')}
-              </Button>
-            </>
+              {exportOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                  {[
+                    { label: t('passengers.exportExcel'), fn: () => exportPassengersXlsx(event, passengers, exportLabels()) },
+                    { label: t('passengers.exportCsv'), fn: () => exportPassengersCsv(event, passengers, exportLabels()) },
+                    { label: t('rooming.button'), fn: () => exportRoomingPdf(event, passengers, roomingLabels(), agency?.brand_color) },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => { item.fn(); setExportOpen(false); }}
+                      className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
           {can.managePassengers && (
             <Button variant="secondary" onClick={() => setImportOpen(true)}>{t('import.button')}</Button>

@@ -96,7 +96,7 @@
     "empty": "Ainda não há passageiros neste evento.",
     "transport": "Transporte", "group": "Grupo", "flights": "Voos",
     "exportExcel": "Exportar Excel", "exportCsv": "Exportar CSV",
-    "export": { "arrivalTime": "Data/hora chegada", "departureTime": "Data/hora saída" },
+    "export": { "menu": "Exportar", "arrivalTime": "Data/hora chegada", "departureTime": "Data/hora saída" },
     "confirmDelete": "Excluir o passageiro \"{{name}}\"?",
     "form": {
       "fullName": "Nome completo", "email": "E-mail", "phone": "Telefone",
