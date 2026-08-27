@@ -7,4 +7,6 @@ html, body, #root {
 }
 body {
   @apply bg-slate-100 text-slate-900 antialiased;
+  /* Safety net: never let a stray wide row scroll the whole page sideways. */
+  overflow-x: hidden;
 }

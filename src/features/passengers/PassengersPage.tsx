@@ -172,12 +172,12 @@ export default function PassengersPage() {
         <Link to="/events" className="hover:underline">{t('nav.events')}</Link>
         <span> / {event?.name ?? '…'}</span>
       </div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">
           {t('passengers.title')}{' '}
           <span className="text-base font-normal text-slate-500">({passengers.length})</span>
         </h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {can.exportData && event && passengers.length > 0 && (
             <>
               <Button variant="secondary" onClick={() => exportPassengersXlsx(event, passengers, exportLabels())}>
