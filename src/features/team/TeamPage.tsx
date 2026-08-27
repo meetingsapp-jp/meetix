@@ -11,16 +11,19 @@ import type { AppUser, UserRole } from '../../types';
 const INVITE_ROLES: UserRole[] = ['director_eventos', 'planificador', 'guia_coordinador'];
 const ALL_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 
+type ModalType = 'role' | 'edit' | 'password' | 'invite' | null;
+
 export default function TeamPage() {
   const { t } = useTranslation();
   const { can, appUser } = useAuth();
   const [members, setMembers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [modal, setModal] = useState<ModalType>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<UserRole>('planificador');
-  const [sendInviteId, setSendInviteId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [editingEmail, setEditingEmail] = useState('');
 
   const refresh = useCallback(async () => {
     if (!supabase || !appUser) return;
@@ -43,21 +46,61 @@ export default function TeamPage() {
   const handleUpdateRole = async (memberId: string, newRole: UserRole) => {
     if (!supabase) return;
     const { error } = await supabase.from('app_users').update({ role: newRole }).eq('id', memberId);
-    if (error) setError(error.message);
-    else {
+    if (error) {
+      setError(error.message);
+    } else {
       setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
-      setEditingId(null);
+      setModal(null);
+      setSelectedId(null);
     }
   };
 
-  const member = members.find((m) => m.id === editingId);
-  const inviteMember = members.find((m) => m.id === sendInviteId);
+  const handleUpdateProfile = async (memberId: string) => {
+    if (!supabase) return;
+    const { error } = await supabase.from('app_users').update({ full_name: editingName, email: editingEmail }).eq('id', memberId);
+    if (error) {
+      setError(error.message);
+    } else {
+      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, full_name: editingName, email: editingEmail } : m)));
+      setModal(null);
+      setSelectedId(null);
+    }
+  };
+
+  const handleDelete = async (memberId: string) => {
+    if (!supabase || !confirm('¿Eliminar este usuario permanentemente?')) return;
+    const { error } = await supabase.from('app_users').delete().eq('id', memberId);
+    if (error) {
+      setError(error.message);
+    } else {
+      setMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setModal(null);
+      setSelectedId(null);
+    }
+  };
+
+  const handleToggleDisabled = async (memberId: string, currentDisabled: boolean) => {
+    if (!supabase) return;
+    const { error } = await supabase.from('app_users').update({ disabled: !currentDisabled }).eq('id', memberId);
+    if (error) {
+      setError(error.message);
+    } else {
+      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, disabled: !currentDisabled } : m)));
+    }
+  };
+
+  const member = members.find((m) => m.id === selectedId);
+
+  const formatDate = (iso: string | null) => {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t('team.title')}</h1>
-        {can.manageTeam && <Button onClick={() => setInviteOpen(true)}>+ {t('team.invite')}</Button>}
+        {can.manageTeam && <Button onClick={() => { setModal('invite'); setSelectedId(null); }}>+ {t('team.invite')}</Button>}
       </div>
 
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
@@ -72,22 +115,39 @@ export default function TeamPage() {
                 <th className="px-3 py-2">{t('team.name')}</th>
                 <th className="px-3 py-2">{t('team.email')}</th>
                 <th className="px-3 py-2">{t('roles.label')}</th>
+                <th className="px-3 py-2">Último acceso</th>
+                <th className="px-3 py-2">Estado</th>
                 {can.manageTeam && <th className="px-3 py-2">Acciones</th>}
               </tr>
             </thead>
             <tbody>
               {members.map((m) => (
-                <tr key={m.id} className="border-t border-slate-100">
+                <tr key={m.id} className={`border-t border-slate-100 ${m.disabled ? 'bg-slate-50 opacity-60' : ''}`}>
                   <td className="px-3 py-2 font-medium">
                     {m.full_name}
                     {m.id === appUser?.id && <span className="ml-2 text-xs text-slate-400">({t('team.you')})</span>}
                   </td>
-                  <td className="px-3 py-2 text-slate-600">{m.email ?? '—'}</td>
+                  <td className="px-3 py-2 text-slate-600 text-xs">{m.email ?? '—'}</td>
                   <td className="px-3 py-2 text-slate-600">{t(`roles.${m.role}`)}</td>
-                  {can.manageTeam && m.id !== appUser?.id && (
-                    <td className="px-3 py-2 space-x-2">
-                      <button onClick={() => { setEditingId(m.id); setEditingRole(m.role); }} className="text-xs text-brand hover:underline">Editar rol</button>
-                      <button onClick={() => setSendInviteId(m.id)} className="text-xs text-brand hover:underline">Enviar</button>
+                  <td className="px-3 py-2 text-xs text-slate-500">{formatDate(m.last_login)}</td>
+                  <td className="px-3 py-2">
+                    <span className={`text-xs px-2 py-1 rounded ${m.disabled ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                      {m.disabled ? 'Suspendido' : 'Activo'}
+                    </span>
+                  </td>
+                  {can.manageTeam && (
+                    <td className="px-3 py-2 space-x-1">
+                      {m.id !== appUser?.id && (
+                        <>
+                          <button onClick={() => { setSelectedId(m.id); setEditingRole(m.role); setModal('role'); }} className="text-xs text-blue-600 hover:underline">Rol</button>
+                          <button onClick={() => { setSelectedId(m.id); setEditingName(m.full_name); setEditingEmail(m.email ?? ''); setModal('edit'); }} className="text-xs text-blue-600 hover:underline">Editar</button>
+                          <button onClick={() => { setSelectedId(m.id); setModal('password'); }} className="text-xs text-blue-600 hover:underline">Reset</button>
+                          <button onClick={() => handleToggleDisabled(m.id, m.disabled)} className={`text-xs hover:underline ${m.disabled ? 'text-green-600' : 'text-amber-600'}`}>
+                            {m.disabled ? 'Activar' : 'Suspender'}
+                          </button>
+                          <button onClick={() => handleDelete(m.id)} className="text-xs text-red-600 hover:underline">Eliminar</button>
+                        </>
+                      )}
                     </td>
                   )}
                 </tr>
@@ -97,11 +157,8 @@ export default function TeamPage() {
         </div>
       )}
 
-      <Modal open={inviteOpen} title={t('team.invite')} onClose={() => setInviteOpen(false)}>
-        <InviteForm onDone={() => { setInviteOpen(false); refresh(); }} onCancel={() => setInviteOpen(false)} />
-      </Modal>
-
-      <Modal open={editingId !== null} title="Editar rol" onClose={() => setEditingId(null)}>
+      {/* Editar Rol Modal */}
+      <Modal open={modal === 'role'} title="Editar rol" onClose={() => setModal(null)}>
         {member && (
           <div className="space-y-3">
             <p className="text-sm text-slate-600">{member.full_name}</p>
@@ -113,17 +170,41 @@ export default function TeamPage() {
               </select>
             </Field>
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setEditingId(null)}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
               <Button onClick={() => handleUpdateRole(member.id, editingRole)}>Guardar</Button>
             </div>
           </div>
         )}
       </Modal>
 
-      <Modal open={sendInviteId !== null} title="Enviar invitación" onClose={() => setSendInviteId(null)}>
-        {inviteMember && (
-          <SendInviteOptions member={inviteMember} onDone={() => setSendInviteId(null)} />
+      {/* Editar Perfil Modal */}
+      <Modal open={modal === 'edit'} title="Editar perfil" onClose={() => setModal(null)}>
+        {member && (
+          <div className="space-y-3">
+            <Field label={t('team.name')}>
+              <input className={inputClass} value={editingName} onChange={(e) => setEditingName(e.target.value)} />
+            </Field>
+            <Field label={t('team.email')}>
+              <input type="email" className={inputClass} value={editingEmail} onChange={(e) => setEditingEmail(e.target.value)} />
+            </Field>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
+              <Button onClick={() => handleUpdateProfile(member.id)}>Guardar</Button>
+            </div>
+          </div>
         )}
+      </Modal>
+
+      {/* Reset Password Modal */}
+      <Modal open={modal === 'password'} title="Resetear contraseña" onClose={() => setModal(null)}>
+        {member && (
+          <SendInviteOptions member={member} onDone={() => setModal(null)} />
+        )}
+      </Modal>
+
+      {/* Invite Modal */}
+      <Modal open={modal === 'invite'} title={t('team.invite')} onClose={() => setModal(null)}>
+        <InviteForm onDone={() => { setModal(null); refresh(); }} onCancel={() => setModal(null)} />
       </Modal>
     </div>
   );
