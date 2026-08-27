@@ -9,7 +9,7 @@ import type { EventWithMeta, PassengerWithMeta, TransportProvider } from '../../
 import { listEvents } from '../../data/events';
 import { listPassengers, setPassengerVip } from '../../data/passengers';
 import { createProvider, listProviders, setPassengerProvider } from '../../data/transport';
-import { exportVipCsv, exportVipPdf, vipCount, type VipLabels } from '../../lib/export/vip';
+import { exportVipCsv, exportVipPdf, exportAllCsv, exportAllPdf, exportGroupCsv, exportGroupPdf, vipCount, type VipLabels } from '../../lib/export/vip';
 import { exportManifestCsv, exportManifestPdf, type ManifestLabels } from '../../lib/export/manifest';
 
 type Filter = 'all' | 'vip' | 'group';
@@ -171,6 +171,34 @@ export default function TransportPage() {
             onClick={() => selectedEvent && exportVipPdf(selectedEvent, passengers, labels)}
           >
             {t('transport.exportPdf')}
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={!selectedEvent || passengers.length === 0}
+            onClick={() => selectedEvent && exportAllCsv(selectedEvent, passengers, labels)}
+          >
+            Todos (CSV)
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={!selectedEvent || passengers.length === 0}
+            onClick={() => selectedEvent && exportAllPdf(selectedEvent, passengers, labels)}
+          >
+            Todos (PDF)
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={!selectedEvent || (passengers.length - nVip) === 0}
+            onClick={() => selectedEvent && exportGroupCsv(selectedEvent, passengers, labels)}
+          >
+            Grupo (CSV)
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={!selectedEvent || (passengers.length - nVip) === 0}
+            onClick={() => selectedEvent && exportGroupPdf(selectedEvent, passengers, labels)}
+          >
+            Grupo (PDF)
           </Button>
         </div>
       </div>

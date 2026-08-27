@@ -45,6 +45,32 @@ function vipRows(passengers: PassengerWithMeta[]): string[][] {
     ]);
 }
 
+function allRows(passengers: PassengerWithMeta[]): string[][] {
+  return passengers.map((p) => [
+    p.full_name,
+    flightText(p, 'arrival'),
+    flightText(p, 'departure'),
+    p.hotel?.name ?? '',
+    p.room_number ?? '',
+    p.phone ?? '',
+    p.transport_provider?.name ?? '',
+  ]);
+}
+
+function groupRows(passengers: PassengerWithMeta[]): string[][] {
+  return passengers
+    .filter((p) => !p.is_vip)
+    .map((p) => [
+      p.full_name,
+      flightText(p, 'arrival'),
+      flightText(p, 'departure'),
+      p.hotel?.name ?? '',
+      p.room_number ?? '',
+      p.phone ?? '',
+      p.transport_provider?.name ?? '',
+    ]);
+}
+
 export function vipCount(passengers: PassengerWithMeta[]): number {
   return passengers.filter((p) => p.is_vip).length;
 }
@@ -55,7 +81,6 @@ export function exportVipCsv(event: EventRow, passengers: PassengerWithMeta[], L
 }
 
 export async function exportVipPdf(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
-  // Heavy PDF libs are loaded on demand so they don't bloat the initial bundle.
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import('jspdf'),
     import('jspdf-autotable'),
@@ -77,4 +102,62 @@ export async function exportVipPdf(event: EventRow, passengers: PassengerWithMet
   });
 
   downloadBlob(`vip-${slug(event.name)}.pdf`, doc.output('blob'));
+}
+
+export function exportAllCsv(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+  const headers = [L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider];
+  exportCsv(`todos-${slug(event.name)}.csv`, headers, allRows(passengers));
+}
+
+export async function exportAllPdf(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ]);
+  const doc = new jsPDF({ orientation: 'landscape' });
+  doc.setFontSize(14);
+  doc.text('Todos los pasajeros - Transporte', 14, 16);
+  doc.setFontSize(10);
+  doc.setTextColor(90);
+  doc.text(`${L.event}: ${event.name}`, 14, 23);
+  doc.text(`${L.generated}: ${new Date().toLocaleString()}`, 14, 28);
+
+  autoTable(doc, {
+    startY: 33,
+    head: [[L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider]],
+    body: allRows(passengers),
+    styles: { fontSize: 9, cellPadding: 2 },
+    headStyles: { fillColor: [15, 23, 42] },
+  });
+
+  downloadBlob(`todos-${slug(event.name)}.pdf`, doc.output('blob'));
+}
+
+export function exportGroupCsv(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+  const headers = [L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider];
+  exportCsv(`grupo-${slug(event.name)}.csv`, headers, groupRows(passengers));
+}
+
+export async function exportGroupPdf(event: EventRow, passengers: PassengerWithMeta[], L: VipLabels) {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ]);
+  const doc = new jsPDF({ orientation: 'landscape' });
+  doc.setFontSize(14);
+  doc.text('Pasajeros Grupo - Transporte', 14, 16);
+  doc.setFontSize(10);
+  doc.setTextColor(90);
+  doc.text(`${L.event}: ${event.name}`, 14, 23);
+  doc.text(`${L.generated}: ${new Date().toLocaleString()}`, 14, 28);
+
+  autoTable(doc, {
+    startY: 33,
+    head: [[L.name, L.arrival, L.departure, L.hotel, L.room, L.phone, L.provider]],
+    body: groupRows(passengers),
+    styles: { fontSize: 9, cellPadding: 2 },
+    headStyles: { fillColor: [15, 23, 42] },
+  });
+
+  downloadBlob(`grupo-${slug(event.name)}.pdf`, doc.output('blob'));
 }
