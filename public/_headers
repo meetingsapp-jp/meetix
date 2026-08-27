@@ -1,0 +1,11 @@
+/*
+  X-Content-Type-Options: nosniff
+  Content-Type: application/javascript
+
+/*.js
+  Content-Type: application/javascript
+  Cache-Control: max-age=31536000
+
+/*.mjs
+  Content-Type: application/javascript
+  Cache-Control: max-age=31536000
