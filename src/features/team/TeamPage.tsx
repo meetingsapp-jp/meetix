@@ -19,14 +19,18 @@ export default function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabase || !appUser) return;
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase.from('app_users').select('*').order('full_name');
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('agency_id', appUser.agency_id)
+      .order('full_name');
     if (error) setError(error.message);
     else setMembers((data as AppUser[]) ?? []);
     setLoading(false);
-  }, []);
+  }, [appUser]);
 
   useEffect(() => {
     refresh();

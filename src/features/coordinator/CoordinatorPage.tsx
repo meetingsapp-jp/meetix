@@ -19,7 +19,7 @@ import {
 } from '../../data/coordinator';
 import type { EventWithMeta, PassengerWithMeta, SessionType, SessionWithMeta } from '../../types';
 
-type Tab = 'today' | 'passengers' | 'agenda' | 'transfers' | 'incidents';
+type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias';
 
 const isoDate = (iso: string | null) => (iso ? iso.slice(0, 10) : '');
 const isoTime = (iso: string | null) => (iso ? iso.slice(11, 16) : '');
@@ -122,10 +122,11 @@ export default function CoordinatorPage() {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'today', label: t('coordinator.tabs.today') },
-    { id: 'passengers', label: t('coordinator.tabs.passengers') },
-    { id: 'agenda', label: t('coordinator.tabs.agenda') },
-    { id: 'transfers', label: t('coordinator.tabs.transfers') },
-    { id: 'incidents', label: t('coordinator.tabs.incidents') },
+    { id: 'recepcion', label: 'Recepción' },
+    { id: 'despacho', label: 'Despacho' },
+    { id: 'funciones', label: 'Funciones' },
+    { id: 'pasajeros', label: t('coordinator.tabs.passengers') },
+    { id: 'incidencias', label: t('coordinator.tabs.incidents') },
   ];
 
   return (
@@ -161,7 +162,7 @@ export default function CoordinatorPage() {
                 }`}
               >
                 {tb.label}
-                {tb.id === 'incidents' && openIncidents > 0 && (
+                {tb.id === 'incidencias' && openIncidents > 0 && (
                   <span className="ml-1 rounded-full bg-red-500 px-1.5 text-xs text-white">{openIncidents}</span>
                 )}
               </button>
@@ -184,15 +185,18 @@ export default function CoordinatorPage() {
                   lang={i18n.resolvedLanguage}
                 />
               )}
-              {tab === 'passengers' && (
-                <PassengersTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
+              {tab === 'recepcion' && (
+                <RecepcionTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
               )}
-              {tab === 'agenda' && <AgendaTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
-              {tab === 'transfers' && (
-                <TransfersTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
+              {tab === 'despacho' && (
+                <DespachoTab passengers={passengers} />
               )}
-              {tab === 'incidents' && (
-                <IncidentsTab
+              {tab === 'funciones' && <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
+              {tab === 'pasajeros' && (
+                <PasajerosTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
+              )}
+              {tab === 'incidencias' && (
+                <IncidenciasTab
                   agencyId={agency?.id ?? ''}
                   eventId={eventId}
                   authorName={appUser?.full_name ?? null}
@@ -370,7 +374,7 @@ function Stat({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function PassengersTab({
+function PasajerosTab({
   passengers,
   arrived,
   onToggleArrived,
@@ -424,7 +428,7 @@ function PassengersTab({
   );
 }
 
-function AgendaTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]; eventId: string; lang: string | undefined }) {
+function FuncionesTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]; eventId: string; lang: string | undefined }) {
   const { t } = useTranslation();
   const days = useMemo(() => {
     const map = new Map<string, SessionWithMeta[]>();
@@ -474,7 +478,7 @@ function AgendaTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]; e
   );
 }
 
-function TransfersTab({
+function RecepcionTab({
   passengers,
   arrived,
   onToggleArrived,
@@ -483,55 +487,115 @@ function TransfersTab({
   arrived: Set<string>;
   onToggleArrived: (p: PassengerWithMeta) => void;
 }) {
-  const { t } = useTranslation();
 
-  const legs = (dir: 'arrival' | 'departure') =>
-    passengers
-      .map((p) => ({ p, f: p.flights.find((x) => x.direction === dir) }))
-      .filter((x) => x.f)
-      .sort((a, b) => (a.f!.flight_datetime ?? '').localeCompare(b.f!.flight_datetime ?? ''));
+  const arrivals = passengers
+    .map((p) => ({ p, f: p.flights.find((x) => x.direction === 'arrival') }))
+    .filter((x) => x.f)
+    .sort((a, b) => (a.f!.flight_datetime ?? '').localeCompare(b.f!.flight_datetime ?? ''));
 
-  const Section = ({ title, dir }: { title: string; dir: 'arrival' | 'departure' }) => {
-    const rows = legs(dir);
-    return (
-      <div>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</h2>
-        {rows.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">—</p>
-        ) : (
-          <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
-            {rows.map(({ p, f }) => (
-              <li key={p.id} className="flex items-center gap-3 px-3 py-2.5">
-                <div className="w-14 shrink-0 text-sm">
-                  <div className="text-[11px] text-slate-400">{dm(f!.flight_datetime)}</div>
-                  <div className="font-medium text-slate-700">{isoTime(f!.flight_datetime)}</div>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{p.full_name}</div>
-                  <div className="truncate text-xs text-slate-400">
-                    {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}
-                    {f!.terminal ? ` · ${f!.terminal}` : ''}
-                    {p.hotel?.name ? ` · ${p.hotel.name}` : ''}
-                  </div>
-                </div>
-                {dir === 'arrival' && <ArrivedToggle on={arrived.has(p.id)} onClick={() => onToggleArrived(p)} />}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  };
+  const notArrived = arrivals.filter(({ p }) => !arrived.has(p.id));
+  const alreadyArrived = arrivals.filter(({ p }) => arrived.has(p.id));
 
   return (
     <div className="space-y-5">
-      <Section title={t('transport.manifest.arrivals')} dir="arrival" />
-      <Section title={t('transport.manifest.departures')} dir="departure" />
+      {notArrived.length > 0 && (
+        <div>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Pendientes de recepcionar</h2>
+          <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+            {notArrived.map(({ p, f }) => (
+              <li key={p.id} className="flex items-center gap-3 px-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <div className="font-semibold">{p.full_name}</div>
+                    {p.is_vip && <span className="rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
+                  </div>
+                  <div className="mt-1 space-y-0.5 text-xs text-slate-500">
+                    <div>✈️ {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}</div>
+                    <div>📍 {dm(f!.flight_datetime)} a las {isoTime(f!.flight_datetime)}{f!.terminal ? ` (Terminal ${f!.terminal})` : ''}</div>
+                    <div>🏨 {p.hotel?.name ?? 'Sin hotel'}{p.room_number ? ` · Hab. ${p.room_number}` : ''}</div>
+                  </div>
+                  {(p.dietary || p.allergies || p.special_needs) && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">{reqChips(p)}</div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <ArrivedToggle on={false} onClick={() => onToggleArrived(p)} />
+                  {p.phone && (
+                    <div className="flex gap-1">
+                      <a href={telHref(p.phone)} className="text-xs rounded bg-slate-100 px-2 py-1 text-slate-700 hover:bg-slate-200">📞</a>
+                      <a href={waHref(p.phone)} target="_blank" rel="noopener" className="text-xs rounded bg-green-50 px-2 py-1 text-green-700 hover:bg-green-100">💬</a>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {alreadyArrived.length > 0 && (
+        <div>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Ya recepcionados ({alreadyArrived.length})</h2>
+          <ul className="divide-y divide-slate-100 rounded-lg border border-green-200 bg-green-50">
+            {alreadyArrived.map(({ p, f }) => (
+              <li key={p.id} className="flex items-center gap-2 px-3 py-2.5">
+                <span className="text-green-600">✓</span>
+                <div className="min-w-0 flex-1 text-sm">
+                  <div className="font-medium">{p.full_name}</div>
+                  <div className="text-xs text-green-600">{dm(f!.flight_datetime)} {isoTime(f!.flight_datetime)}</div>
+                </div>
+                <button onClick={() => onToggleArrived(p)} className="text-xs text-green-600 hover:underline">Desmarcar</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {arrivals.length === 0 && (
+        <p className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">No hay vuelos de llegada</p>
+      )}
     </div>
   );
 }
 
-function IncidentsTab({
+function DespachoTab({
+  passengers,
+}: {
+  passengers: PassengerWithMeta[];
+}) {
+
+  const departures = passengers
+    .map((p) => ({ p, f: p.flights.find((x) => x.direction === 'departure') }))
+    .filter((x) => x.f)
+    .sort((a, b) => (a.f!.flight_datetime ?? '').localeCompare(b.f!.flight_datetime ?? ''));
+
+  if (departures.length === 0) {
+    return (
+      <p className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">No hay vuelos de salida</p>
+    );
+  }
+
+  return (
+    <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+      {departures.map(({ p, f }) => (
+        <li key={p.id} className="flex items-center gap-3 px-3 py-3">
+          <div className="w-16 shrink-0 text-sm">
+            <div className="text-xs text-slate-400">{dm(f!.flight_datetime)}</div>
+            <div className="font-semibold text-slate-700">{isoTime(f!.flight_datetime)}</div>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="font-medium">{p.full_name}</div>
+            <div className="text-xs text-slate-500">
+              {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}{f!.terminal ? ` · Terminal ${f!.terminal}` : ''}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function IncidenciasTab({
   agencyId,
   eventId,
   authorName,
