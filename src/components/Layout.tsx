@@ -28,6 +28,7 @@ const icons: Record<string, JSX.Element> = {
   transport: <svg {...iconProps}><rect x="3" y="6" width="18" height="9" rx="2" /><path d="M3 11h18" /><circle cx="7.5" cy="18" r="1.6" /><circle cx="16.5" cy="18" r="1.6" /></svg>,
   coordinator: <svg {...iconProps}><rect x="6" y="4" width="12" height="17" rx="2" /><path d="M9 3.5h6v3H9zM9 11l2 2 4-4" /></svg>,
   settings: <svg {...iconProps}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>,
+  team: <svg {...iconProps}><circle cx="9" cy="8" r="3.2" /><path d="M2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6" /><circle cx="17.5" cy="8.5" r="2.6" /><path d="M15.5 14.3c2.6.4 4.5 2.5 4.5 5.2" /></svg>,
 };
 
 const bottomNav = [
@@ -118,7 +119,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom navigation */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-slate-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {bottomNav.map((n) => (
@@ -127,7 +128,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             to={n.to}
             end={n.end}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
             }
           >
             {icons[n.icon]}
@@ -136,9 +137,20 @@ export default function Layout({ children }: { children: ReactNode }) {
         ))}
         {can.manageTeam && (
           <NavLink
+            to="/team"
+            className={({ isActive }) =>
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+            }
+          >
+            {icons.team}
+            <span className="leading-none">{t('team.title')}</span>
+          </NavLink>
+        )}
+        {can.manageTeam && (
+          <NavLink
             to="/settings"
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
             }
           >
             {icons.settings}
