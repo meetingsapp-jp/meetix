@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../auth/AuthContext';
 import Button from '../../components/ui/Button';
 import { inputClass } from '../../components/ui/Field';
@@ -97,6 +98,31 @@ export default function CoordinatorPage() {
 
   useEffect(() => {
     if (eventId) load();
+  }, [eventId, load]);
+
+  // Real-time sync: reload data when arrival_checkins or incidents change
+  const realtimeChannelRef = useRef<any>(null);
+  useEffect(() => {
+    if (!supabase || !eventId) return;
+
+    const channel = supabase
+      .channel(`coordinator:${eventId}`)
+      .on(
+        'postgres_changes' as any,
+        { event: '*', schema: 'public', table: 'arrival_checkins' },
+        () => load(),
+      )
+      .on(
+        'postgres_changes' as any,
+        { event: '*', schema: 'public', table: 'incidents' },
+        () => load(),
+      )
+      .subscribe();
+
+    realtimeChannelRef.current = channel;
+    return () => {
+      if (realtimeChannelRef.current) realtimeChannelRef.current.unsubscribe();
+    };
   }, [eventId, load]);
 
   const event = events.find((e) => e.id === eventId) ?? null;
