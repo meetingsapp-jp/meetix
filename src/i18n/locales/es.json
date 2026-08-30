@@ -84,7 +84,8 @@
       "newClient": "Nuevo cliente", "clientName": "Nombre del cliente", "clientCountry": "País",
       "startDate": "Fecha de inicio", "endDate": "Fecha de fin",
       "destinations": "Destinos", "destinationsHint": "Separados por comas (ej.: Cancún, Miami)",
-      "status": "Estado"
+      "status": "Estado", "coordinators": "Coordinadores asignados",
+      "coordinatorsHint": "Solo verán este evento los coordinadores marcados aquí."
     },
     "status": {
       "planificacion": "Planificación", "confirmado": "Confirmado", "en_curso": "En curso",
@@ -112,7 +113,11 @@
       "emergency": "Contacto de emergencia", "notes": "Notas",
       "requirements": "Requerimientos", "dietary": "Dieta", "dietaryPlaceholder": "Ej.: Vegetariano, Sin TACC…",
       "allergies": "Alergias", "specialNeeds": "Necesidades especiales",
-      "specialNeedsPlaceholder": "Ej.: Silla de ruedas, movilidad reducida…"
+      "specialNeedsPlaceholder": "Ej.: Silla de ruedas, movilidad reducida…",
+      "pickupTime": "Horario de salida del hotel",
+      "localTransfer": "Pasajero local (traslado terrestre, sin vuelo)",
+      "originAddress": "Dirección de origen", "destinationAddress": "Dirección de destino",
+      "addressPlaceholder": "Calle, número, ciudad…"
     },
     "wa": {
       "button": "WhatsApp",
@@ -139,11 +144,13 @@
   },
   "settings": {
     "nav": "Ajustes", "title": "Marca de la agencia",
-    "subtitle": "Personalizá el logo y el color; se aplican en la app y en los PDF.",
+    "subtitle": "Personalizá el nombre, el logo y el color; se aplican en la app y en los PDF.",
+    "agencyName": "Nombre de la agencia", "agencyNamePlaceholder": "Ej.: Mi Agencia de Viajes",
     "logo": "Logo", "noLogo": "Sin logo", "uploadLogo": "Subir logo", "uploading": "Subiendo…",
     "logoHint": "PNG o JPG, preferentemente cuadrado.",
     "color": "Color de marca", "preview": "Vista previa", "save": "Guardar cambios", "saved": "¡Cambios guardados!",
-    "onlyDirectors": "Solo un Director puede editar la marca."
+    "onlyDirectors": "Solo un Director puede editar la marca.",
+    "theme": "Tema", "themeLight": "Claro", "themeDark": "Oscuro", "themeSystem": "Sistema"
   },
   "team": {
     "title": "Equipo", "invite": "Invitar", "sendInvite": "Crear invitación",
@@ -190,6 +197,10 @@
     "incidentTitle": "¿Qué pasó? (título)", "incidentDetail": "Detalle (opcional)", "addIncident": "Registrar",
     "noIncidents": "Sin incidencias registradas.", "noPassenger": "— Sin pasajero —",
     "confirmDeleteIncident": "¿Eliminar esta incidencia?", "reopen": "Reabrir", "resolve": "Resolver",
-    "severity": { "info": "Info", "warning": "Atención", "urgent": "Urgente" }
+    "severity": { "info": "Info", "warning": "Atención", "urgent": "Urgente" },
+    "noEventsAssigned": "Todavía no tenés eventos asignados. Pedile a un Director que te asigne uno.",
+    "local": "Local", "localTransferLabel": "Traslado local (sin vuelo)",
+    "viewMap": "Ver en Google Maps", "checkFlightStatus": "Consultar estado del vuelo",
+    "hotelPickup": "Salida del hotel"
   }
 }

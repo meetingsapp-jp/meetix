@@ -6,7 +6,7 @@ import { useRole } from '../../auth/RoleContext';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import type { EventWithMeta } from '../../types';
-import { createEvent, deleteEvent, listEvents, updateEvent, type EventInput } from '../../data/events';
+import { createEvent, deleteEvent, listEvents, setEventCoordinators, updateEvent, type EventInput } from '../../data/events';
 import EventForm from './EventForm';
 
 const statusColors: Record<string, string> = {
@@ -54,10 +54,10 @@ export default function EventsPage() {
     setModalOpen(true);
   }
 
-  async function handleSubmit(input: EventInput) {
+  async function handleSubmit(input: EventInput, coordinatorIds: string[]) {
     if (!agency) return;
-    if (editing) await updateEvent(editing.id, input);
-    else await createEvent(agency.id, input);
+    const ev = editing ? await updateEvent(editing.id, input) : await createEvent(agency.id, input);
+    await setEventCoordinators(agency.id, ev.id, coordinatorIds);
     setModalOpen(false);
     await refresh();
   }

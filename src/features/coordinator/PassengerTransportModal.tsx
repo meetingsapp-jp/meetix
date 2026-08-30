@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import type { PassengerWithMeta } from '../../types';
 import Modal from '../../components/ui/Modal';
+import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 
 const isoTime = (iso: string | null) => (iso ? iso.slice(11, 16) : '');
 const dm = (iso: string | null) => {
@@ -17,44 +19,90 @@ export default function PassengerTransportModal({
   passenger: PassengerWithMeta | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   if (!passenger) return null;
 
   const arrFlight = passenger.flights.find((f) => f.direction === 'arrival');
   const depFlight = passenger.flights.find((f) => f.direction === 'departure');
 
+  const flightStatusLink = (flightNumber: string | null) =>
+    flightNumber && (
+      <a
+        href={flightStatusUrl(flightNumber)}
+        target="_blank"
+        rel="noopener"
+        className="inline-block text-xs font-medium text-blue-700 underline"
+      >
+        ✈️ {t('coordinator.checkFlightStatus')}
+      </a>
+    );
+
   return (
     <Modal open={open} title="Detalles de transporte" onClose={onClose}>
       <div className="space-y-4">
         {/* Pasajero */}
-        <div className="rounded-lg bg-slate-50 p-3">
+        <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-700/50">
           <div className="font-semibold">{passenger.full_name}</div>
           {passenger.is_vip && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
-          <div className="text-xs text-slate-500 mt-1">
+          {passenger.is_local_transfer && (
+            <span className="ml-1 rounded bg-violet-100 px-1 text-[10px] font-semibold text-violet-800">{t('coordinator.local')}</span>
+          )}
+          <div className="text-xs text-slate-500 mt-1 dark:text-slate-300">
             {passenger.phone && <div>📱 {passenger.phone}</div>}
             {passenger.hotel?.name && <div>🏨 {passenger.hotel.name}{passenger.room_number ? ` · Hab. ${passenger.room_number}` : ''}</div>}
           </div>
         </div>
 
+        {/* Traslado local (sin vuelo) */}
+        {passenger.is_local_transfer && (passenger.origin_address || passenger.destination_address) && (
+          <div className="border-l-4 border-violet-400 bg-violet-50 p-3 dark:bg-violet-900/20">
+            <div className="text-xs font-semibold text-violet-700 uppercase dark:text-violet-300">{t('coordinator.localTransferLabel')}</div>
+            <div className="mt-1 space-y-1.5 text-sm">
+              {passenger.origin_address && (
+                <div>
+                  📍 {passenger.origin_address}{' '}
+                  <a href={googleMapsUrl(passenger.origin_address)} target="_blank" rel="noopener" className="text-xs font-medium text-blue-700 underline">
+                    {t('coordinator.viewMap')}
+                  </a>
+                </div>
+              )}
+              {passenger.destination_address && (
+                <div>
+                  🏁 {passenger.destination_address}{' '}
+                  <a href={googleMapsUrl(passenger.destination_address)} target="_blank" rel="noopener" className="text-xs font-medium text-blue-700 underline">
+                    {t('coordinator.viewMap')}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Llegada */}
         {arrFlight && (
-          <div className="border-l-4 border-green-400 bg-green-50 p-3">
-            <div className="text-xs font-semibold text-green-700 uppercase">Llegada</div>
+          <div className="border-l-4 border-green-400 bg-green-50 p-3 dark:bg-green-900/20">
+            <div className="text-xs font-semibold text-green-700 uppercase dark:text-green-300">Llegada</div>
             <div className="mt-1 space-y-1 text-sm">
               <div>✈️ {[arrFlight.airline, arrFlight.flight_number].filter(Boolean).join(' ')}</div>
               <div>📅 {dm(arrFlight.flight_datetime)} a las {isoTime(arrFlight.flight_datetime)}</div>
               {arrFlight.terminal && <div>🚪 Terminal {arrFlight.terminal}</div>}
+              {flightStatusLink(arrFlight.flight_number)}
             </div>
           </div>
         )}
 
         {/* Salida */}
         {depFlight && (
-          <div className="border-l-4 border-blue-400 bg-blue-50 p-3">
-            <div className="text-xs font-semibold text-blue-700 uppercase">Salida</div>
+          <div className="border-l-4 border-blue-400 bg-blue-50 p-3 dark:bg-blue-900/20">
+            <div className="text-xs font-semibold text-blue-700 uppercase dark:text-blue-300">Salida</div>
             <div className="mt-1 space-y-1 text-sm">
+              {depFlight.pickup_time && (
+                <div>🚐 {t('coordinator.hotelPickup')}: {dm(depFlight.pickup_time)} {isoTime(depFlight.pickup_time)}</div>
+              )}
               <div>✈️ {[depFlight.airline, depFlight.flight_number].filter(Boolean).join(' ')}</div>
               <div>📅 {dm(depFlight.flight_datetime)} a las {isoTime(depFlight.flight_datetime)}</div>
               {depFlight.terminal && <div>🚪 Terminal {depFlight.terminal}</div>}
+              {flightStatusLink(depFlight.flight_number)}
             </div>
           </div>
         )}

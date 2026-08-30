@@ -28,6 +28,7 @@ function flightOf(flights: Flight[] | undefined, dir: 'arrival' | 'departure'): 
     // datetime-local wants "YYYY-MM-DDTHH:mm"
     flight_datetime: f?.flight_datetime ? f.flight_datetime.slice(0, 16) : '',
     terminal: f?.terminal ?? '',
+    pickup_time: f?.pickup_time ? f.pickup_time.slice(0, 16) : '',
   };
 }
 
@@ -55,6 +56,9 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [allergies, setAllergies] = useState(initial?.allergies ?? '');
   const [specialNeeds, setSpecialNeeds] = useState(initial?.special_needs ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
+  const [isLocalTransfer, setIsLocalTransfer] = useState(initial?.is_local_transfer ?? false);
+  const [originAddress, setOriginAddress] = useState(initial?.origin_address ?? '');
+  const [destinationAddress, setDestinationAddress] = useState(initial?.destination_address ?? '');
 
   const [arrival, setArrival] = useState<FlightInput>(flightOf(initial?.flights, 'arrival'));
   const [departure, setDeparture] = useState<FlightInput>(flightOf(initial?.flights, 'departure'));
@@ -134,10 +138,13 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           allergies: clean(allergies),
           special_needs: clean(specialNeeds),
           notes: clean(notes),
+          is_local_transfer: isLocalTransfer,
+          origin_address: clean(originAddress),
+          destination_address: clean(destinationAddress),
         },
         {
-          arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null, terminal: clean(arrival.terminal ?? '') },
-          departure: { airline: clean(departure.airline ?? ''), flight_number: clean(departure.flight_number ?? ''), flight_datetime: departure.flight_datetime || null, terminal: clean(departure.terminal ?? '') },
+          arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null, terminal: clean(arrival.terminal ?? ''), pickup_time: arrival.pickup_time || null },
+          departure: { airline: clean(departure.airline ?? ''), flight_number: clean(departure.flight_number ?? ''), flight_datetime: departure.flight_datetime || null, terminal: clean(departure.terminal ?? ''), pickup_time: departure.pickup_time || null },
         },
         personId,
       );
@@ -151,6 +158,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
     title: string,
     value: FlightInput,
     setValue: (v: FlightInput) => void,
+    showPickup = false,
   ) => (
     <fieldset className="rounded border border-slate-200 p-3">
       <legend className="px-1 text-sm font-medium text-slate-600">{title}</legend>
@@ -182,6 +190,17 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           onChange={(e) => setValue({ ...value, terminal: e.target.value })}
         />
       </div>
+      {showPickup && (
+        <label className="mt-2 block">
+          <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.pickupTime')}</span>
+          <input
+            type="datetime-local"
+            className={inputClass}
+            value={value.pickup_time ?? ''}
+            onChange={(e) => setValue({ ...value, pickup_time: e.target.value })}
+          />
+        </label>
+      )}
     </fieldset>
   );
 
@@ -281,8 +300,24 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
         </Field>
       </div>
 
+      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <input type="checkbox" checked={isLocalTransfer} onChange={(e) => setIsLocalTransfer(e.target.checked)} className="h-4 w-4" />
+        {t('passengers.form.localTransfer')}
+      </label>
+
+      {isLocalTransfer && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label={t('passengers.form.originAddress')}>
+            <input className={inputClass} value={originAddress} onChange={(e) => setOriginAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
+          </Field>
+          <Field label={t('passengers.form.destinationAddress')}>
+            <input className={inputClass} value={destinationAddress} onChange={(e) => setDestinationAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
+          </Field>
+        </div>
+      )}
+
       {flightBlock(t('passengers.form.arrival'), arrival, setArrival)}
-      {flightBlock(t('passengers.form.departure'), departure, setDeparture)}
+      {flightBlock(t('passengers.form.departure'), departure, setDeparture, true)}
 
       <Field label={t('passengers.form.emergency')}>
         <input className={inputClass} value={emergency} onChange={(e) => setEmergency(e.target.value)} />

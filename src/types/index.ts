@@ -88,6 +88,7 @@ export interface Flight {
   terminal: string | null;
   origin_airport: string | null;
   destination_airport: string | null;
+  pickup_time: string | null;
   created_at: string;
 }
 
@@ -123,6 +124,9 @@ export interface Passenger {
   room_number: string | null;
   cost_center: string | null;
   notes: string | null;
+  is_local_transfer: boolean;
+  origin_address: string | null;
+  destination_address: string | null;
   created_at: string;
   updated_at: string;
 }
