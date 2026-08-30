@@ -85,7 +85,7 @@ export default function TransportPage() {
       setPassengers((prev) =>
         prev.map((x) =>
           x.id === p.id
-            ? { ...x, transport_provider_id: providerId || null, transport_provider: prov ? { name: prov.name } : null }
+            ? { ...x, transport_provider_id: providerId || null, transport_provider: prov ? { name: prov.name, contact_phone: prov.contact_phone } : null }
             : x,
         ),
       );

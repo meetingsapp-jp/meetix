@@ -725,6 +725,9 @@ function RecepcionTab({
                     <div>✈️ {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}</div>
                     <div>📍 {dm(f!.flight_datetime)} a las {isoTime(f!.flight_datetime)}{f!.terminal ? ` (Terminal ${f!.terminal})` : ''}</div>
                     <div>🏨 {p.hotel?.name ?? 'Sin hotel'}{p.room_number ? ` · Hab. ${p.room_number}` : ''}</div>
+                    <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
+                      🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
+                    </div>
                     {f!.flight_number && (
                       <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">Consultar estado del vuelo</a>
                     )}
@@ -735,6 +738,12 @@ function RecepcionTab({
                 </div>
                 <div className="flex flex-col gap-1">
                   <ArrivedToggle on={false} onClick={() => onToggleArrived(p)} />
+                  {p.transport_provider?.contact_phone && (
+                    <div className="flex gap-1">
+                      <a href={telHref(p.transport_provider.contact_phone)} className="text-xs rounded bg-violet-50 px-2 py-1 text-violet-700 hover:bg-violet-100" title="Llamar proveedor">🚐📞</a>
+                      <a href={waHref(p.transport_provider.contact_phone)} target="_blank" rel="noopener" className="text-xs rounded bg-violet-50 px-2 py-1 text-violet-700 hover:bg-violet-100" title="WhatsApp proveedor">🚐💬</a>
+                    </div>
+                  )}
                   {p.phone && (
                     <div className="flex gap-1">
                       <a href={telHref(p.phone)} className="text-xs rounded bg-slate-100 px-2 py-1 text-slate-700 hover:bg-slate-200">📞</a>
@@ -805,7 +814,10 @@ function DespachoTab({
                 <div className="text-xs text-slate-500">
                   {f!.pickup_time && <div>🚐 {t('coordinator.hotelPickup')}: {dm(f!.pickup_time)} {isoTime(f!.pickup_time)}</div>}
                   <div>
-                    {[f!.airline, f!.flight_number].filter(Boolean).join(' ')}{f!.terminal ? ` · Terminal ${f!.terminal}` : ''}
+                    ✈️ {[f!.airline, f!.flight_number].filter(Boolean).join(' ')} · {dm(f!.flight_datetime)} {isoTime(f!.flight_datetime)}{f!.terminal ? ` · Terminal ${f!.terminal}` : ''}
+                  </div>
+                  <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
+                    🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
                   {f!.flight_number && (
                     <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">
@@ -814,6 +826,12 @@ function DespachoTab({
                   )}
                 </div>
               </div>
+              {p.transport_provider?.contact_phone && (
+                <div className="flex shrink-0 flex-col gap-1">
+                  <a href={telHref(p.transport_provider.contact_phone)} className="text-xs rounded bg-violet-50 px-2 py-1 text-violet-700 hover:bg-violet-100" title="Llamar proveedor">🚐📞</a>
+                  <a href={waHref(p.transport_provider.contact_phone)} target="_blank" rel="noopener" className="text-xs rounded bg-violet-50 px-2 py-1 text-violet-700 hover:bg-violet-100" title="WhatsApp proveedor">🚐💬</a>
+                </div>
+              )}
             </li>
           ))}
         </ul>
