@@ -46,6 +46,7 @@ export interface EventRow {
   end_date: string | null;
   destinations: string[];
   status: EventStatus;
+  welcome_sign_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -106,6 +107,7 @@ export interface Person {
   allergies: string | null;
   special_needs: string | null;
   emergency_contact: string | null;
+  photo_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -143,6 +145,7 @@ export interface PassengerWithMeta extends Passenger {
   allergies: string | null;
   special_needs: string | null;
   emergency_contact: string | null;
+  photo_url: string | null;
   person: Person | null;
   hotel: { name: string } | null;
   transport_provider: { name: string } | null;

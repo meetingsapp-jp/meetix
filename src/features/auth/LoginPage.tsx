@@ -3,8 +3,23 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabaseClient';
 import Button from '../../components/ui/Button';
 import Logo from '../../components/Logo';
-import { Field, inputClass } from '../../components/ui/Field';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
+
+// The login screen is a branded, always-light card — it must look right before
+// the user has any theme preference loaded, so it deliberately does NOT use the
+// shared (theme-aware) Field/inputClass, which would otherwise bleed dark-mode
+// colors (near-black inputs) onto this still-white card.
+const lightInputClass =
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-brand-accent focus:outline-none focus:ring-1 focus:ring-brand-accent';
+
+function LightField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
+      {children}
+    </label>
+  );
+}
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -47,7 +62,7 @@ export default function LoginPage() {
           <select
             value={i18n.resolvedLanguage}
             onChange={(e) => i18n.changeLanguage(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1 text-xs"
+            className="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-900"
           >
             {SUPPORTED_LANGUAGES.map((lng) => (
               <option key={lng} value={lng}>{t(`language.${lng}`)}</option>
@@ -60,12 +75,12 @@ export default function LoginPage() {
 
         {mode === 'login' ? (
           <form onSubmit={handleLogin} className="space-y-3">
-            <Field label={t('auth.email')}>
-              <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
-            </Field>
-            <Field label={t('auth.password')}>
-              <input type="password" className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </Field>
+            <LightField label={t('auth.email')}>
+              <input type="email" className={lightInputClass} value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            </LightField>
+            <LightField label={t('auth.password')}>
+              <input type="password" className={lightInputClass} value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </LightField>
             <Button type="submit" disabled={busy} className="w-full">
               {busy ? t('auth.signingIn') : t('auth.signIn')}
             </Button>
@@ -80,9 +95,9 @@ export default function LoginPage() {
         ) : (
           <form onSubmit={handleForgot} className="space-y-3">
             <p className="text-sm text-slate-600">{t('auth.forgotHint')}</p>
-            <Field label={t('auth.email')}>
-              <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
-            </Field>
+            <LightField label={t('auth.email')}>
+              <input type="email" className={lightInputClass} value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            </LightField>
             <Button type="submit" disabled={busy} className="w-full">
               {busy ? t('common.saving') : t('auth.sendReset')}
             </Button>

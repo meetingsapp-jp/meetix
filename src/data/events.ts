@@ -109,3 +109,17 @@ export async function listAssignedEventIds(appUserId: string): Promise<string[]>
   if (error) throw new Error(error.message);
   return (data ?? []).map((r: { event_id: string }) => r.event_id);
 }
+
+// --- Welcome sign (uploaded per event, shown to the coordinator in Recepción) ---
+
+export async function uploadEventSign(agencyId: string, eventId: string, file: File): Promise<string> {
+  const db = client();
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+  const path = `${agencyId}/${eventId}-${Date.now()}.${ext}`;
+  const { error: upErr } = await db.storage.from('event-signs').upload(path, file, { upsert: true, cacheControl: '3600' });
+  if (upErr) throw new Error(upErr.message);
+  const { data } = db.storage.from('event-signs').getPublicUrl(path);
+  const { error } = await db.from('events').update({ welcome_sign_url: data.publicUrl }).eq('id', eventId);
+  if (error) throw new Error(error.message);
+  return data.publicUrl;
+}
