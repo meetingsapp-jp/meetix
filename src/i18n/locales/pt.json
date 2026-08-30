@@ -121,7 +121,8 @@
       "localTransfer": "Passageiro local (traslado terrestre, sem voo)",
       "originAddress": "Endereço de origem", "destinationAddress": "Endereço de destino",
       "addressPlaceholder": "Rua, número, cidade…",
-      "photo": "Foto", "uploadPhoto": "Enviar foto"
+      "photo": "Foto", "uploadPhoto": "Enviar foto",
+      "draftRestored": "Recuperamos o que você estava preenchendo antes de sair."
     },
     "wa": {
       "button": "WhatsApp",

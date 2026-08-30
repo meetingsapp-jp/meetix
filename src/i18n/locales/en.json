@@ -121,7 +121,8 @@
       "localTransfer": "Local passenger (ground transfer only, no flight)",
       "originAddress": "Origin address", "destinationAddress": "Destination address",
       "addressPlaceholder": "Street, number, city…",
-      "photo": "Photo", "uploadPhoto": "Upload photo"
+      "photo": "Photo", "uploadPhoto": "Upload photo",
+      "draftRestored": "We recovered what you were filling in before you left."
     },
     "wa": {
       "button": "WhatsApp",
