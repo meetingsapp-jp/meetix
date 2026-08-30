@@ -110,6 +110,7 @@
       "costCenter": "Centro de custos", "costCenterPlaceholder": "Ex.: Marketing, Cliente X…",
       "reuseTitle": "Já cadastrou esta pessoa antes?", "searchDirectory": "Buscar no diretório (nome, documento, e-mail)…",
       "reusing": "Reutilizando pessoa do diretório", "asNew": "usar como nova",
+      "useAsNewName": "Não está no diretório. Usar \"{{name}}\" como nome completo ↓",
       "arrival": "Voo de chegada", "departure": "Voo de saída",
       "airline": "Companhia aérea", "flightNumber": "Nº do voo", "terminal": "Terminal",
       "emergency": "Contato de emergência", "notes": "Notas",

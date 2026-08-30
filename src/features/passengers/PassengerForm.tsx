@@ -250,6 +250,15 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
               ))}
             </ul>
           )}
+          {dirOpen && dirSearch.trim() && dirResults.length === 0 && (
+            <button
+              type="button"
+              onClick={() => { setFullName(dirSearch.trim()); setDirSearch(''); setDirOpen(false); }}
+              className="mt-1 block w-full rounded border border-dashed border-slate-300 bg-white px-3 py-2 text-left text-sm text-brand-accent hover:bg-slate-50"
+            >
+              {t('passengers.form.useAsNewName', { name: dirSearch.trim() })}
+            </button>
+          )}
           {personId && (
             <div className="mt-1 flex items-center gap-2 text-xs text-emerald-700">
               ✓ {t('passengers.form.reusing')}
