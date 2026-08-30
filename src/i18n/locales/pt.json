@@ -170,7 +170,12 @@
     "willImport": "{{count}} passageiros serão importados", "skipped": "{{count}} sem nome (ignorados)",
     "missingName": "(sem nome)", "more": "…e mais {{count}}",
     "importAction": "Importar {{count}}", "importing": "Importando…",
-    "done": "Pronto! {{count}} passageiros importados."
+    "done": "Pronto! {{count}} passageiros importados.",
+    "modeFile": "Arquivo Excel/CSV", "modeAi": "Importar com IA",
+    "aiIntro": "Cole o texto de um e-mail de confirmação, itinerário em PDF, lista de quartos ou manifesto de transporte. A IA monta a lista de passageiros automaticamente.",
+    "aiPlaceholder": "Cole aqui o texto do itinerário, e-mail ou documento…",
+    "aiAnalyze": "Analisar com IA", "aiAnalyzing": "Analisando…",
+    "aiEmpty": "Nenhum passageiro foi encontrado nesse texto."
   },
   "transport": {
     "title": "Transporte terrestre", "subtitle": "Filtre passageiros VIP vs. grupo e exporte a lista VIP para o fornecedor.",

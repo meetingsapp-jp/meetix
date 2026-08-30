@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import { inputClass } from '../../components/ui/Field';
 import { downloadPassengerTemplate, parsePassengerFile, type ParsedRow } from '../../lib/import/passengers';
 import { bulkImportPassengers } from '../../data/passengers';
+import { extractItineraryText } from '../../lib/import/ai';
 
 interface Props {
   agencyId: string;
@@ -16,8 +18,11 @@ interface Props {
 export default function ImportModal({ agencyId, eventId, open, onClose, onImported }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [mode, setMode] = useState<'file' | 'ai'>('file');
   const [rows, setRows] = useState<ParsedRow[] | null>(null);
   const [fileName, setFileName] = useState('');
+  const [aiText, setAiText] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,8 +32,25 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
   function reset() {
     setRows(null);
     setFileName('');
+    setAiText('');
     setError(null);
     if (inputRef.current) inputRef.current.value = '';
+  }
+
+  async function handleAnalyze() {
+    if (!aiText.trim()) return;
+    setAnalyzing(true);
+    setError(null);
+    try {
+      const parsed = await extractItineraryText(aiText.trim());
+      if (!parsed.length) setError(t('import.aiEmpty'));
+      setRows(parsed);
+    } catch (err) {
+      setError((err as Error).message);
+      setRows(null);
+    } finally {
+      setAnalyzing(false);
+    }
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -67,24 +89,58 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
   return (
     <Modal open={open} title={t('import.title')} onClose={() => { reset(); onClose(); }}>
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('import.intro')}</p>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" type="button" onClick={() => downloadPassengerTemplate()}>
-            {t('import.downloadTemplate')}
-          </Button>
-          <Button type="button" onClick={() => inputRef.current?.click()}>
-            {t('import.chooseFile')}
-          </Button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={handleFile}
-          />
-          {fileName && <span className="text-xs text-slate-500">{fileName}</span>}
+        <div className="inline-flex rounded-md border border-slate-300 p-0.5 dark:border-slate-600">
+          {(['file', 'ai'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => { setMode(m); setRows(null); setError(null); }}
+              className={`rounded px-3 py-1.5 text-sm font-medium transition ${
+                mode === m ? 'bg-brand-accent text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'
+              }`}
+            >
+              {m === 'file' ? t('import.modeFile') : t('import.modeAi')}
+            </button>
+          ))}
         </div>
+
+        {mode === 'file' ? (
+          <>
+            <p className="text-sm text-slate-600">{t('import.intro')}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="secondary" type="button" onClick={() => downloadPassengerTemplate()}>
+                {t('import.downloadTemplate')}
+              </Button>
+              <Button type="button" onClick={() => inputRef.current?.click()}>
+                {t('import.chooseFile')}
+              </Button>
+              <input
+                ref={inputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleFile}
+              />
+              {fileName && <span className="text-xs text-slate-500">{fileName}</span>}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-slate-600">{t('import.aiIntro')}</p>
+            <textarea
+              className={inputClass}
+              rows={6}
+              placeholder={t('import.aiPlaceholder')}
+              value={aiText}
+              onChange={(e) => setAiText(e.target.value)}
+            />
+            <div className="flex justify-end">
+              <Button type="button" onClick={handleAnalyze} disabled={analyzing || !aiText.trim()}>
+                {analyzing ? t('import.aiAnalyzing') : t('import.aiAnalyze')}
+              </Button>
+            </div>
+          </>
+        )}
 
         {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
