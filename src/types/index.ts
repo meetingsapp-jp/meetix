@@ -147,7 +147,7 @@ export interface PassengerWithMeta extends Passenger {
   emergency_contact: string | null;
   photo_url: string | null;
   person: Person | null;
-  hotel: { name: string } | null;
+  hotel: { name: string; address: string | null } | null;
   transport_provider: { name: string } | null;
   flights: Flight[];
 }

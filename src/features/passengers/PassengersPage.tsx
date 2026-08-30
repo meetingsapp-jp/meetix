@@ -23,6 +23,7 @@ import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels }
 import { exportPassengerItinerary, type ItineraryLabels } from '../../lib/export/itinerary';
 import { exportRoomingPdf, type RoomingLabels } from '../../lib/export/rooming';
 import { openWhatsApp, passengerItineraryText, type WhatsAppLabels } from '../../lib/share/whatsapp';
+import { googleMapsUrl } from '../../lib/links';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -294,7 +295,23 @@ export default function PassengersPage() {
                     )}
                   </td>
                   <td className="px-3 py-2 text-slate-600">
-                    {p.hotel?.name ?? '—'}{p.room_number ? ` · ${p.room_number}` : ''}
+                    {p.hotel?.name ? (
+                      <>
+                        {p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}{' '}
+                        <a href={googleMapsUrl(p.hotel.address || p.hotel.name)} target="_blank" rel="noopener" className="text-brand-accent" title={t('passengers.viewOnMap')}>📍</a>
+                      </>
+                    ) : '—'}
+                    {p.is_local_transfer && (
+                      <div className="mt-0.5 text-xs text-violet-700">
+                        {t('coordinator.localTransferLabel')}
+                        {p.origin_address && (
+                          <> · <a href={googleMapsUrl(p.origin_address)} target="_blank" rel="noopener" className="underline">{t('passengers.origin')}</a></>
+                        )}
+                        {p.destination_address && (
+                          <> · <a href={googleMapsUrl(p.destination_address)} target="_blank" rel="noopener" className="underline">{t('passengers.destination')}</a></>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{flightSummary(p)}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
@@ -344,7 +361,23 @@ export default function PassengersPage() {
               </div>
               <div className="mt-1 space-y-0.5 text-sm text-slate-500">
                 {p.document_id && <div>{t('passengers.form.documentId')}: {p.document_id}</div>}
-                {p.hotel?.name && <div>{p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}</div>}
+                {p.hotel?.name && (
+                  <div>
+                    {p.hotel.name}{p.room_number ? ` · ${p.room_number}` : ''}{' '}
+                    <a href={googleMapsUrl(p.hotel.address || p.hotel.name)} target="_blank" rel="noopener" className="text-brand-accent" title={t('passengers.viewOnMap')}>📍</a>
+                  </div>
+                )}
+                {p.is_local_transfer && (
+                  <div className="text-violet-700">
+                    {t('coordinator.localTransferLabel')}
+                    {p.origin_address && (
+                      <> · <a href={googleMapsUrl(p.origin_address)} target="_blank" rel="noopener" className="underline">{t('passengers.origin')}</a></>
+                    )}
+                    {p.destination_address && (
+                      <> · <a href={googleMapsUrl(p.destination_address)} target="_blank" rel="noopener" className="underline">{t('passengers.destination')}</a></>
+                    )}
+                  </div>
+                )}
                 <div>{flightSummary(p)}</div>
               </div>
               {(p.dietary || p.allergies || p.special_needs) && (

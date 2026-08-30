@@ -53,7 +53,14 @@ export default function PassengerTransportModal({
             )}
             <div className="text-xs text-slate-500 mt-1 dark:text-slate-300">
               {passenger.phone && <div>📱 {passenger.phone}</div>}
-              {passenger.hotel?.name && <div>🏨 {passenger.hotel.name}{passenger.room_number ? ` · Hab. ${passenger.room_number}` : ''}</div>}
+              {passenger.hotel?.name && (
+                <div>
+                  🏨 {passenger.hotel.name}{passenger.room_number ? ` · Hab. ${passenger.room_number}` : ''}{' '}
+                  <a href={googleMapsUrl(passenger.hotel.address || passenger.hotel.name)} target="_blank" rel="noopener" className="text-blue-700 underline">
+                    {t('coordinator.viewMap')}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
