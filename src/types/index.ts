@@ -129,8 +129,17 @@ export interface Passenger {
   is_local_transfer: boolean;
   origin_address: string | null;
   destination_address: string | null;
+  local_transfer_time: string | null;
+  reception_notes: string | null;
+  dispatch_notes: string | null;
+  departure_checklist: ChecklistItem[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ChecklistItem {
+  label: string;
+  done: boolean;
 }
 
 // Participation joined with the person's stable fields (flattened so existing

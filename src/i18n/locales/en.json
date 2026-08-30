@@ -126,7 +126,13 @@
       "originAddress": "Origin address", "destinationAddress": "Destination address",
       "addressPlaceholder": "Street, number, city…",
       "photo": "Photo", "uploadPhoto": "Upload photo",
-      "draftRestored": "We recovered what you were filling in before you left."
+      "draftRestored": "We recovered what you were filling in before you left.",
+      "localTransferTime": "Transfer time",
+      "receptionDispatch": "Reception & dispatch",
+      "receptionNotes": "How they're received", "receptionNotesPlaceholder": "e.g.: Sign at the airport, guide Juan waits at the hotel…",
+      "dispatchNotes": "How they're dispatched", "dispatchNotesPlaceholder": "e.g.: Driver picks them up at 10 at the hotel lobby…",
+      "departureChecklist": "Departure checklist (gifts, etc.)",
+      "departureChecklistPlaceholder": "e.g.: Hand over welcome gift…"
     },
     "wa": {
       "button": "WhatsApp",
@@ -217,7 +223,7 @@
     "confirmDeleteIncident": "Delete this incident?", "reopen": "Reopen", "resolve": "Resolve",
     "severity": { "info": "Info", "warning": "Attention", "urgent": "Urgent" },
     "noEventsAssigned": "You don't have any events assigned yet. Ask a Director to assign you one.",
-    "local": "Local", "localTransferLabel": "Local transfer (no flight)",
+    "local": "Local", "localTransferLabel": "Local transfer (no flight)", "groupTransport": "Group",
     "viewMap": "View on Google Maps", "checkFlightStatus": "Check flight status",
     "hotelPickup": "Hotel pickup",
     "notePlaceholder": "Write a note for the team…", "addNote": "Add note",
