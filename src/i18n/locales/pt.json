@@ -170,7 +170,12 @@
     "willImport": "{{count}} passageiros serão importados", "skipped": "{{count}} sem nome (ignorados)",
     "missingName": "(sem nome)", "more": "…e mais {{count}}",
     "importAction": "Importar {{count}}", "importing": "Importando…",
-    "done": "Pronto! {{count}} passageiros importados."
+    "done": "Pronto! {{count}} passageiros importados.",
+    "modeFile": "Arquivo Excel/CSV", "modeAi": "Importar com IA",
+    "aiIntro": "Cole o texto de um e-mail de confirmação, itinerário em PDF, lista de quartos ou manifesto de transporte. A IA monta a lista de passageiros automaticamente.",
+    "aiPlaceholder": "Cole aqui o texto do itinerário, e-mail ou documento…",
+    "aiAnalyze": "Analisar com IA", "aiAnalyzing": "Analisando…",
+    "aiEmpty": "Nenhum passageiro foi encontrado nesse texto."
   },
   "transport": {
     "title": "Transporte terrestre", "subtitle": "Filtre passageiros VIP vs. grupo e exporte a lista VIP para o fornecedor.",
@@ -195,8 +200,9 @@
   },
   "coordinator": {
     "title": "Coordenador", "onsite": "No local",
-    "tabs": { "today": "Hoje", "passengers": "Passageiros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidências" },
+    "tabs": { "today": "Hoje", "passengers": "Passageiros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidências", "notes": "Notas", "chat": "Chat" },
     "arrived": "Chegou", "markArrived": "Marcar chegada", "arrivedCount": "Chegaram", "openIncidents": "Incidências",
+    "happeningNow": "Acontecendo agora",
     "pendingArrivals": "Chegadas pendentes", "allArrived": "Todos chegaram ✓", "nextSessions": "Próximas atividades",
     "searchPassenger": "Buscar passageiro…", "call": "Ligar", "fullAgenda": "Ver agenda completa",
     "incidentTitle": "O que aconteceu? (título)", "incidentDetail": "Detalhe (opcional)", "addIncident": "Registrar",
@@ -206,6 +212,11 @@
     "noEventsAssigned": "Você ainda não tem eventos atribuídos. Peça a um Diretor que atribua um a você.",
     "local": "Local", "localTransferLabel": "Traslado local (sem voo)",
     "viewMap": "Ver no Google Maps", "checkFlightStatus": "Consultar status do voo",
-    "hotelPickup": "Saída do hotel"
+    "hotelPickup": "Saída do hotel",
+    "notePlaceholder": "Escreva uma nota para a equipe…", "addNote": "Adicionar nota",
+    "noNotes": "Ainda não há notas.", "emailNotes": "Enviar notas por e-mail",
+    "notesEmailSubject": "Notas do evento",
+    "messagePlaceholder": "Escreva uma mensagem…", "send": "Enviar",
+    "noMessages": "Ainda não há mensagens. Comece a conversa!"
   }
 }
