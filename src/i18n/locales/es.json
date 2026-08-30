@@ -195,8 +195,9 @@
   },
   "coordinator": {
     "title": "Coordinador", "onsite": "En el lugar",
-    "tabs": { "today": "Hoy", "passengers": "Pasajeros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidencias" },
+    "tabs": { "today": "Hoy", "passengers": "Pasajeros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidencias", "notes": "Notas", "chat": "Chat" },
     "arrived": "Llegó", "markArrived": "Marcar llegó", "arrivedCount": "Llegaron", "openIncidents": "Incidencias",
+    "happeningNow": "Sucediendo ahora",
     "pendingArrivals": "Llegadas pendientes", "allArrived": "Todos llegaron ✓", "nextSessions": "Próximas actividades",
     "searchPassenger": "Buscar pasajero…", "call": "Llamar", "fullAgenda": "Ver agenda completa",
     "incidentTitle": "¿Qué pasó? (título)", "incidentDetail": "Detalle (opcional)", "addIncident": "Registrar",
@@ -206,6 +207,11 @@
     "noEventsAssigned": "Todavía no tenés eventos asignados. Pedile a un Director que te asigne uno.",
     "local": "Local", "localTransferLabel": "Traslado local (sin vuelo)",
     "viewMap": "Ver en Google Maps", "checkFlightStatus": "Consultar estado del vuelo",
-    "hotelPickup": "Salida del hotel"
+    "hotelPickup": "Salida del hotel",
+    "notePlaceholder": "Escribí una nota para el equipo…", "addNote": "Agregar nota",
+    "noNotes": "Todavía no hay notas.", "emailNotes": "Enviar notas por email",
+    "notesEmailSubject": "Notas del evento",
+    "messagePlaceholder": "Escribí un mensaje…", "send": "Enviar",
+    "noMessages": "Todavía no hay mensajes. ¡Empezá la conversación!"
   }
 }
