@@ -8,7 +8,7 @@ import CopyLink from '../../components/ui/CopyLink';
 import { Field, inputClass } from '../../components/ui/Field';
 import type { AppUser, UserRole } from '../../types';
 
-const INVITE_ROLES: UserRole[] = ['director_eventos', 'planificador', 'guia_coordinador'];
+const INVITE_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 const ALL_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 
 type ModalType = 'role' | 'edit' | 'password' | 'invite' | null;

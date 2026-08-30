@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
@@ -7,6 +7,7 @@ import {
   createHotel,
   listHotels,
   listPeople,
+  uploadPersonPhoto,
   type FlightInput,
   type FlightsInput,
   type PassengerInput,
@@ -59,6 +60,9 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [isLocalTransfer, setIsLocalTransfer] = useState(initial?.is_local_transfer ?? false);
   const [originAddress, setOriginAddress] = useState(initial?.origin_address ?? '');
   const [destinationAddress, setDestinationAddress] = useState(initial?.destination_address ?? '');
+  const [photoUrl, setPhotoUrl] = useState(initial?.photo_url ?? null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [arrival, setArrival] = useState<FlightInput>(flightOf(initial?.flights, 'arrival'));
   const [departure, setDeparture] = useState<FlightInput>(flightOf(initial?.flights, 'departure'));
@@ -115,6 +119,22 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
     }
   }
 
+  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !initial?.person_id) return;
+    setUploadingPhoto(true);
+    setError(null);
+    try {
+      const url = await uploadPersonPhoto(agencyId, initial.person_id, file);
+      setPhotoUrl(url);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!fullName.trim()) return;
@@ -141,6 +161,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           is_local_transfer: isLocalTransfer,
           origin_address: clean(originAddress),
           destination_address: clean(destinationAddress),
+          photo_url: photoUrl,
         },
         {
           arrival: { airline: clean(arrival.airline ?? ''), flight_number: clean(arrival.flight_number ?? ''), flight_datetime: arrival.flight_datetime || null, terminal: clean(arrival.terminal ?? ''), pickup_time: arrival.pickup_time || null },
@@ -243,6 +264,25 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
       <Field label={t('passengers.form.fullName')}>
         <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} required autoFocus />
       </Field>
+
+      {initial?.person_id && (
+        <div>
+          <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{t('passengers.form.photo')}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-700">
+              {photoUrl ? (
+                <img src={photoUrl} alt={fullName} className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-xs text-slate-400">—</span>
+              )}
+            </div>
+            <Button type="button" variant="secondary" onClick={() => photoInputRef.current?.click()} disabled={uploadingPhoto}>
+              {uploadingPhoto ? t('settings.uploading') : t('passengers.form.uploadPhoto')}
+            </Button>
+            <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <Field label={t('passengers.form.email')}>

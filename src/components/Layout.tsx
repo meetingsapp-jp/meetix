@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import { SUPPORTED_LANGUAGES } from '../i18n';
@@ -41,11 +41,24 @@ const bottomNav = [
 export default function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const { appUser, agency, signOut, isPlatformAdmin, can } = useAuth();
+  const navigate = useNavigate();
 
   const brand = agency?.brand_color || undefined;
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `whitespace-nowrap rounded px-3 py-1.5 text-sm ${isActive ? 'bg-white/20' : 'hover:bg-white/10'}`;
+
+  const [agencyMenuOpen, setAgencyMenuOpen] = useState(false);
+  const agencyMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!agencyMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (agencyMenuRef.current && !agencyMenuRef.current.contains(e.target as Node)) setAgencyMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [agencyMenuOpen]);
 
   return (
     <div className="min-h-full flex flex-col">
@@ -55,10 +68,42 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         {/* Top row: brand + language + user */}
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
-          {agency?.logo_url ? (
-            <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
-          ) : null}
-          <span className="truncate text-lg font-bold">{agency?.name ?? t('app.name')}</span>
+          {can.manageTeam ? (
+            <div className="relative min-w-0" ref={agencyMenuRef}>
+              <button
+                type="button"
+                onClick={() => setAgencyMenuOpen((o) => !o)}
+                className="flex min-w-0 items-center gap-2 rounded px-1 py-0.5 hover:bg-white/10"
+                aria-haspopup="menu"
+                aria-expanded={agencyMenuOpen}
+              >
+                {agency?.logo_url ? (
+                  <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
+                ) : null}
+                <span className="truncate text-lg font-bold">{agency?.name ?? t('app.name')}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-70">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              {agencyMenuOpen && (
+                <div className="absolute left-0 z-30 mt-1 w-48 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                  <button
+                    onClick={() => { setAgencyMenuOpen(false); navigate('/settings'); }}
+                    className="block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                  >
+                    {t('settings.nav')}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex min-w-0 items-center gap-2">
+              {agency?.logo_url ? (
+                <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
+              ) : null}
+              <span className="truncate text-lg font-bold">{agency?.name ?? t('app.name')}</span>
+            </div>
+          )}
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <select
@@ -97,9 +142,6 @@ export default function Layout({ children }: { children: ReactNode }) {
             ))}
             {can.manageTeam && (
               <NavLink to="/team" className={navClass}>{t('team.title')}</NavLink>
-            )}
-            {can.manageTeam && (
-              <NavLink to="/settings" className={navClass}>{t('settings.nav')}</NavLink>
             )}
             {isPlatformAdmin && (
               <NavLink to="/admin" className={navClass}>{t('admin.title')}</NavLink>
@@ -144,17 +186,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           >
             {icons.team}
             <span className="leading-none">{t('team.title')}</span>
-          </NavLink>
-        )}
-        {can.manageTeam && (
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
-            }
-          >
-            {icons.settings}
-            <span className="leading-none">{t('settings.nav')}</span>
           </NavLink>
         )}
       </nav>
