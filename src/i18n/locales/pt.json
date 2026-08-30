@@ -132,6 +132,7 @@
     "button": "PDF", "title": "Itinerário", "passenger": "Passageiro", "contact": "Contato"
   },
   "pwa": { "updateAvailable": "Há uma nova versão disponível.", "update": "Atualizar" },
+  "push": { "on": "Notificações ativadas (toque para desativar)", "off": "Ativar notificações push" },
   "install": {
     "button": "Instalar app",
     "iosTitle": "Instalar no iPhone / iPad",
@@ -200,7 +201,7 @@
   },
   "coordinator": {
     "title": "Coordenador", "onsite": "No local",
-    "tabs": { "today": "Hoje", "passengers": "Passageiros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidências", "notes": "Notas", "chat": "Chat" },
+    "tabs": { "today": "Hoje", "passengers": "Passageiros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidências", "notes": "Notas", "chat": "Chat", "history": "Histórico" },
     "arrived": "Chegou", "markArrived": "Marcar chegada", "arrivedCount": "Chegaram", "openIncidents": "Incidências",
     "happeningNow": "Acontecendo agora",
     "pendingArrivals": "Chegadas pendentes", "allArrived": "Todos chegaram ✓", "nextSessions": "Próximas atividades",
@@ -217,6 +218,15 @@
     "noNotes": "Ainda não há notas.", "emailNotes": "Enviar notas por e-mail",
     "notesEmailSubject": "Notas do evento",
     "messagePlaceholder": "Escreva uma mensagem…", "send": "Enviar",
-    "noMessages": "Ainda não há mensagens. Comece a conversa!"
+    "noMessages": "Ainda não há mensagens. Comece a conversa!",
+    "noHistory": "Ainda não há atividade registrada.",
+    "pendingSync_one": "{{count}} sem sincronizar", "pendingSync_other": "{{count}} sem sincronizar",
+    "auditAction": {
+      "arrived": "Marcado como chegado", "unarrived": "Desmarcado como chegado",
+      "create_incident": "Incidência criada", "resolve_incident": "Incidência resolvida",
+      "reopen_incident": "Incidência reaberta", "delete_incident": "Incidência excluída",
+      "create_passenger": "Passageiro criado", "update_passenger": "Passageiro editado",
+      "delete_passenger": "Passageiro excluído", "change_role": "Função alterada"
+    }
   }
 }

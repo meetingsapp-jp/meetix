@@ -28,8 +28,10 @@ import {
 import type { EventWithMeta, PassengerWithMeta, SessionType, SessionWithMeta } from '../../types';
 import PassengerTransportModal from './PassengerTransportModal';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
+import { listAuditLog, logAudit, type AuditEntry } from '../../data/audit';
+import { enqueueArrival, flushArrivalQueue, getQueuedArrivals } from '../../lib/offlineQueue';
 
-type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias' | 'notas' | 'chat';
+type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias' | 'notas' | 'chat' | 'historial';
 
 const isoDate = (iso: string | null) => (iso ? iso.slice(0, 10) : '');
 const isoTime = (iso: string | null) => (iso ? iso.slice(11, 16) : '');
@@ -68,6 +70,26 @@ export default function CoordinatorPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('today');
   const [selectedPassenger, setSelectedPassenger] = useState<PassengerWithMeta | null>(null);
+  const [pendingSync, setPendingSync] = useState(0);
+
+  // Sync any arrivals queued while offline, on load / reconnect / tab focus.
+  useEffect(() => {
+    setPendingSync(getQueuedArrivals().length);
+    const trySync = async () => {
+      if (!navigator.onLine) return;
+      const { remaining } = await flushArrivalQueue();
+      setPendingSync(remaining);
+      if (remaining === 0) load();
+    };
+    trySync();
+    window.addEventListener('online', trySync);
+    document.addEventListener('visibilitychange', trySync);
+    return () => {
+      window.removeEventListener('online', trySync);
+      document.removeEventListener('visibilitychange', trySync);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId]);
 
   // Load events, default to the nearest non-finished one. Coordinators only
   // see the events a Director has assigned them to.
@@ -151,10 +173,31 @@ export default function CoordinatorPage() {
       else s.delete(p.id);
       return s;
     });
+
+    // Offline (no signal at the airport, etc.): queue it locally and sync
+    // automatically once connectivity is back, instead of showing an error.
+    if (!navigator.onLine) {
+      enqueueArrival({ agencyId: agency.id, passengerId: p.id, passengerName: p.full_name, arrived: next });
+      setPendingSync(getQueuedArrivals().length);
+      return;
+    }
+
     try {
       await setArrived(agency.id, p.id, next);
-    } catch (e) {
-      setError((e as Error).message);
+      logAudit({
+        agencyId: agency.id,
+        eventId,
+        actorId: appUser?.id ?? null,
+        actorName: appUser?.full_name ?? null,
+        action: next ? 'arrived' : 'unarrived',
+        entityType: 'passenger',
+        entityLabel: p.full_name,
+      });
+    } catch {
+      // Likely a network failure that navigator.onLine didn't catch — queue
+      // it too rather than losing the coordinator's action.
+      enqueueArrival({ agencyId: agency.id, passengerId: p.id, passengerName: p.full_name, arrived: next });
+      setPendingSync(getQueuedArrivals().length);
     }
   }
 
@@ -170,6 +213,7 @@ export default function CoordinatorPage() {
     { id: 'incidencias', label: t('coordinator.tabs.incidents') },
     { id: 'notas', label: t('coordinator.tabs.notes') },
     { id: 'chat', label: t('coordinator.tabs.chat') },
+    { id: 'historial', label: t('coordinator.tabs.history') },
   ];
 
   return (
@@ -177,6 +221,11 @@ export default function CoordinatorPage() {
       <div className="mb-3 flex items-center gap-2">
         <h1 className="text-2xl font-semibold">{t('coordinator.title')}</h1>
         <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">{t('coordinator.onsite')}</span>
+        {pendingSync > 0 && (
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+            🔄 {t('coordinator.pendingSync', { count: pendingSync })}
+          </span>
+        )}
       </div>
 
       <select className={`${inputClass} mb-3`} value={eventId} onChange={(e) => setEventId(e.target.value)}>
@@ -242,6 +291,7 @@ export default function CoordinatorPage() {
                 <IncidenciasTab
                   agencyId={agency?.id ?? ''}
                   eventId={eventId}
+                  authorId={appUser?.id ?? null}
                   authorName={appUser?.full_name ?? null}
                   passengers={passengers}
                   incidents={incidents}
@@ -263,6 +313,9 @@ export default function CoordinatorPage() {
                   authorId={appUser?.id ?? null}
                   authorName={appUser?.full_name ?? null}
                 />
+              )}
+              {tab === 'historial' && (
+                <HistorialTab agencyId={agency?.id ?? ''} eventId={eventId} />
               )}
             </>
           )}
@@ -772,6 +825,7 @@ function DespachoTab({
 function IncidenciasTab({
   agencyId,
   eventId,
+  authorId,
   authorName,
   passengers,
   incidents,
@@ -779,6 +833,7 @@ function IncidenciasTab({
 }: {
   agencyId: string;
   eventId: string;
+  authorId: string | null;
   authorName: string | null;
   passengers: PassengerWithMeta[];
   incidents: Incident[];
@@ -808,6 +863,10 @@ function IncidenciasTab({
         created_by: authorName,
       });
       onChanged([created, ...incidents]);
+      logAudit({
+        agencyId, eventId, actorId: authorId, actorName: authorName,
+        action: 'create_incident', entityType: 'incident', entityLabel: created.title,
+      });
       setTitle('');
       setDetail('');
       setSeverity('info');
@@ -823,6 +882,10 @@ function IncidenciasTab({
     try {
       await setIncidentResolved(inc.id, !inc.resolved);
       onChanged(incidents.map((x) => (x.id === inc.id ? { ...x, resolved: !inc.resolved } : x)));
+      logAudit({
+        agencyId, eventId, actorId: authorId, actorName: authorName,
+        action: inc.resolved ? 'reopen_incident' : 'resolve_incident', entityType: 'incident', entityLabel: inc.title,
+      });
     } catch (err) {
       setError((err as Error).message);
     }
@@ -833,6 +896,10 @@ function IncidenciasTab({
     try {
       await deleteIncident(inc.id);
       onChanged(incidents.filter((x) => x.id !== inc.id));
+      logAudit({
+        agencyId, eventId, actorId: authorId, actorName: authorName,
+        action: 'delete_incident', entityType: 'incident', entityLabel: inc.title,
+      });
     } catch (err) {
       setError((err as Error).message);
     }
@@ -1101,5 +1168,58 @@ function ChatTab({
         <Button type="submit" disabled={sending || !body.trim()}>{t('coordinator.send')}</Button>
       </form>
     </div>
+  );
+}
+
+const AUDIT_ICON: Record<string, string> = {
+  arrived: '✅',
+  unarrived: '↩️',
+  create_incident: '⚠️',
+  resolve_incident: '✔️',
+  reopen_incident: '↩️',
+  delete_incident: '🗑️',
+  create_passenger: '➕',
+  update_passenger: '✏️',
+  delete_passenger: '🗑️',
+  change_role: '🔑',
+};
+
+function HistorialTab({ agencyId, eventId }: { agencyId: string; eventId: string }) {
+  const { t } = useTranslation();
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!agencyId) return;
+    setLoading(true);
+    listAuditLog(agencyId, eventId)
+      .then(setEntries)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [agencyId, eventId]);
+
+  if (loading) return <p className="text-slate-500">{t('common.loading')}</p>;
+  if (error) return <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>;
+  if (entries.length === 0) {
+    return <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noHistory')}</p>;
+  }
+
+  return (
+    <ul className="space-y-1.5">
+      {entries.map((e) => (
+        <li key={e.id} className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
+          <span className="shrink-0">{AUDIT_ICON[e.action] ?? '•'}</span>
+          <div className="min-w-0 flex-1">
+            <span>{t(`coordinator.auditAction.${e.action}`, { defaultValue: e.action })}</span>
+            {e.entity_label && <span className="font-medium"> — {e.entity_label}</span>}
+            {e.detail && <span className="text-slate-500"> ({e.detail})</span>}
+            <div className="text-[11px] text-slate-400">
+              {e.actor_name ? `${e.actor_name} · ` : ''}{dm(e.created_at)} {isoTime(e.created_at)}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

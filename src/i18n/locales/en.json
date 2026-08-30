@@ -132,6 +132,7 @@
     "button": "PDF", "title": "Itinerary", "passenger": "Passenger", "contact": "Contact"
   },
   "pwa": { "updateAvailable": "A new version is available.", "update": "Update" },
+  "push": { "on": "Notifications on (tap to turn off)", "off": "Turn on push notifications" },
   "install": {
     "button": "Install app",
     "iosTitle": "Install on iPhone / iPad",
@@ -200,7 +201,7 @@
   },
   "coordinator": {
     "title": "Coordinator", "onsite": "On-site",
-    "tabs": { "today": "Today", "passengers": "Passengers", "agenda": "Agenda", "transfers": "Transfers", "incidents": "Incidents", "notes": "Notes", "chat": "Chat" },
+    "tabs": { "today": "Today", "passengers": "Passengers", "agenda": "Agenda", "transfers": "Transfers", "incidents": "Incidents", "notes": "Notes", "chat": "Chat", "history": "History" },
     "arrived": "Arrived", "markArrived": "Mark arrived", "arrivedCount": "Arrived", "openIncidents": "Incidents",
     "happeningNow": "Happening now",
     "pendingArrivals": "Pending arrivals", "allArrived": "Everyone arrived ✓", "nextSessions": "Next activities",
@@ -217,6 +218,15 @@
     "noNotes": "No notes yet.", "emailNotes": "Email notes",
     "notesEmailSubject": "Event notes",
     "messagePlaceholder": "Write a message…", "send": "Send",
-    "noMessages": "No messages yet. Start the conversation!"
+    "noMessages": "No messages yet. Start the conversation!",
+    "noHistory": "No activity logged yet.",
+    "pendingSync_one": "{{count}} pending sync", "pendingSync_other": "{{count}} pending sync",
+    "auditAction": {
+      "arrived": "Marked as arrived", "unarrived": "Unmarked as arrived",
+      "create_incident": "Incident created", "resolve_incident": "Incident resolved",
+      "reopen_incident": "Incident reopened", "delete_incident": "Incident deleted",
+      "create_passenger": "Passenger created", "update_passenger": "Passenger updated",
+      "delete_passenger": "Passenger deleted", "change_role": "Role changed"
+    }
   }
 }

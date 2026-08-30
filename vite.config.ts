@@ -14,6 +14,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true, // new deploy takes over immediately
+        importScripts: ['push-sw.js'], // web push handlers, see public/push-sw.js
       },
       manifest: {
         name: 'MEETIX',

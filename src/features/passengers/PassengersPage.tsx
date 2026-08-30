@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
 import { useRole } from '../../auth/RoleContext';
+import { useAuth } from '../../auth/AuthContext';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import type { EventRow, PassengerWithMeta } from '../../types';
@@ -15,6 +16,7 @@ import {
   type FlightsInput,
   type PassengerInput,
 } from '../../data/passengers';
+import { logAudit } from '../../data/audit';
 import PassengerForm from './PassengerForm';
 import ImportModal from './ImportModal';
 import { exportPassengersCsv, exportPassengersXlsx, type PassengerExportLabels } from '../../lib/export/passengers';
@@ -27,6 +29,7 @@ export default function PassengersPage() {
   const { t } = useTranslation();
   const { agency } = useAgency();
   const { can } = useRole();
+  const { appUser } = useAuth();
 
   const exportLabels = (): PassengerExportLabels => ({
     sheet: t('passengers.title'),
@@ -152,6 +155,15 @@ export default function PassengersPage() {
     if (!agency) return;
     if (editing) await updatePassenger(agency.id, editing.id, editing.person_id, input, flights);
     else await createPassenger(agency.id, eventId, input, flights, personId);
+    logAudit({
+      agencyId: agency.id,
+      eventId,
+      actorId: appUser?.id ?? null,
+      actorName: appUser?.full_name ?? null,
+      action: editing ? 'update_passenger' : 'create_passenger',
+      entityType: 'passenger',
+      entityLabel: input.full_name,
+    });
     setModalOpen(false);
     await refresh();
   }
@@ -160,6 +172,17 @@ export default function PassengersPage() {
     if (!window.confirm(t('passengers.confirmDelete', { name: p.full_name }))) return;
     try {
       await deletePassenger(p.id);
+      if (agency) {
+        logAudit({
+          agencyId: agency.id,
+          eventId,
+          actorId: appUser?.id ?? null,
+          actorName: appUser?.full_name ?? null,
+          action: 'delete_passenger',
+          entityType: 'passenger',
+          entityLabel: p.full_name,
+        });
+      }
       await refresh();
     } catch (e) {
       setError((e as Error).message);
