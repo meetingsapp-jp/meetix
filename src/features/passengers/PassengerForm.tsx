@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
-import type { Flight, Hotel, PassengerWithMeta, Person } from '../../types';
+import type { ChecklistItem, Flight, Hotel, PassengerWithMeta, Person } from '../../types';
 import {
   createHotel,
   listHotels,
@@ -42,7 +42,8 @@ interface PassengerDraft {
   fullName: string; email: string; phone: string; documentId: string; nationality: string;
   isVip: boolean; hotelId: string; roomNumber: string; costCenter: string; emergency: string;
   dietary: string; allergies: string; specialNeeds: string; notes: string;
-  isLocalTransfer: boolean; originAddress: string; destinationAddress: string;
+  isLocalTransfer: boolean; originAddress: string; destinationAddress: string; localTransferTime: string;
+  receptionNotes: string; dispatchNotes: string;
   arrival: FlightInput; departure: FlightInput;
 }
 
@@ -96,6 +97,13 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [isLocalTransfer, setIsLocalTransfer] = useState(draft?.isLocalTransfer ?? initial?.is_local_transfer ?? false);
   const [originAddress, setOriginAddress] = useState(draft?.originAddress ?? initial?.origin_address ?? '');
   const [destinationAddress, setDestinationAddress] = useState(draft?.destinationAddress ?? initial?.destination_address ?? '');
+  const [localTransferTime, setLocalTransferTime] = useState(
+    draft?.localTransferTime ?? (initial?.local_transfer_time ? initial.local_transfer_time.slice(0, 16) : ''),
+  );
+  const [receptionNotes, setReceptionNotes] = useState(draft?.receptionNotes ?? initial?.reception_notes ?? '');
+  const [dispatchNotes, setDispatchNotes] = useState(draft?.dispatchNotes ?? initial?.dispatch_notes ?? '');
+  const [departureChecklist, setDepartureChecklist] = useState<ChecklistItem[]>(initial?.departure_checklist ?? []);
+  const [newChecklistItem, setNewChecklistItem] = useState('');
   // The event usually happens at the passenger's hotel, so by default the
   // destination just follows whichever hotel is selected above; "usar otro
   // lugar" opts out for the odd case (a dinner elsewhere, etc.).
@@ -129,6 +137,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
     const d: PassengerDraft = {
       fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber, costCenter,
       emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress, destinationAddress,
+      localTransferTime, receptionNotes, dispatchNotes,
       arrival, departure,
     };
     try {
@@ -140,7 +149,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   }, [
     initial, eventId, fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber,
     costCenter, emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress,
-    destinationAddress, arrival, departure,
+    destinationAddress, localTransferTime, receptionNotes, dispatchNotes, arrival, departure,
   ]);
 
   const dirResults = useMemo(() => {
@@ -229,6 +238,10 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           is_local_transfer: isLocalTransfer,
           origin_address: clean(originAddress),
           destination_address: clean(finalDestination),
+          local_transfer_time: localTransferTime || null,
+          reception_notes: clean(receptionNotes),
+          dispatch_notes: clean(dispatchNotes),
+          departure_checklist: departureChecklist,
           photo_url: photoUrl,
         },
         {
@@ -476,11 +489,94 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
               </Field>
             );
           })()}
+          <Field label={t('passengers.form.localTransferTime')}>
+            <input
+              type="datetime-local"
+              className={inputClass}
+              value={localTransferTime}
+              onChange={(e) => setLocalTransferTime(e.target.value)}
+            />
+          </Field>
         </div>
       )}
 
       {flightBlock(t('passengers.form.arrival'), arrival, setArrival)}
       {flightBlock(t('passengers.form.departure'), departure, setDeparture, true)}
+
+      <fieldset className="rounded border border-slate-200 p-3">
+        <legend className="px-1 text-sm font-medium text-slate-600">{t('passengers.form.receptionDispatch')}</legend>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.receptionNotes')}</span>
+            <input
+              className={inputClass}
+              placeholder={t('passengers.form.receptionNotesPlaceholder')}
+              value={receptionNotes}
+              onChange={(e) => setReceptionNotes(e.target.value)}
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.dispatchNotes')}</span>
+            <input
+              className={inputClass}
+              placeholder={t('passengers.form.dispatchNotesPlaceholder')}
+              value={dispatchNotes}
+              onChange={(e) => setDispatchNotes(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="mt-2">
+          <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.departureChecklist')}</span>
+          {departureChecklist.length > 0 && (
+            <ul className="mb-2 space-y-1">
+              {departureChecklist.map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={item.done}
+                    onChange={() => setDepartureChecklist((prev) => prev.map((it, idx) => (idx === i ? { ...it, done: !it.done } : it)))}
+                  />
+                  <span className={item.done ? 'flex-1 text-slate-400 line-through' : 'flex-1'}>{item.label}</span>
+                  <button
+                    type="button"
+                    onClick={() => setDepartureChecklist((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="text-slate-400 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              placeholder={t('passengers.form.departureChecklistPlaceholder')}
+              value={newChecklistItem}
+              onChange={(e) => setNewChecklistItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                if (!newChecklistItem.trim()) return;
+                setDepartureChecklist((prev) => [...prev, { label: newChecklistItem.trim(), done: false }]);
+                setNewChecklistItem('');
+              }}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                if (!newChecklistItem.trim()) return;
+                setDepartureChecklist((prev) => [...prev, { label: newChecklistItem.trim(), done: false }]);
+                setNewChecklistItem('');
+              }}
+            >
+              +
+            </Button>
+          </div>
+        </div>
+      </fieldset>
 
       <Field label={t('passengers.form.emergency')}>
         <input className={inputClass} value={emergency} onChange={(e) => setEmergency(e.target.value)} />

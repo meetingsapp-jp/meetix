@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { EventRow, FlightDirection, Hotel, PassengerWithMeta, Person } from '../types';
+import type { ChecklistItem, EventRow, FlightDirection, Hotel, PassengerWithMeta, Person } from '../types';
 import type { ParsedRow } from '../lib/import/passengers';
 
 function client() {
@@ -27,6 +27,10 @@ export interface PassengerInput {
   is_local_transfer: boolean;
   origin_address: string | null;
   destination_address: string | null;
+  local_transfer_time: string | null;
+  reception_notes: string | null;
+  dispatch_notes: string | null;
+  departure_checklist: ChecklistItem[];
   photo_url: string | null;
 }
 
@@ -69,6 +73,10 @@ function participationFields(i: PassengerInput) {
     is_local_transfer: i.is_local_transfer,
     origin_address: i.origin_address,
     destination_address: i.destination_address,
+    local_transfer_time: i.local_transfer_time,
+    reception_notes: i.reception_notes,
+    dispatch_notes: i.dispatch_notes,
+    departure_checklist: i.departure_checklist,
   };
 }
 
@@ -95,6 +103,10 @@ function flatten(row: any): PassengerWithMeta {
     is_local_transfer: row.is_local_transfer ?? false,
     origin_address: row.origin_address ?? null,
     destination_address: row.destination_address ?? null,
+    local_transfer_time: row.local_transfer_time ?? null,
+    reception_notes: row.reception_notes ?? null,
+    dispatch_notes: row.dispatch_notes ?? null,
+    departure_checklist: Array.isArray(row.departure_checklist) ? row.departure_checklist : [],
     created_at: row.created_at,
     updated_at: row.updated_at,
     full_name: person?.full_name ?? '',
@@ -116,7 +128,8 @@ function flatten(row: any): PassengerWithMeta {
 
 const PARTICIPATION_SELECT =
   'id, agency_id, event_id, person_id, is_vip, transport_type, transport_provider_id, ' +
-  'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, created_at, updated_at, ' +
+  'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, ' +
+  'local_transfer_time, reception_notes, dispatch_notes, departure_checklist, created_at, updated_at, ' +
   'person:people(*), hotel:hotels(name,address), transport_provider:transport_providers(name,contact_phone), flights(*)';
 
 export async function getEvent(eventId: string): Promise<EventRow> {
@@ -244,6 +257,13 @@ export async function setPassengerVip(id: string, isVip: boolean): Promise<void>
     .from('passengers')
     .update({ is_vip: isVip, transport_type: isVip ? 'vip' : 'group' })
     .eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
+// Quick departure-checklist update used by the Despacho tab (add/check items
+// without opening the full passenger form).
+export async function setDepartureChecklist(id: string, items: ChecklistItem[]): Promise<void> {
+  const { error } = await client().from('passengers').update({ departure_checklist: items }).eq('id', id);
   if (error) throw new Error(error.message);
 }
 

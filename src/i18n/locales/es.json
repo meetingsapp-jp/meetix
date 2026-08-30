@@ -126,7 +126,13 @@
       "originAddress": "Dirección de origen", "destinationAddress": "Dirección de destino",
       "addressPlaceholder": "Calle, número, ciudad…",
       "photo": "Foto", "uploadPhoto": "Subir foto",
-      "draftRestored": "Recuperamos lo que estabas cargando antes de salir."
+      "draftRestored": "Recuperamos lo que estabas cargando antes de salir.",
+      "localTransferTime": "Horario del traslado",
+      "receptionDispatch": "Recepción y despacho",
+      "receptionNotes": "Cómo se lo recibe", "receptionNotesPlaceholder": "Ej.: Cartel en Aeropuerto, guía Juan lo espera en el hotel…",
+      "dispatchNotes": "Cómo se lo despacha", "dispatchNotesPlaceholder": "Ej.: Lo retira el chofer a las 10 en recepción del hotel…",
+      "departureChecklist": "Checklist de salida (regalos, etc.)",
+      "departureChecklistPlaceholder": "Ej.: Entregar regalo de bienvenida…"
     },
     "wa": {
       "button": "WhatsApp",
@@ -217,7 +223,7 @@
     "confirmDeleteIncident": "¿Eliminar esta incidencia?", "reopen": "Reabrir", "resolve": "Resolver",
     "severity": { "info": "Info", "warning": "Atención", "urgent": "Urgente" },
     "noEventsAssigned": "Todavía no tenés eventos asignados. Pedile a un Director que te asigne uno.",
-    "local": "Local", "localTransferLabel": "Traslado local (sin vuelo)",
+    "local": "Local", "localTransferLabel": "Traslado local (sin vuelo)", "groupTransport": "Grupal",
     "viewMap": "Ver en Google Maps", "checkFlightStatus": "Consultar estado del vuelo",
     "hotelPickup": "Salida del hotel",
     "notePlaceholder": "Escribí una nota para el equipo…", "addNote": "Agregar nota",

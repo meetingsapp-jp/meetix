@@ -6,7 +6,7 @@ import { useAuth } from '../../auth/AuthContext';
 import Button from '../../components/ui/Button';
 import { inputClass } from '../../components/ui/Field';
 import { listAssignedEventIds, listEvents } from '../../data/events';
-import { listPassengers } from '../../data/passengers';
+import { listPassengers, setDepartureChecklist } from '../../data/passengers';
 import { listSessions } from '../../data/sessions';
 import {
   addEventNote,
@@ -133,6 +133,19 @@ export default function CoordinatorPage() {
     }
   }, [eventId]);
 
+  const toggleChecklistItem = useCallback(
+    async (p: PassengerWithMeta, index: number) => {
+      const items = p.departure_checklist.map((item, i) => (i === index ? { ...item, done: !item.done } : item));
+      setPassengers((prev) => prev.map((x) => (x.id === p.id ? { ...x, departure_checklist: items } : x)));
+      try {
+        await setDepartureChecklist(p.id, items);
+      } catch (e) {
+        setError((e as Error).message);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (eventId) load();
   }, [eventId, load]);
@@ -249,8 +262,8 @@ export default function CoordinatorPage() {
               <button
                 key={tb.id}
                 onClick={() => setTab(tb.id)}
-                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm ${
-                  tab === tb.id ? 'bg-brand text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                  tab === tb.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 {tb.label}
@@ -281,7 +294,7 @@ export default function CoordinatorPage() {
                 <RecepcionTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} onSelectPassenger={setSelectedPassenger} />
               )}
               {tab === 'despacho' && (
-                <DespachoTab passengers={passengers} onSelectPassenger={setSelectedPassenger} />
+                <DespachoTab passengers={passengers} onSelectPassenger={setSelectedPassenger} onToggleChecklistItem={toggleChecklistItem} />
               )}
               {tab === 'funciones' && <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
               {tab === 'pasajeros' && (
@@ -656,26 +669,45 @@ function LocalPassengersSection({ passengers, onSelectPassenger }: { passengers:
   return (
     <div>
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('coordinator.localTransferLabel')}</h2>
-      <ul className="divide-y divide-slate-100 rounded-lg border border-violet-200 bg-violet-50">
+      <ul className="space-y-2">
         {locals.map((p) => (
-          <li key={p.id} className="flex items-start gap-3 px-3 py-2.5">
-            <div className="min-w-0 flex-1">
-              <button onClick={() => onSelectPassenger(p)} className="font-semibold text-brand hover:underline text-left">{p.full_name}</button>
-              {p.is_vip && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
-              <div className="mt-1 space-y-0.5 text-xs text-slate-600">
-                {p.origin_address && (
-                  <div>
-                    📍 {p.origin_address}{' '}
-                    <a href={googleMapsUrl(p.origin_address)} target="_blank" rel="noopener" className="text-blue-700 underline">{t('coordinator.viewMap')}</a>
-                  </div>
+          <li key={p.id} className="rounded-xl border border-violet-200 bg-violet-50/70 p-3 shadow-sm dark:border-violet-800 dark:bg-violet-950/20">
+            <div className="flex items-start gap-3">
+              {p.photo_url && <img src={p.photo_url} alt={p.full_name} className="h-10 w-10 shrink-0 rounded-full object-cover" />}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline gap-2">
+                  <button onClick={() => onSelectPassenger(p)} className="font-semibold text-brand hover:underline text-left">{p.full_name}</button>
+                  {p.is_vip && <span className="rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
+                </div>
+                {p.local_transfer_time && (
+                  <div className="mt-1 text-xs font-medium text-violet-800 dark:text-violet-300">🕐 {dm(p.local_transfer_time)} {isoTime(p.local_transfer_time)}</div>
                 )}
-                {p.destination_address && (
-                  <div>
-                    🏁 {p.destination_address}{' '}
-                    <a href={googleMapsUrl(p.destination_address)} target="_blank" rel="noopener" className="text-blue-700 underline">{t('coordinator.viewMap')}</a>
+                <div className="mt-0.5 space-y-0.5 text-xs text-slate-600 dark:text-slate-300">
+                  {p.origin_address && (
+                    <div>
+                      📍 {p.origin_address}{' '}
+                      <a href={googleMapsUrl(p.origin_address)} target="_blank" rel="noopener" className="text-blue-700 underline">{t('coordinator.viewMap')}</a>
+                    </div>
+                  )}
+                  {p.destination_address && (
+                    <div>
+                      🏁 {p.destination_address}{' '}
+                      <a href={googleMapsUrl(p.destination_address)} target="_blank" rel="noopener" className="text-blue-700 underline">{t('coordinator.viewMap')}</a>
+                    </div>
+                  )}
+                  <div className={p.transport_provider ? 'font-medium text-slate-700 dark:text-slate-200' : 'text-amber-600'}>
+                    🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
-                )}
+                  {p.reception_notes && <div>📥 {p.reception_notes}</div>}
+                  {p.dispatch_notes && <div>📤 {p.dispatch_notes}</div>}
+                </div>
               </div>
+              {p.transport_provider?.contact_phone && (
+                <div className="flex shrink-0 flex-col gap-1">
+                  <a href={telHref(p.transport_provider.contact_phone)} className="text-xs rounded bg-white px-2 py-1 text-violet-700 hover:bg-violet-100" title="Llamar proveedor">🚐📞</a>
+                  <a href={waHref(p.transport_provider.contact_phone)} target="_blank" rel="noopener" className="text-xs rounded bg-white px-2 py-1 text-violet-700 hover:bg-violet-100" title="WhatsApp proveedor">🚐💬</a>
+                </div>
+              )}
             </div>
           </li>
         ))}
@@ -710,7 +742,7 @@ function RecepcionTab({
       {notArrived.length > 0 && (
         <div>
           <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Pendientes de recepcionar</h2>
-          <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-sm dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
             {notArrived.map(({ p, f }) => (
               <li key={p.id} className="flex items-center gap-3 px-3 py-3">
                 {p.photo_url && (
@@ -728,6 +760,7 @@ function RecepcionTab({
                     <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                       🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                     </div>
+                    {p.reception_notes && <div>📥 {p.reception_notes}</div>}
                     {f!.flight_number && (
                       <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">Consultar estado del vuelo</a>
                     )}
@@ -785,9 +818,11 @@ function RecepcionTab({
 function DespachoTab({
   passengers,
   onSelectPassenger,
+  onToggleChecklistItem,
 }: {
   passengers: PassengerWithMeta[];
   onSelectPassenger: (p: PassengerWithMeta) => void;
+  onToggleChecklistItem: (p: PassengerWithMeta, index: number) => void;
 }) {
   const { t } = useTranslation();
 
@@ -802,9 +837,9 @@ function DespachoTab({
       {departures.length === 0 ? (
         <p className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">No hay vuelos de salida</p>
       ) : (
-        <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+        <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-sm">
           {departures.map(({ p, f }) => (
-            <li key={p.id} className="flex items-center gap-3 px-3 py-3">
+            <li key={p.id} className="flex items-start gap-3 px-3 py-3">
               <div className="w-20 shrink-0 text-sm">
                 <div className="text-xs text-slate-400">{dm(f!.flight_datetime)}</div>
                 <div className="font-semibold text-slate-700">{isoTime(f!.flight_datetime)}</div>
@@ -819,12 +854,25 @@ function DespachoTab({
                   <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
+                  {p.dispatch_notes && <div>📤 {p.dispatch_notes}</div>}
                   {f!.flight_number && (
                     <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">
                       {t('coordinator.checkFlightStatus')}
                     </a>
                   )}
                 </div>
+                {p.departure_checklist.length > 0 && (
+                  <ul className="mt-1.5 space-y-0.5">
+                    {p.departure_checklist.map((item, idx) => (
+                      <li key={idx}>
+                        <label className={'flex items-center gap-1.5 text-xs cursor-pointer ' + (item.done ? 'text-slate-400 line-through' : 'text-slate-600')}>
+                          <input type="checkbox" checked={item.done} onChange={() => onToggleChecklistItem(p, idx)} className="h-3.5 w-3.5 rounded border-slate-300" />
+                          {item.label}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               {p.transport_provider?.contact_phone && (
                 <div className="flex shrink-0 flex-col gap-1">
