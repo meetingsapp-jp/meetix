@@ -15,16 +15,16 @@ export default function Modal({ open, title, onClose, children }: Props) {
       onClick={onClose}
     >
       <div
-        className="mt-10 w-full max-w-lg rounded-lg bg-white shadow-xl"
+        className="mt-10 w-full max-w-lg rounded-lg bg-white shadow-xl dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="font-semibold">{title}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none">
+        <div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700">
+          <h2 className="font-semibold dark:text-slate-100">{title}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none dark:hover:text-slate-200">
             &times;
           </button>
         </div>
-        <div className="p-4">{children}</div>
+        <div className="p-4 dark:text-slate-100">{children}</div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { Client, EventRow, EventStatus, EventWithMeta } from '../types';
+import type { AppUser, Client, EventRow, EventStatus, EventWithMeta } from '../types';
 
 function client() {
   if (!supabase) throw new Error('Supabase no está configurado (.env).');
@@ -70,4 +70,42 @@ export async function createClient(agencyId: string, name: string, country: stri
     .single();
   if (error) throw new Error(error.message);
   return data as Client;
+}
+
+// --- Coordinator assignment (guía/coordinador only sees events assigned to them) ---
+
+export async function listCoordinators(agencyId: string): Promise<AppUser[]> {
+  const { data, error } = await client()
+    .from('app_users')
+    .select('*')
+    .eq('agency_id', agencyId)
+    .eq('role', 'guia_coordinador')
+    .order('full_name');
+  if (error) throw new Error(error.message);
+  return (data ?? []) as AppUser[];
+}
+
+export async function listEventCoordinatorIds(eventId: string): Promise<string[]> {
+  const { data, error } = await client().from('event_coordinators').select('app_user_id').eq('event_id', eventId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r: { app_user_id: string }) => r.app_user_id);
+}
+
+// Rewrites the full set of coordinators assigned to an event.
+export async function setEventCoordinators(agencyId: string, eventId: string, appUserIds: string[]): Promise<void> {
+  const db = client();
+  const { error: delErr } = await db.from('event_coordinators').delete().eq('event_id', eventId);
+  if (delErr) throw new Error(delErr.message);
+  if (appUserIds.length) {
+    const { error } = await db
+      .from('event_coordinators')
+      .insert(appUserIds.map((appUserId) => ({ agency_id: agencyId, event_id: eventId, app_user_id: appUserId })));
+    if (error) throw new Error(error.message);
+  }
+}
+
+export async function listAssignedEventIds(appUserId: string): Promise<string[]> {
+  const { data, error } = await client().from('event_coordinators').select('event_id').eq('app_user_id', appUserId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r: { event_id: string }) => r.event_id);
 }

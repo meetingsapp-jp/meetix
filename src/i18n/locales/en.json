@@ -84,7 +84,8 @@
       "newClient": "New client", "clientName": "Client name", "clientCountry": "Country",
       "startDate": "Start date", "endDate": "End date",
       "destinations": "Destinations", "destinationsHint": "Comma-separated (e.g.: Cancun, Miami)",
-      "status": "Status"
+      "status": "Status", "coordinators": "Assigned coordinators",
+      "coordinatorsHint": "Only the coordinators checked here will see this event."
     },
     "status": {
       "planificacion": "Planning", "confirmado": "Confirmed", "en_curso": "In progress",
@@ -112,7 +113,11 @@
       "emergency": "Emergency contact", "notes": "Notes",
       "requirements": "Requirements", "dietary": "Diet", "dietaryPlaceholder": "e.g. Vegetarian, Gluten-free…",
       "allergies": "Allergies", "specialNeeds": "Special needs",
-      "specialNeedsPlaceholder": "e.g. Wheelchair, reduced mobility…"
+      "specialNeedsPlaceholder": "e.g. Wheelchair, reduced mobility…",
+      "pickupTime": "Hotel pickup time",
+      "localTransfer": "Local passenger (ground transfer only, no flight)",
+      "originAddress": "Origin address", "destinationAddress": "Destination address",
+      "addressPlaceholder": "Street, number, city…"
     },
     "wa": {
       "button": "WhatsApp",
@@ -139,11 +144,13 @@
   },
   "settings": {
     "nav": "Settings", "title": "Agency branding",
-    "subtitle": "Customize the logo and color; they apply in the app and on PDFs.",
+    "subtitle": "Customize the name, logo and color; they apply in the app and on PDFs.",
+    "agencyName": "Agency name", "agencyNamePlaceholder": "e.g.: My Travel Agency",
     "logo": "Logo", "noLogo": "No logo", "uploadLogo": "Upload logo", "uploading": "Uploading…",
     "logoHint": "PNG or JPG, ideally square.",
     "color": "Brand color", "preview": "Preview", "save": "Save changes", "saved": "Changes saved!",
-    "onlyDirectors": "Only a Director can edit branding."
+    "onlyDirectors": "Only a Director can edit branding.",
+    "theme": "Theme", "themeLight": "Light", "themeDark": "Dark", "themeSystem": "System"
   },
   "team": {
     "title": "Team", "invite": "Invite", "sendInvite": "Create invitation",
@@ -190,6 +197,10 @@
     "incidentTitle": "What happened? (title)", "incidentDetail": "Detail (optional)", "addIncident": "Log",
     "noIncidents": "No incidents logged.", "noPassenger": "— No passenger —",
     "confirmDeleteIncident": "Delete this incident?", "reopen": "Reopen", "resolve": "Resolve",
-    "severity": { "info": "Info", "warning": "Attention", "urgent": "Urgent" }
+    "severity": { "info": "Info", "warning": "Attention", "urgent": "Urgent" },
+    "noEventsAssigned": "You don't have any events assigned yet. Ask a Director to assign you one.",
+    "local": "Local", "localTransferLabel": "Local transfer (no flight)",
+    "viewMap": "View on Google Maps", "checkFlightStatus": "Check flight status",
+    "hotelPickup": "Hotel pickup"
   }
 }

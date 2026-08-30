@@ -24,6 +24,9 @@ export interface PassengerInput {
   allergies: string | null;
   special_needs: string | null;
   notes: string | null;
+  is_local_transfer: boolean;
+  origin_address: string | null;
+  destination_address: string | null;
 }
 
 export interface FlightInput {
@@ -31,6 +34,7 @@ export interface FlightInput {
   flight_number: string | null;
   flight_datetime: string | null;
   terminal: string | null;
+  pickup_time: string | null;
 }
 
 export interface FlightsInput {
@@ -60,11 +64,14 @@ function participationFields(i: PassengerInput) {
     room_number: i.room_number,
     cost_center: i.cost_center,
     notes: i.notes,
+    is_local_transfer: i.is_local_transfer,
+    origin_address: i.origin_address,
+    destination_address: i.destination_address,
   };
 }
 
 function hasFlightData(f: FlightInput): boolean {
-  return Boolean(f.airline || f.flight_number || f.flight_datetime || f.terminal);
+  return Boolean(f.airline || f.flight_number || f.flight_datetime || f.terminal || f.pickup_time);
 }
 
 // Flatten a joined person onto the participation row so downstream reads
@@ -83,6 +90,9 @@ function flatten(row: any): PassengerWithMeta {
     room_number: row.room_number,
     cost_center: row.cost_center ?? null,
     notes: row.notes ?? null,
+    is_local_transfer: row.is_local_transfer ?? false,
+    origin_address: row.origin_address ?? null,
+    destination_address: row.destination_address ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
     full_name: person?.full_name ?? '',
@@ -103,7 +113,7 @@ function flatten(row: any): PassengerWithMeta {
 
 const PARTICIPATION_SELECT =
   'id, agency_id, event_id, person_id, is_vip, transport_type, transport_provider_id, ' +
-  'hotel_id, room_number, cost_center, notes, created_at, updated_at, ' +
+  'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, created_at, updated_at, ' +
   'person:people(*), hotel:hotels(name), transport_provider:transport_providers(name), flights(*)';
 
 export async function getEvent(eventId: string): Promise<EventRow> {
@@ -180,6 +190,7 @@ async function saveFlights(agencyId: string, passengerId: string, flights: Fligh
       flight_number: r.data.flight_number,
       flight_datetime: r.data.flight_datetime,
       terminal: r.data.terminal,
+      pickup_time: r.data.pickup_time,
     }));
   if (rows.length) {
     const { error } = await client().from('flights').insert(rows);

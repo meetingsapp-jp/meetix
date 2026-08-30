@@ -75,9 +75,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             </select>
             {appUser && (
               <>
-                <div className="hidden text-right text-xs leading-tight sm:block">
-                  <div className="font-medium">{appUser.full_name}</div>
-                  <div className="opacity-70">{t(`roles.${appUser.role}`)}</div>
+                <div className="text-right text-xs leading-tight">
+                  <div className="max-w-[120px] truncate font-medium sm:max-w-none">{appUser.full_name}</div>
+                  <div className="hidden opacity-70 sm:block">{t(`roles.${appUser.role}`)}</div>
                 </div>
                 <Button variant="ghost" className="text-white hover:bg-white/10" onClick={signOut}>
                   {t('auth.signOut')}
@@ -119,7 +119,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom navigation */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-slate-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-slate-200 bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.04)] dark:border-slate-700 dark:bg-slate-800 md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {bottomNav.map((n) => (
@@ -128,7 +128,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             to={n.to}
             end={n.end}
             className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
             }
           >
             {icons[n.icon]}
@@ -139,7 +139,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NavLink
             to="/team"
             className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
             }
           >
             {icons.team}
@@ -150,7 +150,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <NavLink
             to="/settings"
             className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500'}`
+              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
             }
           >
             {icons.settings}

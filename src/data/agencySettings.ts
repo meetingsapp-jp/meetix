@@ -18,7 +18,7 @@ export async function uploadLogo(agencyId: string, file: File): Promise<string> 
 
 export async function updateBranding(
   agencyId: string,
-  branding: { brand_color?: string | null; logo_url?: string | null },
+  branding: { name?: string; brand_color?: string | null; logo_url?: string | null },
 ): Promise<void> {
   const { error } = await client().from('agencies').update(branding).eq('id', agencyId);
   if (error) throw new Error(error.message);

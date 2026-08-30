@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/AuthContext';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
 import { updateBranding, uploadLogo } from '../../data/agencySettings';
+import ThemeSwitch from '../../components/ThemeSwitch';
 
 const DEFAULT_COLOR = '#0f172a';
 const PRESETS = ['#0f172a', '#2563eb', '#0284c7', '#059669', '#7c3aed', '#db2777', '#ea580c', '#b91c1c'];
@@ -13,6 +14,7 @@ export default function SettingsPage() {
   const { agency, can, refreshAgency } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [name, setName] = useState(agency?.name ?? '');
   const [color, setColor] = useState(agency?.brand_color ?? DEFAULT_COLOR);
   const [logoUrl, setLogoUrl] = useState<string | null>(agency?.logo_url ?? null);
   const [busy, setBusy] = useState(false);
@@ -45,7 +47,7 @@ export default function SettingsPage() {
     setError(null);
     setSaved(false);
     try {
-      await updateBranding(agency.id, { brand_color: color, logo_url: logoUrl });
+      await updateBranding(agency.id, { name: name.trim() || agency.name, brand_color: color, logo_url: logoUrl });
       await refreshAgency();
       setSaved(true);
     } catch (err) {
@@ -63,7 +65,25 @@ export default function SettingsPage() {
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {saved && <p className="mb-3 rounded bg-green-50 px-3 py-2 text-sm text-green-700">{t('settings.saved')}</p>}
 
-      <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-5">
+      <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+        {/* Agency name */}
+        <div>
+          <Field label={t('settings.agencyName')}>
+            <input
+              className={inputClass}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t('settings.agencyNamePlaceholder')}
+            />
+          </Field>
+        </div>
+
+        {/* Theme */}
+        <div>
+          <div className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">{t('settings.theme')}</div>
+          <ThemeSwitch />
+        </div>
+
         {/* Logo */}
         <div>
           <div className="mb-2 text-sm font-medium text-slate-700">{t('settings.logo')}</div>
@@ -121,7 +141,7 @@ export default function SettingsPage() {
             ) : (
               <span className="grid h-7 w-7 place-items-center rounded bg-white/20 text-sm font-bold">E</span>
             )}
-            <span className="font-semibold">{agency.name}</span>
+            <span className="font-semibold">{name.trim() || agency.name}</span>
           </div>
         </div>
 

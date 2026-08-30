@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
-import type { Client, EventStatus, EventWithMeta } from '../../types';
-import { createClient, listClients, type EventInput } from '../../data/events';
+import type { AppUser, Client, EventStatus, EventWithMeta } from '../../types';
+import { createClient, listClients, listCoordinators, listEventCoordinatorIds, type EventInput } from '../../data/events';
 
 const STATUSES: EventStatus[] = ['planificacion', 'confirmado', 'en_curso', 'finalizado', 'cancelado'];
 
 interface Props {
   agencyId: string;
   initial?: EventWithMeta | null;
-  onSubmit: (input: EventInput) => Promise<void>;
+  onSubmit: (input: EventInput, coordinatorIds: string[]) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -23,6 +23,8 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
   const [endDate, setEndDate] = useState(initial?.end_date ?? '');
   const [destinations, setDestinations] = useState((initial?.destinations ?? []).join(', '));
   const [status, setStatus] = useState<EventStatus>(initial?.status ?? 'planificacion');
+  const [coordinators, setCoordinators] = useState<AppUser[]>([]);
+  const [coordinatorIds, setCoordinatorIds] = useState<string[]>([]);
 
   const [addingClient, setAddingClient] = useState(false);
   const [newClientName, setNewClientName] = useState('');
@@ -33,7 +35,18 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
 
   useEffect(() => {
     listClients(agencyId).then(setClients).catch((e) => setError(e.message));
+    listCoordinators(agencyId).then(setCoordinators).catch(() => {});
   }, [agencyId]);
+
+  useEffect(() => {
+    if (initial) {
+      listEventCoordinatorIds(initial.id).then(setCoordinatorIds).catch(() => {});
+    }
+  }, [initial]);
+
+  function toggleCoordinator(id: string) {
+    setCoordinatorIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
 
   async function handleAddClient() {
     if (!newClientName.trim()) return;
@@ -55,14 +68,17 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
     setSaving(true);
     setError(null);
     try {
-      await onSubmit({
-        name: name.trim(),
-        client_id: clientId || null,
-        start_date: startDate || null,
-        end_date: endDate || null,
-        destinations: destinations.split(',').map((d) => d.trim()).filter(Boolean),
-        status,
-      });
+      await onSubmit(
+        {
+          name: name.trim(),
+          client_id: clientId || null,
+          start_date: startDate || null,
+          end_date: endDate || null,
+          destinations: destinations.split(',').map((d) => d.trim()).filter(Boolean),
+          status,
+        },
+        coordinatorIds,
+      );
     } catch (e) {
       setError((e as Error).message);
       setSaving(false);
@@ -139,6 +155,25 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
           ))}
         </select>
       </Field>
+
+      {coordinators.length > 0 && (
+        <Field label={t('events.form.coordinators')}>
+          <div className="space-y-1 rounded border border-slate-200 p-2 dark:border-slate-600">
+            {coordinators.map((c) => (
+              <label key={c.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={coordinatorIds.includes(c.id)}
+                  onChange={() => toggleCoordinator(c.id)}
+                />
+                {c.full_name}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-slate-400">{t('events.form.coordinatorsHint')}</p>
+        </Field>
+      )}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="ghost" onClick={onCancel}>{t('common.cancel')}</Button>
