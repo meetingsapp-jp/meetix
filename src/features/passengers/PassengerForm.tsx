@@ -33,9 +33,44 @@ function flightOf(flights: Flight[] | undefined, dir: 'arrival' | 'departure'): 
   };
 }
 
+// A new (not-yet-saved) passenger's in-progress fields, so an accidental
+// back-navigation or the mobile browser reloading a backgrounded tab doesn't
+// wipe out everything the user just typed. Not used when editing an existing
+// passenger — that data already lives on the server.
+interface PassengerDraft {
+  fullName: string; email: string; phone: string; documentId: string; nationality: string;
+  isVip: boolean; hotelId: string; roomNumber: string; costCenter: string; emergency: string;
+  dietary: string; allergies: string; specialNeeds: string; notes: string;
+  isLocalTransfer: boolean; originAddress: string; destinationAddress: string;
+  arrival: FlightInput; departure: FlightInput;
+}
+
+const draftKey = (eventId: string) => `meetix.draft.passenger.${eventId}`;
+
+function readDraft(eventId: string): PassengerDraft | null {
+  try {
+    const raw = sessionStorage.getItem(draftKey(eventId));
+    return raw ? (JSON.parse(raw) as PassengerDraft) : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearDraft(eventId: string) {
+  try {
+    sessionStorage.removeItem(draftKey(eventId));
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function PassengerForm({ agencyId, eventId, initial, onSubmit, onCancel }: Props) {
   const { t } = useTranslation();
   const [hotels, setHotels] = useState<Hotel[]>([]);
+
+  // Restore an in-progress draft for a brand-new passenger, if one was left
+  // behind by an accidental back-navigation or the tab getting reloaded.
+  const draft = useMemo(() => (initial ? null : readDraft(eventId)), [initial, eventId]);
 
   // Directory (reuse a person across events). Only offered when creating.
   const [people, setPeople] = useState<Person[]>([]);
@@ -43,29 +78,29 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [dirSearch, setDirSearch] = useState('');
   const [dirOpen, setDirOpen] = useState(false);
 
-  const [fullName, setFullName] = useState(initial?.full_name ?? '');
-  const [email, setEmail] = useState(initial?.email ?? '');
-  const [phone, setPhone] = useState(initial?.phone ?? '');
-  const [documentId, setDocumentId] = useState(initial?.document_id ?? '');
-  const [nationality, setNationality] = useState(initial?.nationality ?? '');
-  const [isVip, setIsVip] = useState(initial?.is_vip ?? false);
-  const [hotelId, setHotelId] = useState(initial?.hotel_id ?? '');
-  const [roomNumber, setRoomNumber] = useState(initial?.room_number ?? '');
-  const [costCenter, setCostCenter] = useState(initial?.cost_center ?? '');
-  const [emergency, setEmergency] = useState(initial?.emergency_contact ?? '');
-  const [dietary, setDietary] = useState(initial?.dietary ?? '');
-  const [allergies, setAllergies] = useState(initial?.allergies ?? '');
-  const [specialNeeds, setSpecialNeeds] = useState(initial?.special_needs ?? '');
-  const [notes, setNotes] = useState(initial?.notes ?? '');
-  const [isLocalTransfer, setIsLocalTransfer] = useState(initial?.is_local_transfer ?? false);
-  const [originAddress, setOriginAddress] = useState(initial?.origin_address ?? '');
-  const [destinationAddress, setDestinationAddress] = useState(initial?.destination_address ?? '');
+  const [fullName, setFullName] = useState(draft?.fullName ?? initial?.full_name ?? '');
+  const [email, setEmail] = useState(draft?.email ?? initial?.email ?? '');
+  const [phone, setPhone] = useState(draft?.phone ?? initial?.phone ?? '');
+  const [documentId, setDocumentId] = useState(draft?.documentId ?? initial?.document_id ?? '');
+  const [nationality, setNationality] = useState(draft?.nationality ?? initial?.nationality ?? '');
+  const [isVip, setIsVip] = useState(draft?.isVip ?? initial?.is_vip ?? false);
+  const [hotelId, setHotelId] = useState(draft?.hotelId ?? initial?.hotel_id ?? '');
+  const [roomNumber, setRoomNumber] = useState(draft?.roomNumber ?? initial?.room_number ?? '');
+  const [costCenter, setCostCenter] = useState(draft?.costCenter ?? initial?.cost_center ?? '');
+  const [emergency, setEmergency] = useState(draft?.emergency ?? initial?.emergency_contact ?? '');
+  const [dietary, setDietary] = useState(draft?.dietary ?? initial?.dietary ?? '');
+  const [allergies, setAllergies] = useState(draft?.allergies ?? initial?.allergies ?? '');
+  const [specialNeeds, setSpecialNeeds] = useState(draft?.specialNeeds ?? initial?.special_needs ?? '');
+  const [notes, setNotes] = useState(draft?.notes ?? initial?.notes ?? '');
+  const [isLocalTransfer, setIsLocalTransfer] = useState(draft?.isLocalTransfer ?? initial?.is_local_transfer ?? false);
+  const [originAddress, setOriginAddress] = useState(draft?.originAddress ?? initial?.origin_address ?? '');
+  const [destinationAddress, setDestinationAddress] = useState(draft?.destinationAddress ?? initial?.destination_address ?? '');
   const [photoUrl, setPhotoUrl] = useState(initial?.photo_url ?? null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const [arrival, setArrival] = useState<FlightInput>(flightOf(initial?.flights, 'arrival'));
-  const [departure, setDeparture] = useState<FlightInput>(flightOf(initial?.flights, 'departure'));
+  const [arrival, setArrival] = useState<FlightInput>(draft?.arrival ?? flightOf(initial?.flights, 'arrival'));
+  const [departure, setDeparture] = useState<FlightInput>(draft?.departure ?? flightOf(initial?.flights, 'departure'));
 
   const [addingHotel, setAddingHotel] = useState(false);
   const [newHotel, setNewHotel] = useState('');
@@ -80,6 +115,27 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   useEffect(() => {
     if (!initial) listPeople(agencyId).then(setPeople).catch(() => {});
   }, [agencyId, initial]);
+
+  // Keep saving a draft of the in-progress new passenger as they type, so an
+  // accidental back-navigation or a backgrounded-tab reload doesn't lose it.
+  useEffect(() => {
+    if (initial) return;
+    const d: PassengerDraft = {
+      fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber, costCenter,
+      emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress, destinationAddress,
+      arrival, departure,
+    };
+    try {
+      if (!fullName.trim()) sessionStorage.removeItem(draftKey(eventId));
+      else sessionStorage.setItem(draftKey(eventId), JSON.stringify(d));
+    } catch {
+      /* storage unavailable — draft is best-effort */
+    }
+  }, [
+    initial, eventId, fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber,
+    costCenter, emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress,
+    destinationAddress, arrival, departure,
+  ]);
 
   const dirResults = useMemo(() => {
     const q = dirSearch.trim().toLowerCase();
@@ -169,10 +225,16 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
         },
         personId,
       );
+      if (!initial) clearDraft(eventId);
     } catch (e) {
       setError((e as Error).message);
       setSaving(false);
     }
+  }
+
+  function handleCancel() {
+    if (!initial) clearDraft(eventId);
+    onCancel();
   }
 
   const flightBlock = (
@@ -228,6 +290,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {draft && <p className="rounded bg-blue-50 px-3 py-2 text-sm text-blue-700">{t('passengers.form.draftRestored')}</p>}
 
       {!initial && (
         <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-2">
@@ -249,6 +312,15 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
                 </li>
               ))}
             </ul>
+          )}
+          {dirOpen && dirSearch.trim() && dirResults.length === 0 && (
+            <button
+              type="button"
+              onClick={() => { setFullName(dirSearch.trim()); setDirSearch(''); setDirOpen(false); }}
+              className="mt-1 block w-full rounded border border-dashed border-slate-300 bg-white px-3 py-2 text-left text-sm text-brand-accent hover:bg-slate-50"
+            >
+              {t('passengers.form.useAsNewName', { name: dirSearch.trim() })}
+            </button>
           )}
           {personId && (
             <div className="mt-1 flex items-center gap-2 text-xs text-emerald-700">
@@ -405,7 +477,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
       </Field>
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="ghost" onClick={onCancel}>{t('common.cancel')}</Button>
+        <Button type="button" variant="ghost" onClick={handleCancel}>{t('common.cancel')}</Button>
         <Button type="submit" disabled={saving}>{saving ? t('common.saving') : t('common.save')}</Button>
       </div>
     </form>

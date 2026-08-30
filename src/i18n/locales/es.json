@@ -110,6 +110,7 @@
       "costCenter": "Centro de costos", "costCenterPlaceholder": "Ej.: Marketing, Cliente X…",
       "reuseTitle": "¿Ya cargaste a esta persona antes?", "searchDirectory": "Buscar en el directorio (nombre, documento, mail)…",
       "reusing": "Reutilizando persona del directorio", "asNew": "usar como nueva",
+      "useAsNewName": "No está en el directorio. Usar \"{{name}}\" como nombre completo ↓",
       "arrival": "Vuelo de llegada", "departure": "Vuelo de salida",
       "airline": "Aerolínea", "flightNumber": "Nº de vuelo", "terminal": "Terminal",
       "emergency": "Contacto de emergencia", "notes": "Notas",
@@ -120,7 +121,8 @@
       "localTransfer": "Pasajero local (traslado terrestre, sin vuelo)",
       "originAddress": "Dirección de origen", "destinationAddress": "Dirección de destino",
       "addressPlaceholder": "Calle, número, ciudad…",
-      "photo": "Foto", "uploadPhoto": "Subir foto"
+      "photo": "Foto", "uploadPhoto": "Subir foto",
+      "draftRestored": "Recuperamos lo que estabas cargando antes de salir."
     },
     "wa": {
       "button": "WhatsApp",

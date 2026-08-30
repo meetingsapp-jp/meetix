@@ -110,6 +110,7 @@
       "costCenter": "Cost center", "costCenterPlaceholder": "e.g. Marketing, Client X…",
       "reuseTitle": "Already added this person before?", "searchDirectory": "Search the directory (name, document, email)…",
       "reusing": "Reusing a person from the directory", "asNew": "use as new",
+      "useAsNewName": "Not in the directory. Use \"{{name}}\" as the full name ↓",
       "arrival": "Arrival flight", "departure": "Departure flight",
       "airline": "Airline", "flightNumber": "Flight no.", "terminal": "Terminal",
       "emergency": "Emergency contact", "notes": "Notes",
@@ -120,7 +121,8 @@
       "localTransfer": "Local passenger (ground transfer only, no flight)",
       "originAddress": "Origin address", "destinationAddress": "Destination address",
       "addressPlaceholder": "Street, number, city…",
-      "photo": "Photo", "uploadPhoto": "Upload photo"
+      "photo": "Photo", "uploadPhoto": "Upload photo",
+      "draftRestored": "We recovered what you were filling in before you left."
     },
     "wa": {
       "button": "WhatsApp",
