@@ -117,7 +117,7 @@ function flatten(row: any): PassengerWithMeta {
 const PARTICIPATION_SELECT =
   'id, agency_id, event_id, person_id, is_vip, transport_type, transport_provider_id, ' +
   'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, created_at, updated_at, ' +
-  'person:people(*), hotel:hotels(name), transport_provider:transport_providers(name), flights(*)';
+  'person:people(*), hotel:hotels(name,address), transport_provider:transport_providers(name), flights(*)';
 
 export async function getEvent(eventId: string): Promise<EventRow> {
   const { data, error } = await client().from('events').select('*').eq('id', eventId).single();
@@ -380,10 +380,10 @@ export async function listHotels(eventId: string): Promise<Hotel[]> {
   return (data ?? []) as Hotel[];
 }
 
-export async function createHotel(agencyId: string, eventId: string, name: string): Promise<Hotel> {
+export async function createHotel(agencyId: string, eventId: string, name: string, address: string | null = null): Promise<Hotel> {
   const { data, error } = await client()
     .from('hotels')
-    .insert({ agency_id: agencyId, event_id: eventId, name })
+    .insert({ agency_id: agencyId, event_id: eventId, name, address })
     .select('*')
     .single();
   if (error) throw new Error(error.message);

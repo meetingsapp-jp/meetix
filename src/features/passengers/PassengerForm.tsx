@@ -12,6 +12,7 @@ import {
   type FlightsInput,
   type PassengerInput,
 } from '../../data/passengers';
+import { googleMapsUrl } from '../../lib/links';
 
 interface Props {
   agencyId: string;
@@ -95,6 +96,10 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [isLocalTransfer, setIsLocalTransfer] = useState(draft?.isLocalTransfer ?? initial?.is_local_transfer ?? false);
   const [originAddress, setOriginAddress] = useState(draft?.originAddress ?? initial?.origin_address ?? '');
   const [destinationAddress, setDestinationAddress] = useState(draft?.destinationAddress ?? initial?.destination_address ?? '');
+  // The event usually happens at the passenger's hotel, so by default the
+  // destination just follows whichever hotel is selected above; "usar otro
+  // lugar" opts out for the odd case (a dinner elsewhere, etc.).
+  const [useOtherDestination, setUseOtherDestination] = useState(Boolean(initial?.destination_address));
   const [photoUrl, setPhotoUrl] = useState(initial?.photo_url ?? null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -104,6 +109,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
 
   const [addingHotel, setAddingHotel] = useState(false);
   const [newHotel, setNewHotel] = useState('');
+  const [newHotelAddress, setNewHotelAddress] = useState('');
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -165,11 +171,12 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   async function handleAddHotel() {
     if (!newHotel.trim()) return;
     try {
-      const h = await createHotel(agencyId, eventId, newHotel.trim());
+      const h = await createHotel(agencyId, eventId, newHotel.trim(), newHotelAddress.trim() || null);
       setHotels((prev) => [...prev, h].sort((a, b) => a.name.localeCompare(b.name)));
       setHotelId(h.id);
       setAddingHotel(false);
       setNewHotel('');
+      setNewHotelAddress('');
     } catch (e) {
       setError((e as Error).message);
     }
@@ -197,6 +204,11 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
     setSaving(true);
     setError(null);
     const clean = (s: string) => (s.trim() ? s.trim() : null);
+    const selectedHotel = hotels.find((h) => h.id === hotelId);
+    const finalDestination =
+      isLocalTransfer && selectedHotel && !useOtherDestination
+        ? selectedHotel.address || selectedHotel.name
+        : destinationAddress;
     try {
       await onSubmit(
         {
@@ -216,7 +228,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           notes: clean(notes),
           is_local_transfer: isLocalTransfer,
           origin_address: clean(originAddress),
-          destination_address: clean(destinationAddress),
+          destination_address: clean(finalDestination),
           photo_url: photoUrl,
         },
         {
@@ -390,17 +402,33 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
             </Button>
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="space-y-2">
             <input
               className={inputClass}
               placeholder={t('passengers.form.hotelName')}
               value={newHotel}
               onChange={(e) => setNewHotel(e.target.value)}
             />
-            <Button type="button" onClick={handleAddHotel}>{t('common.save')}</Button>
-            <Button type="button" variant="ghost" onClick={() => setAddingHotel(false)}>{t('common.cancel')}</Button>
+            <input
+              className={inputClass}
+              placeholder={t('passengers.form.hotelAddress')}
+              value={newHotelAddress}
+              onChange={(e) => setNewHotelAddress(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button type="button" onClick={handleAddHotel}>{t('common.save')}</Button>
+              <Button type="button" variant="ghost" onClick={() => setAddingHotel(false)}>{t('common.cancel')}</Button>
+            </div>
           </div>
         )}
+        {!addingHotel && hotelId && (() => {
+          const h = hotels.find((x) => x.id === hotelId);
+          return h ? (
+            <a href={googleMapsUrl(h.address || h.name)} target="_blank" rel="noopener" className="mt-1 inline-block text-xs text-brand-accent underline">
+              📍 {t('passengers.viewOnMap')}
+            </a>
+          ) : null;
+        })()}
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
@@ -422,9 +450,32 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           <Field label={t('passengers.form.originAddress')}>
             <input className={inputClass} value={originAddress} onChange={(e) => setOriginAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
           </Field>
-          <Field label={t('passengers.form.destinationAddress')}>
-            <input className={inputClass} value={destinationAddress} onChange={(e) => setDestinationAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
-          </Field>
+          {(() => {
+            const selectedHotel = hotels.find((h) => h.id === hotelId);
+            if (selectedHotel && !useOtherDestination) {
+              return (
+                <Field label={t('passengers.form.destinationAddress')}>
+                  <div className={`${inputClass} flex items-center justify-between bg-slate-50 dark:bg-slate-700`}>
+                    <span className="truncate">🏨 {selectedHotel.name}</span>
+                    <a href={googleMapsUrl(selectedHotel.address || selectedHotel.name)} target="_blank" rel="noopener" className="ml-2 shrink-0 text-brand-accent">📍</a>
+                  </div>
+                  <button type="button" onClick={() => setUseOtherDestination(true)} className="mt-1 text-xs text-slate-500 underline">
+                    {t('passengers.form.useOtherDestination')}
+                  </button>
+                </Field>
+              );
+            }
+            return (
+              <Field label={t('passengers.form.destinationAddress')}>
+                <input className={inputClass} value={destinationAddress} onChange={(e) => setDestinationAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
+                {selectedHotel && (
+                  <button type="button" onClick={() => { setUseOtherDestination(false); setDestinationAddress(''); }} className="mt-1 text-xs text-slate-500 underline">
+                    {t('passengers.form.useHotelAsDestination')}
+                  </button>
+                )}
+              </Field>
+            );
+          })()}
         </div>
       )}
 
