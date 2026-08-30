@@ -117,7 +117,7 @@ function flatten(row: any): PassengerWithMeta {
 const PARTICIPATION_SELECT =
   'id, agency_id, event_id, person_id, is_vip, transport_type, transport_provider_id, ' +
   'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, created_at, updated_at, ' +
-  'person:people(*), hotel:hotels(name,address), transport_provider:transport_providers(name), flights(*)';
+  'person:people(*), hotel:hotels(name,address), transport_provider:transport_providers(name,contact_phone), flights(*)';
 
 export async function getEvent(eventId: string): Promise<EventRow> {
   const { data, error } = await client().from('events').select('*').eq('id', eventId).single();

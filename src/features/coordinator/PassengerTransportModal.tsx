@@ -3,6 +3,9 @@ import type { PassengerWithMeta } from '../../types';
 import Modal from '../../components/ui/Modal';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 
+const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
+const waHref = (phone: string) => `https://wa.me/${phone.replace(/[^\d]/g, '')}`;
+
 const isoTime = (iso: string | null) => (iso ? iso.slice(11, 16) : '');
 const dm = (iso: string | null) => {
   if (!iso) return '';
@@ -124,7 +127,14 @@ export default function PassengerTransportModal({
           <div className="rounded-lg border-2 border-purple-200 bg-purple-50 p-3">
             <div className="font-semibold text-purple-900">Proveedor de transporte</div>
             <div className="mt-2 text-sm font-medium">{passenger.transport_provider.name}</div>
-            <p className="text-xs text-slate-600 mt-1">Contactar al proveedor para detalles de traslado</p>
+            {passenger.transport_provider.contact_phone ? (
+              <div className="mt-2 flex gap-2">
+                <a href={telHref(passenger.transport_provider.contact_phone)} className="rounded-md bg-white px-2.5 py-1 text-xs font-medium text-purple-800 hover:bg-purple-100">📞 Llamar</a>
+                <a href={waHref(passenger.transport_provider.contact_phone)} target="_blank" rel="noopener" className="rounded-md bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 hover:bg-green-100">💬 WhatsApp</a>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-600 mt-1">Sin teléfono de contacto cargado</p>
+            )}
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-sm text-slate-500">
