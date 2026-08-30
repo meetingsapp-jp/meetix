@@ -7,6 +7,7 @@ import Modal from '../../components/ui/Modal';
 import CopyLink from '../../components/ui/CopyLink';
 import { Field, inputClass } from '../../components/ui/Field';
 import type { AppUser, UserRole } from '../../types';
+import { logAudit } from '../../data/audit';
 
 const INVITE_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 const ALL_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
@@ -49,7 +50,19 @@ export default function TeamPage() {
     if (error) {
       setError(error.message);
     } else {
+      const target = members.find((m) => m.id === memberId);
       setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
+      if (appUser) {
+        logAudit({
+          agencyId: appUser.agency_id,
+          actorId: appUser.id,
+          actorName: appUser.full_name,
+          action: 'change_role',
+          entityType: 'app_user',
+          entityLabel: target?.full_name ?? null,
+          detail: newRole,
+        });
+      }
       setModal(null);
       setSelectedId(null);
     }

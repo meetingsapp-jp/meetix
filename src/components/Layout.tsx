@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import Button from './ui/Button';
+import PushToggle from './PushToggle';
 
 const nav = [
   { to: '/', key: 'nav.dashboard', end: true },
@@ -106,6 +107,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
+            <PushToggle />
             <select
               value={i18n.resolvedLanguage}
               onChange={(e) => i18n.changeLanguage(e.target.value)}

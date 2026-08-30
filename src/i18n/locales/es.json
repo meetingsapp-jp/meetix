@@ -132,6 +132,7 @@
     "button": "PDF", "title": "Itinerario", "passenger": "Pasajero", "contact": "Contacto"
   },
   "pwa": { "updateAvailable": "Hay una nueva versión disponible.", "update": "Actualizar" },
+  "push": { "on": "Notificaciones activadas (tocar para desactivar)", "off": "Activar notificaciones push" },
   "install": {
     "button": "Instalar app",
     "iosTitle": "Instalar en iPhone / iPad",
@@ -200,7 +201,7 @@
   },
   "coordinator": {
     "title": "Coordinador", "onsite": "En el lugar",
-    "tabs": { "today": "Hoy", "passengers": "Pasajeros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidencias", "notes": "Notas", "chat": "Chat" },
+    "tabs": { "today": "Hoy", "passengers": "Pasajeros", "agenda": "Agenda", "transfers": "Traslados", "incidents": "Incidencias", "notes": "Notas", "chat": "Chat", "history": "Historial" },
     "arrived": "Llegó", "markArrived": "Marcar llegó", "arrivedCount": "Llegaron", "openIncidents": "Incidencias",
     "happeningNow": "Sucediendo ahora",
     "pendingArrivals": "Llegadas pendientes", "allArrived": "Todos llegaron ✓", "nextSessions": "Próximas actividades",
@@ -217,6 +218,15 @@
     "noNotes": "Todavía no hay notas.", "emailNotes": "Enviar notas por email",
     "notesEmailSubject": "Notas del evento",
     "messagePlaceholder": "Escribí un mensaje…", "send": "Enviar",
-    "noMessages": "Todavía no hay mensajes. ¡Empezá la conversación!"
+    "noMessages": "Todavía no hay mensajes. ¡Empezá la conversación!",
+    "noHistory": "Todavía no hay actividad registrada.",
+    "pendingSync_one": "{{count}} sin sincronizar", "pendingSync_other": "{{count}} sin sincronizar",
+    "auditAction": {
+      "arrived": "Marcado como llegado", "unarrived": "Desmarcado como llegado",
+      "create_incident": "Incidencia creada", "resolve_incident": "Incidencia resuelta",
+      "reopen_incident": "Incidencia reabierta", "delete_incident": "Incidencia eliminada",
+      "create_passenger": "Pasajero creado", "update_passenger": "Pasajero editado",
+      "delete_passenger": "Pasajero eliminado", "change_role": "Rol cambiado"
+    }
   }
 }
