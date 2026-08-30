@@ -195,8 +195,9 @@
   },
   "coordinator": {
     "title": "Coordinator", "onsite": "On-site",
-    "tabs": { "today": "Today", "passengers": "Passengers", "agenda": "Agenda", "transfers": "Transfers", "incidents": "Incidents" },
+    "tabs": { "today": "Today", "passengers": "Passengers", "agenda": "Agenda", "transfers": "Transfers", "incidents": "Incidents", "notes": "Notes", "chat": "Chat" },
     "arrived": "Arrived", "markArrived": "Mark arrived", "arrivedCount": "Arrived", "openIncidents": "Incidents",
+    "happeningNow": "Happening now",
     "pendingArrivals": "Pending arrivals", "allArrived": "Everyone arrived ✓", "nextSessions": "Next activities",
     "searchPassenger": "Search passenger…", "call": "Call", "fullAgenda": "See full agenda",
     "incidentTitle": "What happened? (title)", "incidentDetail": "Detail (optional)", "addIncident": "Log",
@@ -206,6 +207,11 @@
     "noEventsAssigned": "You don't have any events assigned yet. Ask a Director to assign you one.",
     "local": "Local", "localTransferLabel": "Local transfer (no flight)",
     "viewMap": "View on Google Maps", "checkFlightStatus": "Check flight status",
-    "hotelPickup": "Hotel pickup"
+    "hotelPickup": "Hotel pickup",
+    "notePlaceholder": "Write a note for the team…", "addNote": "Add note",
+    "noNotes": "No notes yet.", "emailNotes": "Email notes",
+    "notesEmailSubject": "Event notes",
+    "messagePlaceholder": "Write a message…", "send": "Send",
+    "noMessages": "No messages yet. Start the conversation!"
   }
 }

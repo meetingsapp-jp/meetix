@@ -9,12 +9,19 @@ import { listAssignedEventIds, listEvents } from '../../data/events';
 import { listPassengers } from '../../data/passengers';
 import { listSessions } from '../../data/sessions';
 import {
+  addEventNote,
   createIncident,
+  deleteEventNote,
   deleteIncident,
   listArrivedIds,
+  listEventMessages,
+  listEventNotes,
   listIncidents,
+  sendEventMessage,
   setArrived,
   setIncidentResolved,
+  type EventMessage,
+  type EventNote,
   type Incident,
   type IncidentSeverity,
 } from '../../data/coordinator';
@@ -22,7 +29,7 @@ import type { EventWithMeta, PassengerWithMeta, SessionType, SessionWithMeta } f
 import PassengerTransportModal from './PassengerTransportModal';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 
-type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias';
+type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias' | 'notas' | 'chat';
 
 const isoDate = (iso: string | null) => (iso ? iso.slice(0, 10) : '');
 const isoTime = (iso: string | null) => (iso ? iso.slice(11, 16) : '');
@@ -161,6 +168,8 @@ export default function CoordinatorPage() {
     { id: 'funciones', label: 'Funciones' },
     { id: 'pasajeros', label: t('coordinator.tabs.passengers') },
     { id: 'incidencias', label: t('coordinator.tabs.incidents') },
+    { id: 'notas', label: t('coordinator.tabs.notes') },
+    { id: 'chat', label: t('coordinator.tabs.chat') },
   ];
 
   return (
@@ -237,6 +246,22 @@ export default function CoordinatorPage() {
                   passengers={passengers}
                   incidents={incidents}
                   onChanged={setIncidents}
+                />
+              )}
+              {tab === 'notas' && (
+                <NotasTab
+                  agencyId={agency?.id ?? ''}
+                  eventId={eventId}
+                  authorId={appUser?.id ?? null}
+                  authorName={appUser?.full_name ?? null}
+                />
+              )}
+              {tab === 'chat' && (
+                <ChatTab
+                  agencyId={agency?.id ?? ''}
+                  eventId={eventId}
+                  authorId={appUser?.id ?? null}
+                  authorName={appUser?.full_name ?? null}
                 />
               )}
             </>
@@ -317,6 +342,19 @@ function TodayTab({
   const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
 
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const happeningNow = sessions.filter((s) => {
+    if (!s.starts_at || !s.ends_at) return false;
+    const start = new Date(s.starts_at).getTime();
+    const end = new Date(s.ends_at).getTime();
+    return start <= now && now <= end;
+  });
+
   const pendingArrivals = passengers
     .filter((p) => p.flights.some((f) => f.direction === 'arrival') && !arrived.has(p.id))
     .sort((a, b) => {
@@ -327,7 +365,7 @@ function TodayTab({
     .slice(0, 8);
 
   const upcomingSessions = sessions
-    .filter((s) => (isoDate(s.starts_at) || '9999') >= today)
+    .filter((s) => (isoDate(s.starts_at) || '9999') >= today && !happeningNow.includes(s))
     .slice(0, 4);
 
   const arrivedCount = passengers.filter((p) => arrived.has(p.id)).length;
@@ -364,6 +402,32 @@ function TodayTab({
         <Stat label={t('coordinator.arrivedCount')} value={`${arrivedCount}/${passengers.length}`} />
         <Stat label={t('coordinator.openIncidents')} value={openIncidents} />
       </div>
+
+      {happeningNow.length > 0 && (
+        <div className="rounded-lg border-2 border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+            </span>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-red-700 dark:text-red-300">{t('coordinator.happeningNow')}</h2>
+          </div>
+          <ul className="space-y-2">
+            {happeningNow.map((s) => (
+              <li key={s.id} className="flex items-center gap-3 rounded-lg bg-white px-3 py-2 dark:bg-slate-800">
+                <div className="w-16 shrink-0 text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {isoTime(s.starts_at)}–{isoTime(s.ends_at)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{s.name}</div>
+                  {s.location && <div className="truncate text-xs text-slate-400">{s.location}</div>}
+                </div>
+                {s.session_type && <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${typeChip[s.session_type]}`}>{t(`agenda.types.${s.session_type}`)}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div>
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('coordinator.pendingArrivals')}</h2>
@@ -831,6 +895,211 @@ function IncidenciasTab({
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+function NotasTab({
+  agencyId,
+  eventId,
+  authorId,
+  authorName,
+}: {
+  agencyId: string;
+  eventId: string;
+  authorId: string | null;
+  authorName: string | null;
+}) {
+  const { t } = useTranslation();
+  const [notes, setNotes] = useState<EventNote[]>([]);
+  const [body, setBody] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    listEventNotes(eventId)
+      .then(setNotes)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [eventId]);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    if (!body.trim() || !agencyId) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const created = await addEventNote(agencyId, eventId, authorId, authorName, body.trim());
+      setNotes((prev) => [created, ...prev]);
+      setBody('');
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(id: string) {
+    try {
+      await deleteEventNote(id);
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  function emailNotes() {
+    const subject = t('coordinator.notesEmailSubject');
+    const emailBody = notes
+      .map((n) => `${dm(n.created_at)} ${isoTime(n.created_at)} — ${n.author_name ?? ''}\n${n.body}`)
+      .join('\n\n');
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+  }
+
+  return (
+    <div>
+      {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+
+      <form onSubmit={add} className="mb-4 space-y-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+        <textarea
+          className={inputClass}
+          rows={2}
+          placeholder={t('coordinator.notePlaceholder')}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+        <div className="flex justify-end gap-2">
+          {notes.length > 0 && (
+            <Button type="button" variant="ghost" onClick={emailNotes}>{t('coordinator.emailNotes')}</Button>
+          )}
+          <Button type="submit" disabled={busy}>{busy ? t('common.saving') : t('coordinator.addNote')}</Button>
+        </div>
+      </form>
+
+      {loading ? (
+        <p className="text-slate-500">{t('common.loading')}</p>
+      ) : notes.length === 0 ? (
+        <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noNotes')}</p>
+      ) : (
+        <ul className="space-y-2">
+          {notes.map((n) => (
+            <li key={n.id} className="rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+              <div className="whitespace-pre-wrap text-sm">{n.body}</div>
+              <div className="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+                <span>{n.author_name ? `${n.author_name} · ` : ''}{dm(n.created_at)} {isoTime(n.created_at)}</span>
+                <button onClick={() => remove(n.id)} className="text-red-500 hover:underline">{t('common.delete')}</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function ChatTab({
+  agencyId,
+  eventId,
+  authorId,
+  authorName,
+}: {
+  agencyId: string;
+  eventId: string;
+  authorId: string | null;
+  authorName: string | null;
+}) {
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<EventMessage[]>([]);
+  const [body, setBody] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const load = useCallback(() => {
+    listEventMessages(eventId)
+      .then(setMessages)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [eventId]);
+
+  useEffect(() => {
+    setLoading(true);
+    load();
+  }, [load]);
+
+  useEffect(() => {
+    if (!supabase || !eventId) return;
+    const channel = supabase
+      .channel(`event-chat:${eventId}`)
+      .on(
+        'postgres_changes' as any,
+        { event: 'INSERT', schema: 'public', table: 'event_messages', filter: `event_id=eq.${eventId}` },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [eventId, load]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (!body.trim() || !agencyId) return;
+    setSending(true);
+    setError(null);
+    const text = body.trim();
+    setBody('');
+    try {
+      await sendEventMessage(agencyId, eventId, authorId, authorName, text);
+      load();
+    } catch (err) {
+      setError((err as Error).message);
+      setBody(text);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="flex h-[60vh] flex-col">
+      {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <div className="flex-1 space-y-2 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+        {loading ? (
+          <p className="text-slate-500">{t('common.loading')}</p>
+        ) : messages.length === 0 ? (
+          <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noMessages')}</p>
+        ) : (
+          messages.map((m) => {
+            const mine = m.author_id === authorId;
+            return (
+              <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${mine ? 'bg-brand-accent text-white' : 'bg-slate-100 dark:bg-slate-700'}`}>
+                  {!mine && <div className="mb-0.5 text-[11px] font-semibold opacity-70">{m.author_name ?? '—'}</div>}
+                  <div className="whitespace-pre-wrap">{m.body}</div>
+                  <div className={`mt-0.5 text-[10px] ${mine ? 'text-white/70' : 'text-slate-400'}`}>{isoTime(m.created_at)}</div>
+                </div>
+              </div>
+            );
+          })
+        )}
+        <div ref={bottomRef} />
+      </div>
+      <form onSubmit={send} className="mt-2 flex gap-2">
+        <input
+          className={`${inputClass} flex-1`}
+          placeholder={t('coordinator.messagePlaceholder')}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+        <Button type="submit" disabled={sending || !body.trim()}>{t('coordinator.send')}</Button>
+      </form>
     </div>
   );
 }
