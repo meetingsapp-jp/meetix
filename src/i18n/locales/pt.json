@@ -85,7 +85,9 @@
       "startDate": "Data de início", "endDate": "Data de término",
       "destinations": "Destinos", "destinationsHint": "Separados por vírgulas (ex.: Cancún, Miami)",
       "status": "Status", "coordinators": "Coordenadores atribuídos",
-      "coordinatorsHint": "Somente os coordenadores marcados aqui verão este evento."
+      "coordinatorsHint": "Somente os coordenadores marcados aqui verão este evento.",
+      "welcomeSign": "Cartaz de boas-vindas", "uploadSign": "Enviar cartaz",
+      "welcomeSignHint": "Imagem do cartaz para receber passageiros no aeroporto. Pode ser enviada depois de criar o evento."
     },
     "status": {
       "planificacion": "Planejamento", "confirmado": "Confirmado", "en_curso": "Em andamento",
@@ -117,7 +119,8 @@
       "pickupTime": "Horário de saída do hotel",
       "localTransfer": "Passageiro local (traslado terrestre, sem voo)",
       "originAddress": "Endereço de origem", "destinationAddress": "Endereço de destino",
-      "addressPlaceholder": "Rua, número, cidade…"
+      "addressPlaceholder": "Rua, número, cidade…",
+      "photo": "Foto", "uploadPhoto": "Enviar foto"
     },
     "wa": {
       "button": "WhatsApp",
@@ -174,6 +177,8 @@
     "selectEvent": "— Selecione um evento —", "pickEventHint": "Selecione um evento para ver seus passageiros.",
     "emptyList": "Nenhum passageiro corresponde a este filtro.",
     "exportPdf": "Exportar VIP (PDF)", "exportCsv": "Exportar VIP (CSV)",
+    "exportAllCsv": "Todos (CSV)", "exportAllPdf": "Todos (PDF)",
+    "exportGroupCsv": "Grupo (CSV)", "exportGroupPdf": "Grupo (PDF)",
     "exportTitle": "Lista VIP — Transporte", "generated": "Gerado",
     "toggleHint": "Clique para alternar entre VIP e Grupo",
     "provider": "Fornecedor", "noProvider": "— Sem fornecedor —",

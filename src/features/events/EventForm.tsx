@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
 import type { AppUser, Client, EventStatus, EventWithMeta } from '../../types';
-import { createClient, listClients, listCoordinators, listEventCoordinatorIds, type EventInput } from '../../data/events';
+import { createClient, listClients, listCoordinators, listEventCoordinatorIds, uploadEventSign, type EventInput } from '../../data/events';
 
 const STATUSES: EventStatus[] = ['planificacion', 'confirmado', 'en_curso', 'finalizado', 'cancelado'];
 
@@ -25,6 +25,9 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
   const [status, setStatus] = useState<EventStatus>(initial?.status ?? 'planificacion');
   const [coordinators, setCoordinators] = useState<AppUser[]>([]);
   const [coordinatorIds, setCoordinatorIds] = useState<string[]>([]);
+  const [signUrl, setSignUrl] = useState(initial?.welcome_sign_url ?? null);
+  const [uploadingSign, setUploadingSign] = useState(false);
+  const signInputRef = useRef<HTMLInputElement>(null);
 
   const [addingClient, setAddingClient] = useState(false);
   const [newClientName, setNewClientName] = useState('');
@@ -46,6 +49,22 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
 
   function toggleCoordinator(id: string) {
     setCoordinatorIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
+  async function handleSign(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !initial) return;
+    setUploadingSign(true);
+    setError(null);
+    try {
+      const url = await uploadEventSign(agencyId, initial.id, file);
+      setSignUrl(url);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploadingSign(false);
+      if (signInputRef.current) signInputRef.current.value = '';
+    }
   }
 
   async function handleAddClient() {
@@ -155,6 +174,26 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
           ))}
         </select>
       </Field>
+
+      {initial && (
+        <div>
+          <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{t('events.form.welcomeSign')}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50 dark:border-slate-600 dark:bg-slate-700">
+              {signUrl ? (
+                <img src={signUrl} alt={t('events.form.welcomeSign')} className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-xs text-slate-400">—</span>
+              )}
+            </div>
+            <Button type="button" variant="secondary" onClick={() => signInputRef.current?.click()} disabled={uploadingSign}>
+              {uploadingSign ? t('settings.uploading') : t('events.form.uploadSign')}
+            </Button>
+            <input ref={signInputRef} type="file" accept="image/*" className="hidden" onChange={handleSign} />
+          </div>
+          <p className="mt-1 text-xs text-slate-400">{t('events.form.welcomeSignHint')}</p>
+        </div>
+      )}
 
       {coordinators.length > 0 && (
         <Field label={t('events.form.coordinators')}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAgency } from '../../auth/AgencyContext';
 import { useRole } from '../../auth/RoleContext';
@@ -27,6 +27,17 @@ export default function TransportPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [providerModal, setProviderModal] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setExportOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [exportOpen]);
 
   useEffect(() => {
     if (!agency) return;
@@ -145,61 +156,36 @@ export default function TransportPage() {
           {can.managePassengers && eventId && (
             <Button variant="secondary" onClick={() => setProviderModal(true)}>{t('transport.providers')}</Button>
           )}
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || passengers.length === 0}
-            onClick={() => selectedEvent && exportManifestCsv(selectedEvent, passengers, manifestLabels())}
-          >
-            {t('transport.manifest.csv')}
-          </Button>
-          <Button
-            disabled={!selectedEvent || passengers.length === 0}
-            onClick={() => selectedEvent && exportManifestPdf(selectedEvent, passengers, manifestLabels(), agency?.brand_color)}
-          >
-            {t('transport.manifest.pdf')}
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || nVip === 0}
-            onClick={() => selectedEvent && exportVipCsv(selectedEvent, passengers, labels)}
-          >
-            {t('transport.exportCsv')}
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || nVip === 0}
-            onClick={() => selectedEvent && exportVipPdf(selectedEvent, passengers, labels)}
-          >
-            {t('transport.exportPdf')}
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || passengers.length === 0}
-            onClick={() => selectedEvent && exportAllCsv(selectedEvent, passengers, labels)}
-          >
-            Todos (CSV)
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || passengers.length === 0}
-            onClick={() => selectedEvent && exportAllPdf(selectedEvent, passengers, labels)}
-          >
-            Todos (PDF)
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || (passengers.length - nVip) === 0}
-            onClick={() => selectedEvent && exportGroupCsv(selectedEvent, passengers, labels)}
-          >
-            Grupo (CSV)
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={!selectedEvent || (passengers.length - nVip) === 0}
-            onClick={() => selectedEvent && exportGroupPdf(selectedEvent, passengers, labels)}
-          >
-            Grupo (PDF)
-          </Button>
+          {selectedEvent && passengers.length > 0 && (
+            <div className="relative" ref={exportRef}>
+              <Button variant="secondary" onClick={() => setExportOpen((o) => !o)}>
+                {t('passengers.export.menu')} ▾
+              </Button>
+              {exportOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-600 dark:bg-slate-800">
+                  {[
+                    { label: t('transport.manifest.csv'), fn: () => exportManifestCsv(selectedEvent, passengers, manifestLabels()), disabled: false },
+                    { label: t('transport.manifest.pdf'), fn: () => exportManifestPdf(selectedEvent, passengers, manifestLabels(), agency?.brand_color), disabled: false },
+                    { label: t('transport.exportCsv'), fn: () => exportVipCsv(selectedEvent, passengers, labels), disabled: nVip === 0 },
+                    { label: t('transport.exportPdf'), fn: () => exportVipPdf(selectedEvent, passengers, labels), disabled: nVip === 0 },
+                    { label: t('transport.exportAllCsv'), fn: () => exportAllCsv(selectedEvent, passengers, labels), disabled: false },
+                    { label: t('transport.exportAllPdf'), fn: () => exportAllPdf(selectedEvent, passengers, labels), disabled: false },
+                    { label: t('transport.exportGroupCsv'), fn: () => exportGroupCsv(selectedEvent, passengers, labels), disabled: (passengers.length - nVip) === 0 },
+                    { label: t('transport.exportGroupPdf'), fn: () => exportGroupPdf(selectedEvent, passengers, labels), disabled: (passengers.length - nVip) === 0 },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      disabled={item.disabled}
+                      onClick={() => { item.fn(); setExportOpen(false); }}
+                      className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-200 dark:hover:bg-slate-700"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

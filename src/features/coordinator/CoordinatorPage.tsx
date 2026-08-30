@@ -336,10 +336,24 @@ function TodayTab({
     <div className="space-y-5">
       {event && (
         <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className="text-lg font-semibold">{event.name}</div>
-          <div className="text-sm text-slate-500">
-            {event.start_date}{event.end_date ? ` → ${event.end_date}` : ''}
-            {event.destinations.length ? ` · ${event.destinations.join(', ')}` : ''}
+          <div className="flex items-start gap-3">
+            {event.welcome_sign_url && (
+              <a href={event.welcome_sign_url} target="_blank" rel="noopener" className="shrink-0">
+                <img src={event.welcome_sign_url} alt={t('events.form.welcomeSign')} className="h-16 w-24 rounded border border-slate-200 object-cover" />
+              </a>
+            )}
+            <div className="min-w-0">
+              <div className="text-lg font-semibold">{event.name}</div>
+              <div className="text-sm text-slate-500">
+                {event.start_date}{event.end_date ? ` → ${event.end_date}` : ''}
+                {event.destinations.length ? ` · ${event.destinations.join(', ')}` : ''}
+              </div>
+              {event.welcome_sign_url && (
+                <a href={event.welcome_sign_url} target="_blank" rel="noopener" className="mt-1 inline-block text-xs text-blue-700 underline">
+                  {t('events.form.welcomeSign')}
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -582,6 +596,9 @@ function RecepcionTab({
           <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
             {notArrived.map(({ p, f }) => (
               <li key={p.id} className="flex items-center gap-3 px-3 py-3">
+                {p.photo_url && (
+                  <img src={p.photo_url} alt={p.full_name} className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <button onClick={() => onSelectPassenger(p)} className="font-semibold text-brand hover:underline text-left">{p.full_name}</button>

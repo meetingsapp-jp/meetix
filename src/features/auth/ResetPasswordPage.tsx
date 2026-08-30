@@ -3,7 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabaseClient';
 import Button from '../../components/ui/Button';
-import { Field, inputClass } from '../../components/ui/Field';
+
+// Same reasoning as LoginPage: this pre-auth card is always light, so it uses
+// its own light-only field/input instead of the theme-aware shared ones.
+const lightInputClass =
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-brand-accent focus:outline-none focus:ring-1 focus:ring-brand-accent';
+
+function LightField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
+      {children}
+    </label>
+  );
+}
 
 // Handles both password recovery (forgot) and first-time password set (invite):
 // Supabase puts a recovery session in the URL and the client picks it up.
@@ -55,12 +68,12 @@ export default function ResetPasswordPage() {
           <p className="text-sm text-slate-600">{t('auth.resetLinkInvalid')}</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-            <Field label={t('auth.newPassword')}>
-              <input type="password" className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus minLength={6} />
-            </Field>
-            <Field label={t('auth.confirmPassword')}>
-              <input type="password" className={inputClass} value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
-            </Field>
+            <LightField label={t('auth.newPassword')}>
+              <input type="password" className={lightInputClass} value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus minLength={6} />
+            </LightField>
+            <LightField label={t('auth.confirmPassword')}>
+              <input type="password" className={lightInputClass} value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
+            </LightField>
             <Button type="submit" disabled={busy} className="w-full">
               {busy ? t('common.saving') : t('auth.savePassword')}
             </Button>

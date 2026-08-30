@@ -27,6 +27,7 @@ export interface PassengerInput {
   is_local_transfer: boolean;
   origin_address: string | null;
   destination_address: string | null;
+  photo_url: string | null;
 }
 
 export interface FlightInput {
@@ -53,6 +54,7 @@ function personFields(i: PassengerInput) {
     allergies: i.allergies,
     special_needs: i.special_needs,
     emergency_contact: i.emergency_contact,
+    photo_url: i.photo_url,
   };
 }
 
@@ -104,6 +106,7 @@ function flatten(row: any): PassengerWithMeta {
     allergies: person?.allergies ?? null,
     special_needs: person?.special_needs ?? null,
     emergency_contact: person?.emergency_contact ?? null,
+    photo_url: person?.photo_url ?? null,
     person,
     hotel: row.hotel ?? null,
     transport_provider: row.transport_provider ?? null,
@@ -355,6 +358,19 @@ export async function bulkImportPassengers(
   }
 
   return { inserted: pax.length };
+}
+
+// Uploads a passenger photo into the agency's folder and stores it on the person row.
+export async function uploadPersonPhoto(agencyId: string, personId: string, file: File): Promise<string> {
+  const db = client();
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const path = `${agencyId}/${personId}-${Date.now()}.${ext}`;
+  const { error: upErr } = await db.storage.from('passenger-photos').upload(path, file, { upsert: true, cacheControl: '3600' });
+  if (upErr) throw new Error(upErr.message);
+  const { data } = db.storage.from('passenger-photos').getPublicUrl(path);
+  const { error } = await db.from('people').update({ photo_url: data.publicUrl }).eq('id', personId);
+  if (error) throw new Error(error.message);
+  return data.publicUrl;
 }
 
 // --- Hotels (needed by the passenger form) ---

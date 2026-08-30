@@ -85,7 +85,9 @@
       "startDate": "Start date", "endDate": "End date",
       "destinations": "Destinations", "destinationsHint": "Comma-separated (e.g.: Cancun, Miami)",
       "status": "Status", "coordinators": "Assigned coordinators",
-      "coordinatorsHint": "Only the coordinators checked here will see this event."
+      "coordinatorsHint": "Only the coordinators checked here will see this event.",
+      "welcomeSign": "Welcome sign", "uploadSign": "Upload sign",
+      "welcomeSignHint": "Image of the pickup sign for the airport. Can be uploaded after creating the event."
     },
     "status": {
       "planificacion": "Planning", "confirmado": "Confirmed", "en_curso": "In progress",
@@ -117,7 +119,8 @@
       "pickupTime": "Hotel pickup time",
       "localTransfer": "Local passenger (ground transfer only, no flight)",
       "originAddress": "Origin address", "destinationAddress": "Destination address",
-      "addressPlaceholder": "Street, number, city…"
+      "addressPlaceholder": "Street, number, city…",
+      "photo": "Photo", "uploadPhoto": "Upload photo"
     },
     "wa": {
       "button": "WhatsApp",
@@ -174,6 +177,8 @@
     "selectEvent": "— Select an event —", "pickEventHint": "Select an event to see its passengers.",
     "emptyList": "No passengers match this filter.",
     "exportPdf": "Export VIP (PDF)", "exportCsv": "Export VIP (CSV)",
+    "exportAllCsv": "All (CSV)", "exportAllPdf": "All (PDF)",
+    "exportGroupCsv": "Group (CSV)", "exportGroupPdf": "Group (PDF)",
     "exportTitle": "VIP List — Transport", "generated": "Generated",
     "toggleHint": "Click to switch between VIP and Group",
     "provider": "Provider", "noProvider": "— No provider —",

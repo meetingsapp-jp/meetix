@@ -41,15 +41,20 @@ export default function PassengerTransportModal({
     <Modal open={open} title="Detalles de transporte" onClose={onClose}>
       <div className="space-y-4">
         {/* Pasajero */}
-        <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-700/50">
-          <div className="font-semibold">{passenger.full_name}</div>
-          {passenger.is_vip && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
-          {passenger.is_local_transfer && (
-            <span className="ml-1 rounded bg-violet-100 px-1 text-[10px] font-semibold text-violet-800">{t('coordinator.local')}</span>
+        <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-700/50">
+          {passenger.photo_url && (
+            <img src={passenger.photo_url} alt={passenger.full_name} className="h-14 w-14 shrink-0 rounded-full object-cover" />
           )}
-          <div className="text-xs text-slate-500 mt-1 dark:text-slate-300">
-            {passenger.phone && <div>📱 {passenger.phone}</div>}
-            {passenger.hotel?.name && <div>🏨 {passenger.hotel.name}{passenger.room_number ? ` · Hab. ${passenger.room_number}` : ''}</div>}
+          <div>
+            <div className="font-semibold">{passenger.full_name}</div>
+            {passenger.is_vip && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
+            {passenger.is_local_transfer && (
+              <span className="ml-1 rounded bg-violet-100 px-1 text-[10px] font-semibold text-violet-800">{t('coordinator.local')}</span>
+            )}
+            <div className="text-xs text-slate-500 mt-1 dark:text-slate-300">
+              {passenger.phone && <div>📱 {passenger.phone}</div>}
+              {passenger.hotel?.name && <div>🏨 {passenger.hotel.name}{passenger.room_number ? ` · Hab. ${passenger.room_number}` : ''}</div>}
+            </div>
           </div>
         </div>
 
