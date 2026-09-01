@@ -46,13 +46,19 @@ const waHref = (phone: string | null) => `https://wa.me/${(phone ?? '').replace(
 const locationLabel = (loc: string | null, t: (key: string) => string) =>
   loc === 'aeropuerto' ? t('passengers.form.locationAirport') : loc === 'hotel' ? t('passengers.form.locationHotel') : loc === 'otro' ? t('passengers.form.locationOther') : null;
 
-function ReceptionSummary({ p, t }: { p: PassengerWithMeta; t: (key: string) => string }) {
+function ReceptionSummary({ p, t, onEdit }: { p: PassengerWithMeta; t: (key: string) => string; onEdit?: (p: PassengerWithMeta) => void }) {
   const loc = locationLabel(p.reception_location, t);
   const hasAny = loc || p.reception_by || p.reception_sign_text;
   if (!hasAny) {
-    return <div className="text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>;
+    return onEdit ? (
+      <button type="button" onClick={() => onEdit(p)} className="text-left text-amber-600 underline decoration-dotted hover:text-amber-700">
+        ⚠️ {t('coordinator.receptionUndefined')}
+      </button>
+    ) : (
+      <div className="text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>
+    );
   }
-  return (
+  const content = (
     <div className="space-y-0.5">
       <div className="font-medium text-slate-700 dark:text-slate-200">
         📥 {[loc, p.reception_by].filter(Boolean).join(' · ')}
@@ -60,19 +66,31 @@ function ReceptionSummary({ p, t }: { p: PassengerWithMeta; t: (key: string) => 
       {p.reception_sign_text && <div className="text-slate-600 dark:text-slate-300">🪧 {p.reception_sign_text}</div>}
     </div>
   );
+  return onEdit ? (
+    <button type="button" onClick={() => onEdit(p)} className="text-left hover:opacity-80">{content}</button>
+  ) : content;
 }
 
-function DispatchSummary({ p, t }: { p: PassengerWithMeta; t: (key: string) => string }) {
+function DispatchSummary({ p, t, onEdit }: { p: PassengerWithMeta; t: (key: string) => string; onEdit?: (p: PassengerWithMeta) => void }) {
   const loc = locationLabel(p.dispatch_location, t);
   const hasAny = loc || p.dispatch_by;
   if (!hasAny) {
-    return <div className="text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>;
+    return onEdit ? (
+      <button type="button" onClick={() => onEdit(p)} className="text-left text-amber-600 underline decoration-dotted hover:text-amber-700">
+        ⚠️ {t('coordinator.dispatchUndefined')}
+      </button>
+    ) : (
+      <div className="text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>
+    );
   }
-  return (
+  const content = (
     <div className="font-medium text-slate-700 dark:text-slate-200">
       📤 {[loc, p.dispatch_by].filter(Boolean).join(' · ')}
     </div>
   );
+  return onEdit ? (
+    <button type="button" onClick={() => onEdit(p)} className="text-left hover:opacity-80">{content}</button>
+  ) : content;
 }
 
 const typeChip: Record<SessionType, string> = {
@@ -371,6 +389,10 @@ export default function CoordinatorPage() {
         open={selectedPassenger !== null}
         passenger={selectedPassenger}
         onClose={() => setSelectedPassenger(null)}
+        onUpdate={(id, patch) => {
+          setPassengers((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+          setSelectedPassenger((prev) => (prev && prev.id === id ? { ...prev, ...patch } : prev));
+        }}
       />
     </div>
   );
@@ -746,9 +768,9 @@ function LocalPassengersSection({ passengers, onSelectPassenger }: { passengers:
                   <div className={p.transport_provider ? 'font-medium text-slate-700 dark:text-slate-200' : 'text-amber-600'}>
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
-                  <ReceptionSummary p={p} t={t} />
+                  <ReceptionSummary p={p} t={t} onEdit={onSelectPassenger} />
                   {p.reception_notes && <div>{p.reception_notes}</div>}
-                  <DispatchSummary p={p} t={t} />
+                  <DispatchSummary p={p} t={t} onEdit={onSelectPassenger} />
                   {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
                 </div>
               </div>
@@ -811,7 +833,7 @@ function RecepcionTab({
                     <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                       🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                     </div>
-                    <ReceptionSummary p={p} t={t} />
+                    <ReceptionSummary p={p} t={t} onEdit={onSelectPassenger} />
                     {p.reception_notes && <div>{p.reception_notes}</div>}
                     {f!.flight_number && (
                       <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">Consultar estado del vuelo</a>
@@ -906,7 +928,7 @@ function DespachoTab({
                   <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
-                  <DispatchSummary p={p} t={t} />
+                  <DispatchSummary p={p} t={t} onEdit={onSelectPassenger} />
                   {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
                   {f!.flight_number && (
                     <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">

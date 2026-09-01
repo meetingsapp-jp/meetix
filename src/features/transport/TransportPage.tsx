@@ -341,7 +341,15 @@ export default function TransportPage() {
         )}
       </Modal>
 
-      <PassengerTransportModal open={!!detail} passenger={detail} onClose={() => setDetail(null)} />
+      <PassengerTransportModal
+        open={!!detail}
+        passenger={detail}
+        onClose={() => setDetail(null)}
+        onUpdate={(id, patch) => {
+          setPassengers((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+          setDetail((prev) => (prev && prev.id === id ? { ...prev, ...patch } : prev));
+        }}
+      />
     </div>
   );
 }
