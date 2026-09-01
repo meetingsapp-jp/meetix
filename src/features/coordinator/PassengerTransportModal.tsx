@@ -13,6 +13,9 @@ const dm = (iso: string | null) => {
   return `${d}/${m}`;
 };
 
+const locationLabel = (loc: string | null, t: (key: string) => string) =>
+  loc === 'aeropuerto' ? t('passengers.form.locationAirport') : loc === 'hotel' ? t('passengers.form.locationHotel') : loc === 'otro' ? t('passengers.form.locationOther') : null;
+
 export default function PassengerTransportModal({
   open,
   passenger,
@@ -47,6 +50,11 @@ export default function PassengerTransportModal({
       : t('coordinator.groupTransport');
 
   const checklist = passenger.departure_checklist ?? [];
+
+  const receptionLoc = locationLabel(passenger.reception_location, t);
+  const dispatchLoc = locationLabel(passenger.dispatch_location, t);
+  const hasReceptionInfo = receptionLoc || passenger.reception_by || passenger.reception_sign_text;
+  const hasDispatchInfo = dispatchLoc || passenger.dispatch_by;
 
   return (
     <Modal open={open} title="Detalles de transporte" onClose={onClose}>
@@ -86,12 +94,33 @@ export default function PassengerTransportModal({
           >
             {transportTypeLabel}
           </span>
-          {(passenger.reception_notes || passenger.dispatch_notes) && (
-            <div className="min-w-0 flex-1 space-y-0.5 text-xs text-slate-600 dark:text-slate-300">
-              {passenger.reception_notes && <div>📥 {passenger.reception_notes}</div>}
-              {passenger.dispatch_notes && <div>📤 {passenger.dispatch_notes}</div>}
-            </div>
-          )}
+        </div>
+
+        {/* Recepción / despacho */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3 text-xs dark:border-violet-800 dark:bg-violet-950/20">
+            <div className="mb-1 font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">{t('passengers.form.receptionSection')}</div>
+            {hasReceptionInfo ? (
+              <div className="space-y-0.5 text-slate-700 dark:text-slate-200">
+                {(receptionLoc || passenger.reception_by) && (
+                  <div className="font-medium">📥 {[receptionLoc, passenger.reception_by].filter(Boolean).join(' · ')}</div>
+                )}
+                {passenger.reception_sign_text && <div>🪧 {passenger.reception_sign_text}</div>}
+              </div>
+            ) : (
+              <div className="text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>
+            )}
+            {passenger.reception_notes && <div className="mt-1 text-slate-500 dark:text-slate-400">{passenger.reception_notes}</div>}
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 text-xs dark:border-blue-800 dark:bg-blue-950/20">
+            <div className="mb-1 font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{t('passengers.form.dispatchSection')}</div>
+            {hasDispatchInfo ? (
+              <div className="font-medium text-slate-700 dark:text-slate-200">📤 {[dispatchLoc, passenger.dispatch_by].filter(Boolean).join(' · ')}</div>
+            ) : (
+              <div className="text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>
+            )}
+            {passenger.dispatch_notes && <div className="mt-1 text-slate-500 dark:text-slate-400">{passenger.dispatch_notes}</div>}
+          </div>
         </div>
 
         {/* 3. Recorrido: origen → destino */}

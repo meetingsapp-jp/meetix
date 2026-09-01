@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { ChecklistItem, EventRow, FlightDirection, Hotel, PassengerWithMeta, Person } from '../types';
+import type { ChecklistItem, DispatchLocation, EventRow, FlightDirection, Hotel, PassengerWithMeta, Person, ReceptionLocation } from '../types';
 import type { ParsedRow } from '../lib/import/passengers';
 
 function client() {
@@ -28,7 +28,12 @@ export interface PassengerInput {
   origin_address: string | null;
   destination_address: string | null;
   local_transfer_time: string | null;
+  reception_location: ReceptionLocation | null;
+  reception_by: string | null;
+  reception_sign_text: string | null;
   reception_notes: string | null;
+  dispatch_location: DispatchLocation | null;
+  dispatch_by: string | null;
   dispatch_notes: string | null;
   departure_checklist: ChecklistItem[];
   photo_url: string | null;
@@ -74,7 +79,12 @@ function participationFields(i: PassengerInput) {
     origin_address: i.origin_address,
     destination_address: i.destination_address,
     local_transfer_time: i.local_transfer_time,
+    reception_location: i.reception_location,
+    reception_by: i.reception_by,
+    reception_sign_text: i.reception_sign_text,
     reception_notes: i.reception_notes,
+    dispatch_location: i.dispatch_location,
+    dispatch_by: i.dispatch_by,
     dispatch_notes: i.dispatch_notes,
     departure_checklist: i.departure_checklist,
   };
@@ -104,7 +114,12 @@ function flatten(row: any): PassengerWithMeta {
     origin_address: row.origin_address ?? null,
     destination_address: row.destination_address ?? null,
     local_transfer_time: row.local_transfer_time ?? null,
+    reception_location: row.reception_location ?? null,
+    reception_by: row.reception_by ?? null,
+    reception_sign_text: row.reception_sign_text ?? null,
     reception_notes: row.reception_notes ?? null,
+    dispatch_location: row.dispatch_location ?? null,
+    dispatch_by: row.dispatch_by ?? null,
     dispatch_notes: row.dispatch_notes ?? null,
     departure_checklist: Array.isArray(row.departure_checklist) ? row.departure_checklist : [],
     created_at: row.created_at,
@@ -129,7 +144,8 @@ function flatten(row: any): PassengerWithMeta {
 const PARTICIPATION_SELECT =
   'id, agency_id, event_id, person_id, is_vip, transport_type, transport_provider_id, ' +
   'hotel_id, room_number, cost_center, notes, is_local_transfer, origin_address, destination_address, ' +
-  'local_transfer_time, reception_notes, dispatch_notes, departure_checklist, created_at, updated_at, ' +
+  'local_transfer_time, reception_location, reception_by, reception_sign_text, reception_notes, ' +
+  'dispatch_location, dispatch_by, dispatch_notes, departure_checklist, created_at, updated_at, ' +
   'person:people(*), hotel:hotels(name,address), transport_provider:transport_providers(name,contact_phone), flights(*)';
 
 export async function getEvent(eventId: string): Promise<EventRow> {

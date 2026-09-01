@@ -43,6 +43,38 @@ const dm = (iso: string | null) => {
 const telHref = (phone: string | null) => `tel:${(phone ?? '').replace(/[^\d+]/g, '')}`;
 const waHref = (phone: string | null) => `https://wa.me/${(phone ?? '').replace(/[^\d]/g, '')}`;
 
+const locationLabel = (loc: string | null, t: (key: string) => string) =>
+  loc === 'aeropuerto' ? t('passengers.form.locationAirport') : loc === 'hotel' ? t('passengers.form.locationHotel') : loc === 'otro' ? t('passengers.form.locationOther') : null;
+
+function ReceptionSummary({ p, t }: { p: PassengerWithMeta; t: (key: string) => string }) {
+  const loc = locationLabel(p.reception_location, t);
+  const hasAny = loc || p.reception_by || p.reception_sign_text;
+  if (!hasAny) {
+    return <div className="text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>;
+  }
+  return (
+    <div className="space-y-0.5">
+      <div className="font-medium text-slate-700 dark:text-slate-200">
+        📥 {[loc, p.reception_by].filter(Boolean).join(' · ')}
+      </div>
+      {p.reception_sign_text && <div className="text-slate-600 dark:text-slate-300">🪧 {p.reception_sign_text}</div>}
+    </div>
+  );
+}
+
+function DispatchSummary({ p, t }: { p: PassengerWithMeta; t: (key: string) => string }) {
+  const loc = locationLabel(p.dispatch_location, t);
+  const hasAny = loc || p.dispatch_by;
+  if (!hasAny) {
+    return <div className="text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>;
+  }
+  return (
+    <div className="font-medium text-slate-700 dark:text-slate-200">
+      📤 {[loc, p.dispatch_by].filter(Boolean).join(' · ')}
+    </div>
+  );
+}
+
 const typeChip: Record<SessionType, string> = {
   charla: 'bg-blue-100 text-blue-700',
   comida: 'bg-amber-100 text-amber-800',
@@ -435,6 +467,10 @@ function TodayTab({
     .slice(0, 4);
 
   const arrivedCount = passengers.filter((p) => arrived.has(p.id)).length;
+  const missingReception = passengers.filter(
+    (p) => !arrived.has(p.id) && !p.reception_location && !p.reception_by && !p.reception_sign_text,
+  ).length;
+  const missingDispatch = passengers.filter((p) => !p.dispatch_location && !p.dispatch_by).length;
 
   return (
     <div className="space-y-5">
@@ -468,6 +504,16 @@ function TodayTab({
         <Stat label={t('coordinator.arrivedCount')} value={`${arrivedCount}/${passengers.length}`} />
         <Stat label={t('coordinator.openIncidents')} value={openIncidents} />
       </div>
+
+      {(missingReception > 0 || missingDispatch > 0) && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+          <div className="mb-1 font-semibold">⚠️ {t('coordinator.alerts')}</div>
+          <ul className="space-y-0.5">
+            {missingReception > 0 && <li>{t('coordinator.alertMissingReception', { count: missingReception })}</li>}
+            {missingDispatch > 0 && <li>{t('coordinator.alertMissingDispatch', { count: missingDispatch })}</li>}
+          </ul>
+        </div>
+      )}
 
       {happeningNow.length > 0 && (
         <div className="rounded-lg border-2 border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
@@ -700,8 +746,10 @@ function LocalPassengersSection({ passengers, onSelectPassenger }: { passengers:
                   <div className={p.transport_provider ? 'font-medium text-slate-700 dark:text-slate-200' : 'text-amber-600'}>
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
-                  {p.reception_notes && <div>📥 {p.reception_notes}</div>}
-                  {p.dispatch_notes && <div>📤 {p.dispatch_notes}</div>}
+                  <ReceptionSummary p={p} t={t} />
+                  {p.reception_notes && <div>{p.reception_notes}</div>}
+                  <DispatchSummary p={p} t={t} />
+                  {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
                 </div>
               </div>
               {p.transport_provider?.contact_phone && (
@@ -729,6 +777,7 @@ function RecepcionTab({
   onToggleArrived: (p: PassengerWithMeta) => void;
   onSelectPassenger: (p: PassengerWithMeta) => void;
 }) {
+  const { t } = useTranslation();
 
   const arrivals = passengers
     .map((p) => ({ p, f: p.flights.find((x) => x.direction === 'arrival') }))
@@ -762,7 +811,8 @@ function RecepcionTab({
                     <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                       🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                     </div>
-                    {p.reception_notes && <div>📥 {p.reception_notes}</div>}
+                    <ReceptionSummary p={p} t={t} />
+                    {p.reception_notes && <div>{p.reception_notes}</div>}
                     {f!.flight_number && (
                       <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">Consultar estado del vuelo</a>
                     )}
@@ -856,7 +906,8 @@ function DespachoTab({
                   <div className={p.transport_provider ? 'font-medium text-slate-700' : 'text-amber-600'}>
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
-                  {p.dispatch_notes && <div>📤 {p.dispatch_notes}</div>}
+                  <DispatchSummary p={p} t={t} />
+                  {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
                   {f!.flight_number && (
                     <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">
                       {t('coordinator.checkFlightStatus')}

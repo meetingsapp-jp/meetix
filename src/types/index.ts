@@ -130,7 +130,12 @@ export interface Passenger {
   origin_address: string | null;
   destination_address: string | null;
   local_transfer_time: string | null;
+  reception_location: ReceptionLocation | null;
+  reception_by: string | null;
+  reception_sign_text: string | null;
   reception_notes: string | null;
+  dispatch_location: DispatchLocation | null;
+  dispatch_by: string | null;
   dispatch_notes: string | null;
   departure_checklist: ChecklistItem[];
   created_at: string;
@@ -141,6 +146,9 @@ export interface ChecklistItem {
   label: string;
   done: boolean;
 }
+
+export type ReceptionLocation = 'aeropuerto' | 'hotel' | 'otro';
+export type DispatchLocation = 'hotel' | 'otro';
 
 // Participation joined with the person's stable fields (flattened so existing
 // reads keep working), plus hotel, transport provider and flights.
