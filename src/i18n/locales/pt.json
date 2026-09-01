@@ -23,7 +23,7 @@
     "noAccessTitle": "Sem acesso", "noAccessBody": "A conta {{email}} ainda não está associada a uma agência. Contate o administrador."
   },
   "common": {
-    "save": "Salvar", "saving": "Salvando…", "cancel": "Cancelar", "edit": "Editar",
+    "save": "Salvar", "saving": "Salvando…", "cancel": "Cancelar", "edit": "Editar", "back": "Voltar", "saveChanges": "Salvar alterações", "changesSaved": "Alterações salvas",
     "delete": "Excluir", "loading": "Carregando…", "pendingModule": "Módulo a construir.",
     "yes": "Sim", "no": "Não", "close": "Fechar",
     "noAgency": "Nenhuma agência encontrada. Verifique a conexão com o banco de dados."

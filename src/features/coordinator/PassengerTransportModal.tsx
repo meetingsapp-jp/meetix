@@ -39,6 +39,7 @@ export default function PassengerTransportModal({
   const [dispatchBy, setDispatchBy] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setReceptionLocation(passenger?.reception_location ?? '');
@@ -47,16 +48,32 @@ export default function PassengerTransportModal({
     setDispatchLocation(passenger?.dispatch_location ?? '');
     setDispatchBy(passenger?.dispatch_by ?? '');
     setSaveError(null);
+    setSaved(false);
   }, [passenger]);
 
   if (!passenger) return null;
 
-  async function save(patch: LogisticsPatch) {
+  const dirty =
+    receptionLocation !== (passenger.reception_location ?? '') ||
+    receptionBy !== (passenger.reception_by ?? '') ||
+    receptionSignText !== (passenger.reception_sign_text ?? '') ||
+    dispatchLocation !== (passenger.dispatch_location ?? '') ||
+    dispatchBy !== (passenger.dispatch_by ?? '');
+
+  async function handleSaveChanges() {
     setSaving(true);
     setSaveError(null);
+    const patch: LogisticsPatch = {
+      reception_location: receptionLocation || null,
+      reception_by: receptionBy.trim() || null,
+      reception_sign_text: receptionSignText.trim() || null,
+      dispatch_location: dispatchLocation || null,
+      dispatch_by: dispatchBy.trim() || null,
+    };
     try {
       await updatePassengerLogistics(passenger!.id, patch);
       onUpdate?.(passenger!.id, patch);
+      setSaved(true);
     } catch (e) {
       setSaveError((e as Error).message);
     } finally {
@@ -88,7 +105,30 @@ export default function PassengerTransportModal({
   const checklist = passenger.departure_checklist ?? [];
 
   return (
-    <Modal open={open} title="Detalles de transporte" onClose={onClose}>
+    <Modal
+      open={open}
+      title="Detalles de transporte"
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            ← {t('common.back')}
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveChanges}
+            disabled={saving || !dirty}
+            className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {saving ? t('common.saving') : saved ? `✓ ${t('common.changesSaved')}` : t('common.saveChanges')}
+          </button>
+        </>
+      }
+    >
       <div className="space-y-4">
         {/* 1. Pasajero */}
         <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3 shadow-sm dark:bg-slate-700/50">
@@ -125,7 +165,6 @@ export default function PassengerTransportModal({
           >
             {transportTypeLabel}
           </span>
-          {saving && <span className="text-xs text-slate-400">{t('common.saving')}</span>}
         </div>
 
         {saveError && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{saveError}</p>}
@@ -142,9 +181,8 @@ export default function PassengerTransportModal({
                 className={`${inputClass} text-xs`}
                 value={receptionLocation}
                 onChange={(e) => {
-                  const v = e.target.value as ReceptionLocation | '';
-                  setReceptionLocation(v);
-                  save({ reception_location: v || null });
+                  setReceptionLocation(e.target.value as ReceptionLocation | '');
+                  setSaved(false);
                 }}
               >
                 <option value="">{t('passengers.form.locationUndefined')}</option>
@@ -156,15 +194,13 @@ export default function PassengerTransportModal({
                 className={`${inputClass} text-xs`}
                 placeholder={t('passengers.form.receptionByPlaceholder')}
                 value={receptionBy}
-                onChange={(e) => setReceptionBy(e.target.value)}
-                onBlur={() => save({ reception_by: receptionBy.trim() || null })}
+                onChange={(e) => { setReceptionBy(e.target.value); setSaved(false); }}
               />
               <input
                 className={`${inputClass} text-xs`}
                 placeholder={t('passengers.form.receptionSignTextPlaceholder')}
                 value={receptionSignText}
-                onChange={(e) => setReceptionSignText(e.target.value)}
-                onBlur={() => save({ reception_sign_text: receptionSignText.trim() || null })}
+                onChange={(e) => { setReceptionSignText(e.target.value); setSaved(false); }}
               />
             </div>
             {passenger.reception_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.reception_notes}</div>}
@@ -179,9 +215,8 @@ export default function PassengerTransportModal({
                 className={`${inputClass} text-xs`}
                 value={dispatchLocation}
                 onChange={(e) => {
-                  const v = e.target.value as DispatchLocation | '';
-                  setDispatchLocation(v);
-                  save({ dispatch_location: v || null });
+                  setDispatchLocation(e.target.value as DispatchLocation | '');
+                  setSaved(false);
                 }}
               >
                 <option value="">{t('passengers.form.locationUndefined')}</option>
@@ -192,8 +227,7 @@ export default function PassengerTransportModal({
                 className={`${inputClass} text-xs`}
                 placeholder={t('passengers.form.dispatchByPlaceholder')}
                 value={dispatchBy}
-                onChange={(e) => setDispatchBy(e.target.value)}
-                onBlur={() => save({ dispatch_by: dispatchBy.trim() || null })}
+                onChange={(e) => { setDispatchBy(e.target.value); setSaved(false); }}
               />
             </div>
             {passenger.dispatch_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.dispatch_notes}</div>}
