@@ -23,7 +23,7 @@
     "noAccessTitle": "Cuenta sin acceso", "noAccessBody": "La cuenta {{email}} aún no está asignada a una agencia. Contacta al administrador."
   },
   "common": {
-    "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar",
+    "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar", "back": "Atrás", "saveChanges": "Guardar cambios", "changesSaved": "Cambios guardados",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
     "yes": "Sí", "no": "No", "close": "Cerrar",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."

@@ -23,7 +23,7 @@
     "noAccessTitle": "No access", "noAccessBody": "The account {{email}} is not assigned to an agency yet. Contact your administrator."
   },
   "common": {
-    "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit",
+    "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit", "back": "Back", "saveChanges": "Save changes", "changesSaved": "Changes saved",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
     "yes": "Yes", "no": "No", "close": "Close",
     "noAgency": "No agency found. Check the database connection."

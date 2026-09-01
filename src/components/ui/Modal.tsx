@@ -6,6 +6,7 @@ interface Props {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  footer?: ReactNode;
 }
 
 // On mobile, the hardware/gesture "back" action otherwise navigates the whole
@@ -30,25 +31,28 @@ function useBackButtonCloses(open: boolean, onClose: () => void) {
   }, [open]);
 }
 
-export default function Modal({ open, title, onClose, children }: Props) {
+export default function Modal({ open, title, onClose, children, footer }: Props) {
   useBackButtonCloses(open, onClose);
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4"
       onClick={onClose}
     >
       <div
-        className="mt-10 w-full max-w-lg rounded-lg bg-white shadow-xl dark:bg-slate-800"
+        className="mt-10 flex max-h-[calc(100vh-5rem)] w-full max-w-lg flex-col rounded-lg bg-white shadow-xl dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700">
+        <div className="flex shrink-0 items-center justify-between border-b px-4 py-3 dark:border-slate-700">
           <h2 className="font-semibold dark:text-slate-100">{title}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none dark:hover:text-slate-200">
             &times;
           </button>
         </div>
-        <div className="p-4 dark:text-slate-100">{children}</div>
+        <div className="overflow-y-auto p-4 dark:text-slate-100">{children}</div>
+        {footer && (
+          <div className="flex shrink-0 justify-end gap-2 border-t px-4 py-3 dark:border-slate-700">{footer}</div>
+        )}
       </div>
     </div>
   );
