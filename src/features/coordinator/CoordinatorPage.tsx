@@ -298,7 +298,7 @@ export default function CoordinatorPage() {
               )}
               {tab === 'funciones' && <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
               {tab === 'pasajeros' && (
-                <PasajerosTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} />
+                <PasajerosTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} onSelectPassenger={setSelectedPassenger} />
               )}
               {tab === 'incidencias' && (
                 <IncidenciasTab
@@ -562,10 +562,12 @@ function PasajerosTab({
   passengers,
   arrived,
   onToggleArrived,
+  onSelectPassenger,
 }: {
   passengers: PassengerWithMeta[];
   arrived: Set<string>;
   onToggleArrived: (p: PassengerWithMeta) => void;
+  onSelectPassenger: (p: PassengerWithMeta) => void;
 }) {
   const { t } = useTranslation();
   const [q, setQ] = useState('');
@@ -591,7 +593,7 @@ function PasajerosTab({
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="font-medium">
-                    {p.full_name}
+                    <button onClick={() => onSelectPassenger(p)} className="text-left text-brand hover:underline">{p.full_name}</button>
                     {p.is_vip && <span className="ml-1 rounded bg-amber-100 px-1 text-[10px] font-semibold text-amber-800">VIP</span>}
                   </div>
                   <div className="text-xs text-slate-500">

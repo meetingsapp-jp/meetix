@@ -51,6 +51,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const [agencyMenuOpen, setAgencyMenuOpen] = useState(false);
   const agencyMenuRef = useRef<HTMLDivElement>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!agencyMenuOpen) return;
@@ -61,6 +63,15 @@ export default function Layout({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('mousedown', onDown);
   }, [agencyMenuOpen]);
 
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [userMenuOpen]);
+
   return (
     <div className="min-h-full flex flex-col">
       <header
@@ -70,7 +81,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {/* Top row: brand + language + user */}
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
           {can.manageTeam ? (
-            <div className="relative min-w-0" ref={agencyMenuRef}>
+            <div className="relative min-w-0 flex-1" ref={agencyMenuRef}>
               <button
                 type="button"
                 onClick={() => setAgencyMenuOpen((o) => !o)}
@@ -98,7 +109,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               )}
             </div>
           ) : (
-            <div className="flex min-w-0 items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2">
               {agency?.logo_url ? (
                 <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
               ) : null}
@@ -106,7 +117,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             </div>
           )}
 
-          <div className="ml-auto flex shrink-0 items-center gap-2">
+          {/* Desktop: full row of controls */}
+          <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex">
             <PushToggle />
             <select
               value={i18n.resolvedLanguage}
@@ -123,13 +135,65 @@ export default function Layout({ children }: { children: ReactNode }) {
             {appUser && (
               <>
                 <div className="text-right text-xs leading-tight">
-                  <div className="max-w-[120px] truncate font-medium sm:max-w-none">{appUser.full_name}</div>
-                  <div className="hidden opacity-70 sm:block">{t(`roles.${appUser.role}`)}</div>
+                  <div className="max-w-none truncate font-medium">{appUser.full_name}</div>
+                  <div className="opacity-70">{t(`roles.${appUser.role}`)}</div>
                 </div>
                 <Button variant="ghost" className="text-white hover:bg-white/10" onClick={signOut}>
                   {t('auth.signOut')}
                 </Button>
               </>
+            )}
+          </div>
+
+          {/* Mobile: single menu button to avoid crowding/overlap */}
+          <div className="relative ml-auto shrink-0 sm:hidden" ref={userMenuRef}>
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1.5 text-sm hover:bg-white/20"
+              aria-haspopup="menu"
+              aria-expanded={userMenuOpen}
+              aria-label={t('auth.signOut')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="3.2" />
+                <path d="M4.5 20c0-3.6 3.2-6.2 7.5-6.2s7.5 2.6 7.5 6.2" />
+              </svg>
+              {appUser && <span className="max-w-[80px] truncate">{appUser.full_name}</span>}
+            </button>
+            {userMenuOpen && (
+              <div className="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-2 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                {appUser && (
+                  <div className="border-b border-slate-100 px-4 pb-2 dark:border-slate-700">
+                    <div className="truncate font-medium">{appUser.full_name}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t(`roles.${appUser.role}`)}</div>
+                  </div>
+                )}
+                <div className="flex items-center justify-between px-4 py-2">
+                  <span className="text-sm">{t('language.label')}</span>
+                  <select
+                    value={i18n.resolvedLanguage}
+                    onChange={(e) => i18n.changeLanguage(e.target.value)}
+                    className="rounded border border-slate-300 px-1.5 py-1 text-xs dark:border-slate-600 dark:bg-slate-700"
+                    aria-label={t('language.label')}
+                  >
+                    {SUPPORTED_LANGUAGES.map((lng) => (
+                      <option key={lng} value={lng}>{lng.toUpperCase()}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="px-4 py-2">
+                  <PushToggle />
+                </div>
+                {appUser && (
+                  <button
+                    onClick={() => { setUserMenuOpen(false); signOut(); }}
+                    className="block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                  >
+                    {t('auth.signOut')}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
