@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
-import { Field, inputClass } from '../../components/ui/Field';
+import { Field, focusFirstInvalid, inputClass, invalidClass } from '../../components/ui/Field';
 import type { AppUser, Client, EventStatus, EventWithMeta } from '../../types';
 import { createClient, listClients, listCoordinators, listEventCoordinatorIds, uploadEventSign, type EventInput } from '../../data/events';
 
@@ -35,6 +35,8 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     listClients(agencyId).then(setClients).catch((e) => setError(e.message));
@@ -83,6 +85,8 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitAttempted(true);
+    if (!focusFirstInvalid(formRef.current)) return;
     if (!name.trim()) return;
     setSaving(true);
     setError(null);
@@ -105,11 +109,20 @@ export default function EventForm({ agencyId, initial, onSubmit, onCancel }: Pro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-3">
       {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <Field label={t('events.form.name')}>
-        <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
+        <input
+          className={`${inputClass} ${submitAttempted ? invalidClass : ''}`}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          autoFocus
+        />
+        {submitAttempted && !name.trim() && (
+          <p className="mt-1 text-xs text-red-600">{t('common.requiredField')}</p>
+        )}
       </Field>
 
       <Field label={t('events.form.client')}>

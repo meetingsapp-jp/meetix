@@ -1,20 +1,26 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Layout from './components/Layout';
 import { useAuth } from './auth/AuthContext';
 import Button from './components/ui/Button';
-import DashboardPage from './features/dashboard/DashboardPage';
-import EventsPage from './features/events/EventsPage';
-import PassengersPage from './features/passengers/PassengersPage';
-import ChecklistPage from './features/checklist/ChecklistPage';
-import AgendaPage from './features/agenda/AgendaPage';
-import CoordinatorPage from './features/coordinator/CoordinatorPage';
-import TransportPage from './features/transport/TransportPage';
-import TeamPage from './features/team/TeamPage';
-import SettingsPage from './features/settings/SettingsPage';
 import LoginPage from './features/auth/LoginPage';
 import ResetPasswordPage from './features/auth/ResetPasswordPage';
-import AdminPage from './features/admin/AdminPage';
+import Spinner from './components/ui/Spinner';
+
+// Route-level code splitting: only the page the user is actually on gets
+// downloaded, instead of one big bundle with every feature (dashboard,
+// coordinator, admin, etc.) loaded upfront.
+const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage'));
+const EventsPage = lazy(() => import('./features/events/EventsPage'));
+const PassengersPage = lazy(() => import('./features/passengers/PassengersPage'));
+const ChecklistPage = lazy(() => import('./features/checklist/ChecklistPage'));
+const AgendaPage = lazy(() => import('./features/agenda/AgendaPage'));
+const CoordinatorPage = lazy(() => import('./features/coordinator/CoordinatorPage'));
+const TransportPage = lazy(() => import('./features/transport/TransportPage'));
+const TeamPage = lazy(() => import('./features/team/TeamPage'));
+const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
+const AdminPage = lazy(() => import('./features/admin/AdminPage'));
 
 function NotProvisioned() {
   const { t } = useTranslation();
@@ -31,7 +37,6 @@ function NotProvisioned() {
 }
 
 export default function App() {
-  const { t } = useTranslation();
   const { session, loading, notProvisioned, isPlatformAdmin, appUser } = useAuth();
   const location = useLocation();
 
@@ -45,32 +50,38 @@ export default function App() {
   }
 
   if (loading) {
-    return <div className="flex min-h-full items-center justify-center text-slate-500">{t('common.loading')}</div>;
+    return <div className="flex min-h-full items-center justify-center"><Spinner /></div>;
   }
 
   if (!session) return <LoginPage />;
 
   // Platform super-admin at /admin, or with no agency of their own.
   if (isPlatformAdmin && (location.pathname === '/admin' || !appUser)) {
-    return <AdminPage />;
+    return (
+      <Suspense fallback={<div className="flex min-h-full items-center justify-center"><Spinner /></div>}>
+        <AdminPage />
+      </Suspense>
+    );
   }
 
   if (notProvisioned) return <NotProvisioned />;
 
   return (
     <Layout>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/events/:eventId/passengers" element={<PassengersPage />} />
-        <Route path="/events/:eventId/checklist" element={<ChecklistPage />} />
-        <Route path="/events/:eventId/agenda" element={<AgendaPage />} />
-        <Route path="/transport" element={<TransportPage />} />
-        <Route path="/coordinador" element={<CoordinatorPage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><Spinner /></div>}>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:eventId/passengers" element={<PassengersPage />} />
+          <Route path="/events/:eventId/checklist" element={<ChecklistPage />} />
+          <Route path="/events/:eventId/agenda" element={<AgendaPage />} />
+          <Route path="/transport" element={<TransportPage />} />
+          <Route path="/coordinador" element={<CoordinatorPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </Layout>
   );
 }

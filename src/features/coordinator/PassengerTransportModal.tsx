@@ -203,7 +203,7 @@ export default function PassengerTransportModal({
                 onChange={(e) => { setReceptionSignText(e.target.value); setSaved(false); }}
               />
             </div>
-            {passenger.reception_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.reception_notes}</div>}
+            {passenger.reception_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">📝 {passenger.reception_notes}</div>}
           </div>
           <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 text-xs dark:border-blue-800 dark:bg-blue-950/20">
             <div className="mb-2 font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{t('passengers.form.dispatchSection')}</div>
@@ -230,7 +230,7 @@ export default function PassengerTransportModal({
                 onChange={(e) => { setDispatchBy(e.target.value); setSaved(false); }}
               />
             </div>
-            {passenger.dispatch_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.dispatch_notes}</div>}
+            {passenger.dispatch_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">📝 {passenger.dispatch_notes}</div>}
           </div>
         </div>
 

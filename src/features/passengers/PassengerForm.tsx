@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
-import { Field, inputClass } from '../../components/ui/Field';
+import { Field, focusFirstInvalid, inputClass, invalidClass } from '../../components/ui/Field';
 import type { ChecklistItem, DispatchLocation, Flight, Hotel, PassengerWithMeta, Person, ReceptionLocation } from '../../types';
 import {
   createHotel,
@@ -124,9 +124,12 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [addingHotel, setAddingHotel] = useState(false);
   const [newHotel, setNewHotel] = useState('');
   const [newHotelAddress, setNewHotelAddress] = useState('');
+  const [newHotelAttempted, setNewHotelAttempted] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     listHotels(eventId).then(setHotels).catch((e) => setError(e.message));
@@ -186,6 +189,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   }
 
   async function handleAddHotel() {
+    setNewHotelAttempted(true);
     if (!newHotel.trim()) return;
     try {
       const h = await createHotel(agencyId, eventId, newHotel.trim(), newHotelAddress.trim() || null);
@@ -217,6 +221,8 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitAttempted(true);
+    if (!focusFirstInvalid(formRef.current)) return;
     if (!fullName.trim()) return;
     setSaving(true);
     setError(null);
@@ -326,7 +332,7 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-3">
       {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {draft && <p className="rounded bg-blue-50 px-3 py-2 text-sm text-blue-700">{t('passengers.form.draftRestored')}</p>}
 
@@ -372,7 +378,16 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
       )}
 
       <Field label={t('passengers.form.fullName')}>
-        <input className={inputClass} value={fullName} onChange={(e) => setFullName(e.target.value)} required autoFocus />
+        <input
+          className={`${inputClass} ${submitAttempted ? invalidClass : ''}`}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+          autoFocus
+        />
+        {submitAttempted && !fullName.trim() && (
+          <p className="mt-1 text-xs text-red-600">{t('common.requiredField')}</p>
+        )}
       </Field>
 
       {initial?.person_id && (
@@ -396,7 +411,15 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
 
       <div className="grid grid-cols-2 gap-3">
         <Field label={t('passengers.form.email')}>
-          <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="email"
+            className={`${inputClass} ${submitAttempted ? invalidClass : ''}`}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {submitAttempted && email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && (
+            <p className="mt-1 text-xs text-red-600">{t('common.invalidEmail')}</p>
+          )}
         </Field>
         <Field label={t('passengers.form.phone')}>
           <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} />
@@ -430,11 +453,14 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
         ) : (
           <div className="space-y-2">
             <input
-              className={inputClass}
+              className={`${inputClass} ${newHotelAttempted && !newHotel.trim() ? 'border-red-500 ring-1 ring-red-500' : ''}`}
               placeholder={t('passengers.form.hotelName')}
               value={newHotel}
               onChange={(e) => setNewHotel(e.target.value)}
             />
+            {newHotelAttempted && !newHotel.trim() && (
+              <p className="text-xs text-red-600">{t('common.requiredField')}</p>
+            )}
             <input
               className={inputClass}
               placeholder={t('passengers.form.hotelAddress')}
@@ -474,7 +500,16 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
       {isLocalTransfer && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label={t('passengers.form.originAddress')}>
-            <input className={inputClass} value={originAddress} onChange={(e) => setOriginAddress(e.target.value)} placeholder={t('passengers.form.addressPlaceholder')} />
+            <input
+              className={`${inputClass} ${submitAttempted ? invalidClass : ''}`}
+              value={originAddress}
+              onChange={(e) => setOriginAddress(e.target.value)}
+              placeholder={t('passengers.form.addressPlaceholder')}
+              required
+            />
+            {submitAttempted && !originAddress.trim() && (
+              <p className="mt-1 text-xs text-red-600">{t('common.requiredField')}</p>
+            )}
           </Field>
           {(() => {
             const selectedHotel = hotels.find((h) => h.id === hotelId);

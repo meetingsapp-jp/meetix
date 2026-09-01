@@ -12,6 +12,7 @@ import { createProvider, listProviders, setPassengerProvider } from '../../data/
 import { exportVipCsv, exportVipPdf, exportAllCsv, exportAllPdf, exportGroupCsv, exportGroupPdf, vipCount, type VipLabels } from '../../lib/export/vip';
 import { exportManifestCsv, exportManifestPdf, type ManifestLabels } from '../../lib/export/manifest';
 import PassengerTransportModal from '../coordinator/PassengerTransportModal';
+import Spinner from '../../components/ui/Spinner';
 
 type Filter = 'all' | 'vip' | 'group';
 
@@ -198,7 +199,7 @@ export default function TransportPage() {
           {t('transport.pickEventHint')}
         </p>
       ) : loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : (
         <>
           <div className="mb-3 flex gap-1">

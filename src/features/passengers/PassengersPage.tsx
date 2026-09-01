@@ -25,6 +25,7 @@ import { exportRoomingPdf, type RoomingLabels } from '../../lib/export/rooming';
 import { openWhatsApp, passengerItineraryText, type WhatsAppLabels } from '../../lib/share/whatsapp';
 import { googleMapsUrl } from '../../lib/links';
 import PassengerTransportModal from '../coordinator/PassengerTransportModal';
+import Spinner from '../../components/ui/Spinner';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -249,7 +250,7 @@ export default function PassengersPage() {
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : passengers.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">
           {t('passengers.empty')}

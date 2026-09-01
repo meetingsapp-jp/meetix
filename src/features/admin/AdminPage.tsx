@@ -8,6 +8,7 @@ import { Field, inputClass } from '../../components/ui/Field';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
 import CopyLink from '../../components/ui/CopyLink';
 import type { Agency, Language } from '../../types';
+import Spinner from '../../components/ui/Spinner';
 
 interface AgencyOverview extends Agency {
   users: number;
@@ -102,7 +103,7 @@ export default function AdminPage() {
         {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
         {loading ? (
-          <p className="text-slate-500">{t('common.loading')}</p>
+          <Spinner />
         ) : rows.length === 0 ? (
           <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('admin.noAgencies')}</p>
         ) : (

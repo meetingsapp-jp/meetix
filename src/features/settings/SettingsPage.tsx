@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
 import { updateBranding, uploadLogo } from '../../data/agencySettings';
 import ThemeSwitch from '../../components/ThemeSwitch';
+import Spinner from '../../components/ui/Spinner';
 
 const DEFAULT_COLOR = '#0f172a';
 const PRESETS = ['#0f172a', '#2563eb', '#0284c7', '#059669', '#7c3aed', '#db2777', '#ea580c', '#b91c1c'];
@@ -22,7 +23,7 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  if (!agency) return <p className="text-slate-500">{t('common.loading')}</p>;
+  if (!agency) return <Spinner />;
   if (!can.manageTeam) return <p className="rounded bg-red-50 px-3 py-2 text-red-700">{t('settings.onlyDirectors')}</p>;
 
   async function handleLogo(e: React.ChangeEvent<HTMLInputElement>) {
