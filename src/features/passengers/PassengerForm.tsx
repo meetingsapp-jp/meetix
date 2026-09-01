@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { Field, inputClass } from '../../components/ui/Field';
-import type { ChecklistItem, Flight, Hotel, PassengerWithMeta, Person } from '../../types';
+import type { ChecklistItem, DispatchLocation, Flight, Hotel, PassengerWithMeta, Person, ReceptionLocation } from '../../types';
 import {
   createHotel,
   listHotels,
@@ -43,7 +43,8 @@ interface PassengerDraft {
   isVip: boolean; hotelId: string; roomNumber: string; costCenter: string; emergency: string;
   dietary: string; allergies: string; specialNeeds: string; notes: string;
   isLocalTransfer: boolean; originAddress: string; destinationAddress: string; localTransferTime: string;
-  receptionNotes: string; dispatchNotes: string;
+  receptionLocation: ReceptionLocation | ''; receptionBy: string; receptionSignText: string; receptionNotes: string;
+  dispatchLocation: DispatchLocation | ''; dispatchBy: string; dispatchNotes: string;
   arrival: FlightInput; departure: FlightInput;
 }
 
@@ -100,7 +101,12 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   const [localTransferTime, setLocalTransferTime] = useState(
     draft?.localTransferTime ?? (initial?.local_transfer_time ? initial.local_transfer_time.slice(0, 16) : ''),
   );
+  const [receptionLocation, setReceptionLocation] = useState<ReceptionLocation | ''>(draft?.receptionLocation ?? initial?.reception_location ?? '');
+  const [receptionBy, setReceptionBy] = useState(draft?.receptionBy ?? initial?.reception_by ?? '');
+  const [receptionSignText, setReceptionSignText] = useState(draft?.receptionSignText ?? initial?.reception_sign_text ?? '');
   const [receptionNotes, setReceptionNotes] = useState(draft?.receptionNotes ?? initial?.reception_notes ?? '');
+  const [dispatchLocation, setDispatchLocation] = useState<DispatchLocation | ''>(draft?.dispatchLocation ?? initial?.dispatch_location ?? '');
+  const [dispatchBy, setDispatchBy] = useState(draft?.dispatchBy ?? initial?.dispatch_by ?? '');
   const [dispatchNotes, setDispatchNotes] = useState(draft?.dispatchNotes ?? initial?.dispatch_notes ?? '');
   const [departureChecklist, setDepartureChecklist] = useState<ChecklistItem[]>(initial?.departure_checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState('');
@@ -137,7 +143,8 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
     const d: PassengerDraft = {
       fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber, costCenter,
       emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress, destinationAddress,
-      localTransferTime, receptionNotes, dispatchNotes,
+      localTransferTime, receptionLocation, receptionBy, receptionSignText, receptionNotes,
+      dispatchLocation, dispatchBy, dispatchNotes,
       arrival, departure,
     };
     try {
@@ -149,7 +156,8 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
   }, [
     initial, eventId, fullName, email, phone, documentId, nationality, isVip, hotelId, roomNumber,
     costCenter, emergency, dietary, allergies, specialNeeds, notes, isLocalTransfer, originAddress,
-    destinationAddress, localTransferTime, receptionNotes, dispatchNotes, arrival, departure,
+    destinationAddress, localTransferTime, receptionLocation, receptionBy, receptionSignText, receptionNotes,
+    dispatchLocation, dispatchBy, dispatchNotes, arrival, departure,
   ]);
 
   const dirResults = useMemo(() => {
@@ -239,7 +247,12 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
           origin_address: clean(originAddress),
           destination_address: clean(finalDestination),
           local_transfer_time: localTransferTime || null,
+          reception_location: receptionLocation || null,
+          reception_by: clean(receptionBy),
+          reception_sign_text: clean(receptionSignText),
           reception_notes: clean(receptionNotes),
+          dispatch_location: dispatchLocation || null,
+          dispatch_by: clean(dispatchBy),
           dispatch_notes: clean(dispatchNotes),
           departure_checklist: departureChecklist,
           photo_url: photoUrl,
@@ -505,7 +518,76 @@ export default function PassengerForm({ agencyId, eventId, initial, onSubmit, on
 
       <fieldset className="rounded border border-slate-200 p-3">
         <legend className="px-1 text-sm font-medium text-slate-600">{t('passengers.form.receptionDispatch')}</legend>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+        <div className="rounded border border-violet-100 bg-violet-50/50 p-2 dark:border-violet-900 dark:bg-violet-950/20">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">
+            {t('passengers.form.receptionSection')}
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.receptionLocation')}</span>
+              <select
+                className={inputClass}
+                value={receptionLocation}
+                onChange={(e) => setReceptionLocation(e.target.value as ReceptionLocation | '')}
+              >
+                <option value="">{t('passengers.form.locationUndefined')}</option>
+                <option value="aeropuerto">{t('passengers.form.locationAirport')}</option>
+                <option value="hotel">{t('passengers.form.locationHotel')}</option>
+                <option value="otro">{t('passengers.form.locationOther')}</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.receptionBy')}</span>
+              <input
+                className={inputClass}
+                placeholder={t('passengers.form.receptionByPlaceholder')}
+                value={receptionBy}
+                onChange={(e) => setReceptionBy(e.target.value)}
+              />
+            </label>
+          </div>
+          <label className="mt-2 block">
+            <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.receptionSignText')}</span>
+            <input
+              className={inputClass}
+              placeholder={t('passengers.form.receptionSignTextPlaceholder')}
+              value={receptionSignText}
+              onChange={(e) => setReceptionSignText(e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="mt-2 rounded border border-blue-100 bg-blue-50/50 p-2 dark:border-blue-900 dark:bg-blue-950/20">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+            {t('passengers.form.dispatchSection')}
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.dispatchLocation')}</span>
+              <select
+                className={inputClass}
+                value={dispatchLocation}
+                onChange={(e) => setDispatchLocation(e.target.value as DispatchLocation | '')}
+              >
+                <option value="">{t('passengers.form.locationUndefined')}</option>
+                <option value="hotel">{t('passengers.form.locationHotel')}</option>
+                <option value="otro">{t('passengers.form.locationOther')}</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.dispatchBy')}</span>
+              <input
+                className={inputClass}
+                placeholder={t('passengers.form.dispatchByPlaceholder')}
+                value={dispatchBy}
+                onChange={(e) => setDispatchBy(e.target.value)}
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-slate-600">{t('passengers.form.receptionNotes')}</span>
             <input
