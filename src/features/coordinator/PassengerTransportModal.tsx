@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PassengerWithMeta } from '../../types';
+import type { DispatchLocation, PassengerWithMeta, ReceptionLocation } from '../../types';
 import Modal from '../../components/ui/Modal';
+import { inputClass } from '../../components/ui/Field';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
+import { updatePassengerLogistics, type LogisticsPatch } from '../../data/passengers';
 
 const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 const waHref = (phone: string) => `https://wa.me/${phone.replace(/[^\d]/g, '')}`;
@@ -13,20 +16,53 @@ const dm = (iso: string | null) => {
   return `${d}/${m}`;
 };
 
-const locationLabel = (loc: string | null, t: (key: string) => string) =>
-  loc === 'aeropuerto' ? t('passengers.form.locationAirport') : loc === 'hotel' ? t('passengers.form.locationHotel') : loc === 'otro' ? t('passengers.form.locationOther') : null;
-
 export default function PassengerTransportModal({
   open,
   passenger,
   onClose,
+  onUpdate,
 }: {
   open: boolean;
   passenger: PassengerWithMeta | null;
   onClose: () => void;
+  onUpdate?: (id: string, patch: LogisticsPatch) => void;
 }) {
   const { t } = useTranslation();
+
+  // Local, editable copy of the reception/dispatch fields so they can be
+  // filled in right here, from wherever the passenger is being looked at,
+  // instead of only from the full passenger form.
+  const [receptionLocation, setReceptionLocation] = useState<ReceptionLocation | ''>('');
+  const [receptionBy, setReceptionBy] = useState('');
+  const [receptionSignText, setReceptionSignText] = useState('');
+  const [dispatchLocation, setDispatchLocation] = useState<DispatchLocation | ''>('');
+  const [dispatchBy, setDispatchBy] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setReceptionLocation(passenger?.reception_location ?? '');
+    setReceptionBy(passenger?.reception_by ?? '');
+    setReceptionSignText(passenger?.reception_sign_text ?? '');
+    setDispatchLocation(passenger?.dispatch_location ?? '');
+    setDispatchBy(passenger?.dispatch_by ?? '');
+    setSaveError(null);
+  }, [passenger]);
+
   if (!passenger) return null;
+
+  async function save(patch: LogisticsPatch) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await updatePassengerLogistics(passenger!.id, patch);
+      onUpdate?.(passenger!.id, patch);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const arrFlight = passenger.flights.find((f) => f.direction === 'arrival');
   const depFlight = passenger.flights.find((f) => f.direction === 'departure');
@@ -50,11 +86,6 @@ export default function PassengerTransportModal({
       : t('coordinator.groupTransport');
 
   const checklist = passenger.departure_checklist ?? [];
-
-  const receptionLoc = locationLabel(passenger.reception_location, t);
-  const dispatchLoc = locationLabel(passenger.dispatch_location, t);
-  const hasReceptionInfo = receptionLoc || passenger.reception_by || passenger.reception_sign_text;
-  const hasDispatchInfo = dispatchLoc || passenger.dispatch_by;
 
   return (
     <Modal open={open} title="Detalles de transporte" onClose={onClose}>
@@ -94,32 +125,78 @@ export default function PassengerTransportModal({
           >
             {transportTypeLabel}
           </span>
+          {saving && <span className="text-xs text-slate-400">{t('common.saving')}</span>}
         </div>
 
-        {/* Recepción / despacho */}
+        {saveError && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{saveError}</p>}
+
+        {/* Recepción / despacho — editable directamente acá */}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-3 text-xs dark:border-violet-800 dark:bg-violet-950/20">
-            <div className="mb-1 font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">{t('passengers.form.receptionSection')}</div>
-            {hasReceptionInfo ? (
-              <div className="space-y-0.5 text-slate-700 dark:text-slate-200">
-                {(receptionLoc || passenger.reception_by) && (
-                  <div className="font-medium">📥 {[receptionLoc, passenger.reception_by].filter(Boolean).join(' · ')}</div>
-                )}
-                {passenger.reception_sign_text && <div>🪧 {passenger.reception_sign_text}</div>}
-              </div>
-            ) : (
-              <div className="text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>
+            <div className="mb-2 font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">{t('passengers.form.receptionSection')}</div>
+            {!(receptionLocation || receptionBy || receptionSignText) && (
+              <div className="mb-1.5 text-amber-600">⚠️ {t('coordinator.receptionUndefined')}</div>
             )}
-            {passenger.reception_notes && <div className="mt-1 text-slate-500 dark:text-slate-400">{passenger.reception_notes}</div>}
+            <div className="space-y-1.5">
+              <select
+                className={`${inputClass} text-xs`}
+                value={receptionLocation}
+                onChange={(e) => {
+                  const v = e.target.value as ReceptionLocation | '';
+                  setReceptionLocation(v);
+                  save({ reception_location: v || null });
+                }}
+              >
+                <option value="">{t('passengers.form.locationUndefined')}</option>
+                <option value="aeropuerto">{t('passengers.form.locationAirport')}</option>
+                <option value="hotel">{t('passengers.form.locationHotel')}</option>
+                <option value="otro">{t('passengers.form.locationOther')}</option>
+              </select>
+              <input
+                className={`${inputClass} text-xs`}
+                placeholder={t('passengers.form.receptionByPlaceholder')}
+                value={receptionBy}
+                onChange={(e) => setReceptionBy(e.target.value)}
+                onBlur={() => save({ reception_by: receptionBy.trim() || null })}
+              />
+              <input
+                className={`${inputClass} text-xs`}
+                placeholder={t('passengers.form.receptionSignTextPlaceholder')}
+                value={receptionSignText}
+                onChange={(e) => setReceptionSignText(e.target.value)}
+                onBlur={() => save({ reception_sign_text: receptionSignText.trim() || null })}
+              />
+            </div>
+            {passenger.reception_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.reception_notes}</div>}
           </div>
           <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 text-xs dark:border-blue-800 dark:bg-blue-950/20">
-            <div className="mb-1 font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{t('passengers.form.dispatchSection')}</div>
-            {hasDispatchInfo ? (
-              <div className="font-medium text-slate-700 dark:text-slate-200">📤 {[dispatchLoc, passenger.dispatch_by].filter(Boolean).join(' · ')}</div>
-            ) : (
-              <div className="text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>
+            <div className="mb-2 font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{t('passengers.form.dispatchSection')}</div>
+            {!(dispatchLocation || dispatchBy) && (
+              <div className="mb-1.5 text-amber-600">⚠️ {t('coordinator.dispatchUndefined')}</div>
             )}
-            {passenger.dispatch_notes && <div className="mt-1 text-slate-500 dark:text-slate-400">{passenger.dispatch_notes}</div>}
+            <div className="space-y-1.5">
+              <select
+                className={`${inputClass} text-xs`}
+                value={dispatchLocation}
+                onChange={(e) => {
+                  const v = e.target.value as DispatchLocation | '';
+                  setDispatchLocation(v);
+                  save({ dispatch_location: v || null });
+                }}
+              >
+                <option value="">{t('passengers.form.locationUndefined')}</option>
+                <option value="hotel">{t('passengers.form.locationHotel')}</option>
+                <option value="otro">{t('passengers.form.locationOther')}</option>
+              </select>
+              <input
+                className={`${inputClass} text-xs`}
+                placeholder={t('passengers.form.dispatchByPlaceholder')}
+                value={dispatchBy}
+                onChange={(e) => setDispatchBy(e.target.value)}
+                onBlur={() => save({ dispatch_by: dispatchBy.trim() || null })}
+              />
+            </div>
+            {passenger.dispatch_notes && <div className="mt-1.5 text-slate-500 dark:text-slate-400">{passenger.dispatch_notes}</div>}
           </div>
         </div>
 

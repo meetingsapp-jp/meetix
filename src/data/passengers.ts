@@ -283,6 +283,22 @@ export async function setDepartureChecklist(id: string, items: ChecklistItem[]):
   if (error) throw new Error(error.message);
 }
 
+export interface LogisticsPatch {
+  reception_location?: ReceptionLocation | null;
+  reception_by?: string | null;
+  reception_sign_text?: string | null;
+  dispatch_location?: DispatchLocation | null;
+  dispatch_by?: string | null;
+}
+
+// Quick reception/dispatch edit used by the passenger detail modal, so it can
+// be filled in from wherever the coordinator is looking at a passenger,
+// without opening the full passenger form.
+export async function updatePassengerLogistics(id: string, patch: LogisticsPatch): Promise<void> {
+  const { error } = await client().from('passengers').update(patch).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
 // Identity key for dedup: document > email > name.
 function personKey(documentId: string | null, email: string | null, fullName: string): string {
   const d = documentId?.trim();
