@@ -24,6 +24,7 @@ import { exportPassengerItinerary, type ItineraryLabels } from '../../lib/export
 import { exportRoomingPdf, type RoomingLabels } from '../../lib/export/rooming';
 import { openWhatsApp, passengerItineraryText, type WhatsAppLabels } from '../../lib/share/whatsapp';
 import { googleMapsUrl } from '../../lib/links';
+import PassengerTransportModal from '../coordinator/PassengerTransportModal';
 
 export default function PassengersPage() {
   const { eventId = '' } = useParams();
@@ -114,6 +115,7 @@ export default function PassengersPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<PassengerWithMeta | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [detail, setDetail] = useState<PassengerWithMeta | null>(null);
   const exportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -270,7 +272,7 @@ export default function PassengersPage() {
               {passengers.map((p) => (
                 <tr key={p.id} className="border-t border-slate-100">
                   <td className="px-3 py-2 font-medium">
-                    {p.full_name}
+                    <button onClick={() => setDetail(p)} className="text-left text-brand-accent hover:underline">{p.full_name}</button>
                     {p.email && <div className="text-xs text-slate-400">{p.email}</div>}
                     {(p.dietary || p.allergies || p.special_needs) && (
                       <div className="mt-1 flex flex-wrap gap-1">
@@ -350,7 +352,7 @@ export default function PassengersPage() {
             <div key={p.id} className="rounded-lg border border-slate-200 bg-white p-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="font-medium">{p.full_name}</div>
+                  <button onClick={() => setDetail(p)} className="text-left font-medium text-brand-accent hover:underline">{p.full_name}</button>
                   {p.email && <div className="text-xs text-slate-400">{p.email}</div>}
                 </div>
                 {p.is_vip ? (
@@ -442,6 +444,8 @@ export default function PassengersPage() {
           onImported={refresh}
         />
       )}
+
+      <PassengerTransportModal open={!!detail} passenger={detail} onClose={() => setDetail(null)} />
     </div>
   );
 }

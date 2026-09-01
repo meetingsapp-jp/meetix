@@ -11,6 +11,7 @@ import { listPassengers, setPassengerVip } from '../../data/passengers';
 import { createProvider, listProviders, setPassengerProvider } from '../../data/transport';
 import { exportVipCsv, exportVipPdf, exportAllCsv, exportAllPdf, exportGroupCsv, exportGroupPdf, vipCount, type VipLabels } from '../../lib/export/vip';
 import { exportManifestCsv, exportManifestPdf, type ManifestLabels } from '../../lib/export/manifest';
+import PassengerTransportModal from '../coordinator/PassengerTransportModal';
 
 type Filter = 'all' | 'vip' | 'group';
 
@@ -27,6 +28,7 @@ export default function TransportPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [providerModal, setProviderModal] = useState(false);
+  const [detail, setDetail] = useState<PassengerWithMeta | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
@@ -235,7 +237,9 @@ export default function TransportPage() {
                 <tbody>
                   {shown.map((p) => (
                     <tr key={p.id} className="border-t border-slate-100">
-                      <td className="px-3 py-2 font-medium">{p.full_name}</td>
+                      <td className="px-3 py-2 font-medium">
+                        <button onClick={() => setDetail(p)} className="text-left text-brand-accent hover:underline">{p.full_name}</button>
+                      </td>
                       <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{flightCell(p, 'arrival')}</td>
                       <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{flightCell(p, 'departure')}</td>
                       <td className="px-3 py-2 text-slate-600">
@@ -283,7 +287,7 @@ export default function TransportPage() {
               {shown.map((p) => (
                 <div key={p.id} className="rounded-lg border border-slate-200 bg-white p-3">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="font-medium">{p.full_name}</div>
+                    <button onClick={() => setDetail(p)} className="text-left font-medium text-brand-accent hover:underline">{p.full_name}</button>
                     {can.managePassengers ? (
                       <button
                         onClick={() => toggleVip(p)}
@@ -336,6 +340,8 @@ export default function TransportPage() {
           />
         )}
       </Modal>
+
+      <PassengerTransportModal open={!!detail} passenger={detail} onClose={() => setDetail(null)} />
     </div>
   );
 }
