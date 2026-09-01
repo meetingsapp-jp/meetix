@@ -30,6 +30,7 @@ import PassengerTransportModal from './PassengerTransportModal';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 import { listAuditLog, logAudit, type AuditEntry } from '../../data/audit';
 import { enqueueArrival, flushArrivalQueue, getQueuedArrivals } from '../../lib/offlineQueue';
+import Spinner from '../../components/ui/Spinner';
 
 type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias' | 'notas' | 'chat' | 'historial';
 
@@ -307,12 +308,12 @@ export default function CoordinatorPage() {
       ) : (
         <>
           {/* Tab bar */}
-          <div className="mb-4 flex gap-1 overflow-x-auto">
+          <div className="mb-4 flex gap-1.5 overflow-x-auto">
             {tabs.map((tb) => (
               <button
                 key={tb.id}
                 onClick={() => setTab(tb.id)}
-                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`min-h-[44px] whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                   tab === tb.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
@@ -325,7 +326,7 @@ export default function CoordinatorPage() {
           </div>
 
           {loading ? (
-            <p className="text-slate-500">{t('common.loading')}</p>
+            <Spinner />
           ) : (
             <>
               {tab === 'today' && (
@@ -405,7 +406,7 @@ function ArrivedToggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium transition ${
+      className={`min-h-[40px] shrink-0 rounded-full px-3 py-2 text-xs font-medium transition ${
         on ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
       }`}
     >
@@ -769,9 +770,9 @@ function LocalPassengersSection({ passengers, onSelectPassenger }: { passengers:
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
                   <ReceptionSummary p={p} t={t} onEdit={onSelectPassenger} />
-                  {p.reception_notes && <div>{p.reception_notes}</div>}
+                  {p.reception_notes && <div className="text-slate-500 dark:text-slate-400">📝 {p.reception_notes}</div>}
                   <DispatchSummary p={p} t={t} onEdit={onSelectPassenger} />
-                  {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
+                  {p.dispatch_notes && <div className="text-slate-500 dark:text-slate-400">📝 {p.dispatch_notes}</div>}
                 </div>
               </div>
               {p.transport_provider?.contact_phone && (
@@ -834,7 +835,7 @@ function RecepcionTab({
                       🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                     </div>
                     <ReceptionSummary p={p} t={t} onEdit={onSelectPassenger} />
-                    {p.reception_notes && <div>{p.reception_notes}</div>}
+                    {p.reception_notes && <div className="text-slate-500 dark:text-slate-400">📝 {p.reception_notes}</div>}
                     {f!.flight_number && (
                       <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">Consultar estado del vuelo</a>
                     )}
@@ -929,7 +930,7 @@ function DespachoTab({
                     🚐 {p.transport_provider?.name ?? 'Sin proveedor asignado'}
                   </div>
                   <DispatchSummary p={p} t={t} onEdit={onSelectPassenger} />
-                  {p.dispatch_notes && <div>{p.dispatch_notes}</div>}
+                  {p.dispatch_notes && <div className="text-slate-500 dark:text-slate-400">📝 {p.dispatch_notes}</div>}
                   {f!.flight_number && (
                     <a href={flightStatusUrl(f!.flight_number)} target="_blank" rel="noopener" className="inline-block text-blue-700 underline">
                       {t('coordinator.checkFlightStatus')}
@@ -1187,7 +1188,7 @@ function NotasTab({
       </form>
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : notes.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noNotes')}</p>
       ) : (
@@ -1280,7 +1281,7 @@ function ChatTab({
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="flex-1 space-y-2 overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
         {loading ? (
-          <p className="text-slate-500">{t('common.loading')}</p>
+          <Spinner />
         ) : messages.length === 0 ? (
           <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noMessages')}</p>
         ) : (
@@ -1340,7 +1341,7 @@ function HistorialTab({ agencyId, eventId }: { agencyId: string; eventId: string
       .finally(() => setLoading(false));
   }, [agencyId, eventId]);
 
-  if (loading) return <p className="text-slate-500">{t('common.loading')}</p>;
+  if (loading) return <Spinner />;
   if (error) return <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>;
   if (entries.length === 0) {
     return <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('coordinator.noHistory')}</p>;

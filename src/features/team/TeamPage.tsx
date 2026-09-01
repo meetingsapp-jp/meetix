@@ -8,6 +8,7 @@ import CopyLink from '../../components/ui/CopyLink';
 import { Field, inputClass } from '../../components/ui/Field';
 import type { AppUser, UserRole } from '../../types';
 import { logAudit } from '../../data/audit';
+import Spinner from '../../components/ui/Spinner';
 
 const INVITE_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
 const ALL_ROLES: UserRole[] = ['director_general', 'director_eventos', 'planificador', 'guia_coordinador'];
@@ -104,7 +105,7 @@ export default function TeamPage() {
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="w-full text-sm">

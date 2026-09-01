@@ -24,6 +24,7 @@
   },
   "common": {
     "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar", "back": "Atrás", "saveChanges": "Guardar cambios", "changesSaved": "Cambios guardados",
+    "requiredField": "Este campo es obligatorio", "invalidEmail": "El email no es válido",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
     "yes": "Sí", "no": "No", "close": "Cerrar",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
@@ -51,7 +52,9 @@
     "alerts": "Alertas", "allGood": "Todo en orden. Sin pendientes.",
     "alertNoArrival": "pasajeros sin vuelo de llegada",
     "alertNoHotel": "pasajeros sin hotel asignado",
-    "alertNoRoom": "pasajeros con hotel pero sin habitación"
+    "alertNoRoom": "pasajeros con hotel pero sin habitación",
+    "searchPassengerPlaceholder": "Buscar pasajero por nombre, documento, email o teléfono (en todos los eventos)…",
+    "searchNoResults": "No se encontró ningún pasajero.", "searchOpen": "Abrir"
   },
   "agenda": {
     "title": "Agenda", "new": "Nueva sesión", "editTitle": "Editar sesión",

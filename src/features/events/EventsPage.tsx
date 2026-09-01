@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal';
 import type { EventWithMeta } from '../../types';
 import { createEvent, deleteEvent, listEvents, setEventCoordinators, updateEvent, type EventInput } from '../../data/events';
 import EventForm from './EventForm';
+import Spinner from '../../components/ui/Spinner';
 
 const statusColors: Record<string, string> = {
   planificacion: 'bg-slate-200 text-slate-700',
@@ -72,7 +73,7 @@ export default function EventsPage() {
     }
   }
 
-  if (agencyLoading) return <p className="text-slate-500">{t('common.loading')}</p>;
+  if (agencyLoading) return <Spinner />;
   if (agencyError || !agency)
     return <p className="rounded bg-red-50 px-3 py-2 text-red-700">{t('common.noAgency')}</p>;
 
@@ -86,7 +87,7 @@ export default function EventsPage() {
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : events.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">
           {t('events.empty')}

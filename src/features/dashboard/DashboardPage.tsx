@@ -5,6 +5,7 @@ import { useAgency } from '../../auth/AgencyContext';
 import type { EventStatus, EventWithMeta } from '../../types';
 import { listEvents } from '../../data/events';
 import { listAgencyPassengers, type DashboardPassenger } from '../../data/dashboard';
+import Spinner from '../../components/ui/Spinner';
 
 const STATUSES: EventStatus[] = ['planificacion', 'confirmado', 'en_curso', 'finalizado', 'cancelado'];
 const INACTIVE: EventStatus[] = ['finalizado', 'cancelado'];
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   const [pax, setPax] = useState<DashboardPassenger[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!agency) return;
@@ -74,6 +76,19 @@ export default function DashboardPage() {
     return rows.slice(0, 8);
   }, [pax]);
 
+  // Cross-event passenger search: the passenger list within an event only
+  // searches that one event, so an agency running several events at once
+  // has no way to find someone without knowing which event they're in.
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return [];
+    return pax
+      .filter((p) =>
+        [p.full_name, p.document_id, p.email, p.phone].some((v) => v?.toLowerCase().includes(q)),
+      )
+      .slice(0, 20);
+  }, [pax, search]);
+
   // Data-quality alerts, only for passengers in active events.
   const alerts = useMemo(() => {
     const activePax = pax.filter((p) => p.event && !INACTIVE.includes(p.event.status));
@@ -83,12 +98,46 @@ export default function DashboardPage() {
     return { noHotel, noRoom, noArrival };
   }, [pax]);
 
-  if (agencyLoading || loading) return <p className="text-slate-500">{t('common.loading')}</p>;
+  if (agencyLoading || loading) return <Spinner />;
   if (error) return <p className="rounded bg-red-50 px-3 py-2 text-red-700">{error}</p>;
 
   return (
     <div>
       <h1 className="mb-4 text-2xl font-semibold">{t('dashboard.title')}</h1>
+
+      <div className="mb-6">
+        <input
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-accent focus:outline-none focus:ring-1 focus:ring-brand-accent dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+          placeholder={t('dashboard.searchPassengerPlaceholder')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {search.trim() && (
+          searchResults.length === 0 ? (
+            <p className="mt-2 rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">
+              {t('dashboard.searchNoResults')}
+            </p>
+          ) : (
+            <ul className="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
+              {searchResults.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    to={`/events/${p.event_id}/passengers`}
+                    className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                  >
+                    <span className="min-w-0">
+                      <span className="font-medium">{p.full_name}</span>
+                      {p.is_vip && <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">VIP</span>}
+                      <span className="ml-2 truncate text-slate-500">{p.event?.name ?? '—'}</span>
+                    </span>
+                    <span className="shrink-0 text-brand-accent">{t('dashboard.searchOpen')} →</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )
+        )}
+      </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label={t('dashboard.totalEvents')} value={events.length} />

@@ -16,6 +16,7 @@ import {
   type SessionInput,
 } from '../../data/sessions';
 import type { EventRow, PassengerWithMeta, SessionType, SessionWithMeta } from '../../types';
+import Spinner from '../../components/ui/Spinner';
 
 const SESSION_TYPES: SessionType[] = ['charla', 'comida', 'traslado', 'actividad', 'libre'];
 
@@ -125,7 +126,7 @@ export default function AgendaPage() {
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : sessions.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">
           {t('agenda.empty')}
@@ -380,7 +381,7 @@ function AttendanceModal({
     <Modal open title={`${t('agenda.attendance')} — ${session.name}`} onClose={close}>
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : passengers.length === 0 ? (
         <p className="text-slate-500">{t('passengers.empty')}</p>
       ) : (

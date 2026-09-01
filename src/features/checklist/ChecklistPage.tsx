@@ -7,6 +7,7 @@ import { inputClass } from '../../components/ui/Field';
 import { getEvent } from '../../data/passengers';
 import { createTask, deleteTask, listTasks, toggleTask, type EventTask } from '../../data/tasks';
 import type { EventRow } from '../../types';
+import Spinner from '../../components/ui/Spinner';
 
 export default function ChecklistPage() {
   const { eventId = '' } = useParams();
@@ -125,7 +126,7 @@ export default function ChecklistPage() {
       )}
 
       {loading ? (
-        <p className="text-slate-500">{t('common.loading')}</p>
+        <Spinner />
       ) : tasks.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('checklist.empty')}</p>
       ) : (

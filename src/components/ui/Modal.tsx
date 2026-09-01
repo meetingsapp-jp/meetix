@@ -31,8 +31,20 @@ function useBackButtonCloses(open: boolean, onClose: () => void) {
   }, [open]);
 }
 
+function useEscapeCloses(open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+}
+
 export default function Modal({ open, title, onClose, children, footer }: Props) {
   useBackButtonCloses(open, onClose);
+  useEscapeCloses(open, onClose);
   if (!open) return null;
   return (
     <div
@@ -40,12 +52,15 @@ export default function Modal({ open, title, onClose, children, footer }: Props)
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className="mt-10 flex max-h-[calc(100vh-5rem)] w-full max-w-lg flex-col rounded-lg bg-white shadow-xl dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b px-4 py-3 dark:border-slate-700">
-          <h2 className="font-semibold dark:text-slate-100">{title}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none dark:hover:text-slate-200">
+          <h2 id="modal-title" className="font-semibold dark:text-slate-100">{title}</h2>
+          <button onClick={onClose} aria-label="Cerrar" className="text-slate-400 hover:text-slate-700 text-xl leading-none dark:hover:text-slate-200">
             &times;
           </button>
         </div>

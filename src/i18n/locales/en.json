@@ -24,6 +24,7 @@
   },
   "common": {
     "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit", "back": "Back", "saveChanges": "Save changes", "changesSaved": "Changes saved",
+    "requiredField": "This field is required", "invalidEmail": "This email is not valid",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
     "yes": "Yes", "no": "No", "close": "Close",
     "noAgency": "No agency found. Check the database connection."
@@ -51,7 +52,9 @@
     "alerts": "Alerts", "allGood": "All set. Nothing pending.",
     "alertNoArrival": "passengers without an arrival flight",
     "alertNoHotel": "passengers without a hotel assigned",
-    "alertNoRoom": "passengers with a hotel but no room"
+    "alertNoRoom": "passengers with a hotel but no room",
+    "searchPassengerPlaceholder": "Search passenger by name, document, email or phone (across all events)…",
+    "searchNoResults": "No passenger found.", "searchOpen": "Open"
   },
   "agenda": {
     "title": "Agenda", "new": "New session", "editTitle": "Edit session",
