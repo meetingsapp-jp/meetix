@@ -71,9 +71,15 @@ export default function TeamPage() {
 
   const handleUpdateProfile = async (memberId: string) => {
     if (!supabase) return;
-    const { error } = await supabase.from('app_users').update({ full_name: editingName, email: editingEmail }).eq('id', memberId);
-    if (error) {
-      setError(error.message);
+    // Goes through an edge function (not a direct table update) because the
+    // member's email must also stay in sync with their real Supabase Auth
+    // account — updating app_users.email alone breaks their login and
+    // "Resetear contraseña" (which looks the account up by email).
+    const { data, error } = await supabase.functions.invoke('agency-update-member', {
+      body: { memberId, fullName: editingName, email: editingEmail },
+    });
+    if (error || !data?.ok) {
+      setError(data?.error ?? error?.message ?? 'unknown_error');
     } else {
       setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, full_name: editingName, email: editingEmail } : m)));
       setModal(null);
