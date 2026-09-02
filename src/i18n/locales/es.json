@@ -27,6 +27,7 @@
     "requiredField": "Este campo es obligatorio", "invalidEmail": "El email no es válido",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
     "offline": "Sin conexión — algunos datos pueden no estar actualizados",
+    "rotateToPortrait": "Girá el celular a modo vertical para usar la aplicación",
     "yes": "Sí", "no": "No", "close": "Cerrar",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
   },

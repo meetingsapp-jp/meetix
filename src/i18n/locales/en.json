@@ -27,6 +27,7 @@
     "requiredField": "This field is required", "invalidEmail": "This email is not valid",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
     "offline": "You're offline — some data may be outdated",
+    "rotateToPortrait": "Rotate your phone to portrait mode to use the app",
     "yes": "Yes", "no": "No", "close": "Close",
     "noAgency": "No agency found. Check the database connection."
   },

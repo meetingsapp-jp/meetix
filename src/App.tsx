@@ -7,6 +7,7 @@ import Button from './components/ui/Button';
 import LoginPage from './features/auth/LoginPage';
 import ResetPasswordPage from './features/auth/ResetPasswordPage';
 import Spinner from './components/ui/Spinner';
+import PortraitGuard from './components/PortraitGuard';
 
 // Route-level code splitting: only the page the user is actually on gets
 // downloaded, instead of one big bundle with every feature (dashboard,
@@ -36,7 +37,7 @@ function NotProvisioned() {
   );
 }
 
-export default function App() {
+function AppContent() {
   const { session, loading, notProvisioned, isPlatformAdmin, appUser } = useAuth();
   const location = useLocation();
 
@@ -83,5 +84,14 @@ export default function App() {
         </Routes>
       </Suspense>
     </Layout>
+  );
+}
+
+export default function App() {
+  return (
+    <>
+      <PortraitGuard />
+      <AppContent />
+    </>
   );
 }
