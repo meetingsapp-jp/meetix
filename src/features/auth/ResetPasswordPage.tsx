@@ -32,9 +32,26 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     if (!supabase) return;
-    // A valid recovery/invite link yields a session; enable the form when present.
-    supabase.auth.getSession().then(({ data }) => setReady(Boolean(data.session)));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setReady(Boolean(s)));
+
+    // Our own shareable links carry ?token_hash=...&type=recovery (see
+    // TeamPage) instead of Supabase's raw action_link, so verification only
+    // happens here — when actual JS runs in a real browser — never from a
+    // WhatsApp/Slack/etc. link-preview bot fetching the URL server-side,
+    // which would otherwise burn the single-use token before anyone clicks.
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get('token_hash');
+    const otpType = params.get('type');
+    if (tokenHash && (otpType === 'recovery' || otpType === 'invite' || otpType === 'email')) {
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: otpType as 'recovery' }).then(({ data, error }) => {
+        setReady(Boolean(data.session) && !error);
+      });
+    } else {
+      // Fallback: an older-style action_link redirect puts the session in
+      // the URL hash, which the client parses automatically on load.
+      supabase.auth.getSession().then(({ data }) => setReady(Boolean(data.session)));
+    }
+
     return () => sub.subscription.unsubscribe();
   }, []);
 
