@@ -26,6 +26,7 @@
     "save": "Save", "saving": "Saving…", "cancel": "Cancel", "edit": "Edit", "back": "Back", "saveChanges": "Save changes", "changesSaved": "Changes saved",
     "requiredField": "This field is required", "invalidEmail": "This email is not valid",
     "delete": "Delete", "loading": "Loading…", "pendingModule": "Module to be built.",
+    "offline": "You're offline — some data may be outdated",
     "yes": "Yes", "no": "No", "close": "Close",
     "noAgency": "No agency found. Check the database connection."
   },

@@ -51,20 +51,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       setLoading(true);
-      const [{ data: user }, { data: admin }] = await Promise.all([
-        supabase.from('app_users').select('*').eq('auth_user_id', session.user.id).maybeSingle(),
-        supabase.from('platform_admins').select('id').eq('auth_user_id', session.user.id).maybeSingle(),
-      ]);
-      if (!active) return;
-      setAppUser((user as AppUser) ?? null);
-      setIsPlatformAdmin(Boolean(admin));
-      if (user) {
-        const { data: ag } = await supabase.from('agencies').select('*').eq('id', (user as AppUser).agency_id).maybeSingle();
-        if (active) setAgency((ag as Agency) ?? null);
-      } else {
-        setAgency(null);
+      try {
+        const [{ data: user }, { data: admin }] = await Promise.all([
+          supabase.from('app_users').select('*').eq('auth_user_id', session.user.id).maybeSingle(),
+          supabase.from('platform_admins').select('id').eq('auth_user_id', session.user.id).maybeSingle(),
+        ]);
+        if (!active) return;
+        setAppUser((user as AppUser) ?? null);
+        setIsPlatformAdmin(Boolean(admin));
+        if (user) {
+          const { data: ag } = await supabase.from('agencies').select('*').eq('id', (user as AppUser).agency_id).maybeSingle();
+          if (active) setAgency((ag as Agency) ?? null);
+        } else {
+          setAgency(null);
+        }
+      } catch {
+        // Offline or the request failed: keep whatever appUser/agency we
+        // already had in memory (don't wipe a working session just because
+        // a background refresh couldn't reach the network) and fall through
+        // to `finally` so the app never gets stuck on the loading spinner.
+      } finally {
+        if (active) setLoading(false);
       }
-      setLoading(false);
     })();
     return () => {
       active = false;
