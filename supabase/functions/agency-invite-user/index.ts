@@ -62,7 +62,14 @@ Deno.serve(async (req) => {
     });
     if (iErr && !/duplicate|unique/i.test(iErr.message)) return json(400, { error: iErr.message });
 
-    return json(200, { ok: true, actionLink: link.properties?.action_link });
+    // See agency-reset-password for why tokenHash is returned alongside
+    // actionLink: action_link is single-use and gets silently burned by
+    // WhatsApp/Slack/etc. link-preview bots before the real person opens it.
+    return json(200, {
+      ok: true,
+      actionLink: link.properties?.action_link,
+      tokenHash: link.properties?.hashed_token,
+    });
   } catch (e) {
     return json(500, { error: String(e) });
   }

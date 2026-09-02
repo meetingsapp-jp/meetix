@@ -216,6 +216,10 @@ function SendInviteOptions({ member, onDone }: { member: AppUser; onDone: () => 
     });
     setBusy(false);
     if (error || !data?.ok) alert(`Error: ${data?.error ?? error?.message ?? 'unknown_error'}`);
+    // Build our own link instead of using data.actionLink: that one points at
+    // Supabase's /auth/v1/verify endpoint, whose single-use token gets burned
+    // if WhatsApp/Slack/etc. fetch a link preview before the real click.
+    else if (data.tokenHash) setLink(`${window.location.origin}/reset?token_hash=${data.tokenHash}&type=recovery`);
     else setLink(data.actionLink ?? '');
   };
 
@@ -299,8 +303,12 @@ function InviteForm({ onDone, onCancel }: { onDone: () => void; onCancel: () => 
       setError(errText(key));
       return;
     }
-    if ((data as any)?.ok) setLink((data as any).actionLink ?? '');
-    else setError(errText((data as any)?.error ?? null));
+    if ((data as any)?.ok) {
+      const tokenHash = (data as any).tokenHash;
+      setLink(tokenHash ? `${window.location.origin}/reset?token_hash=${tokenHash}&type=recovery` : ((data as any).actionLink ?? ''));
+    } else {
+      setError(errText((data as any)?.error ?? null));
+    }
   }
 
   if (link !== null) {

@@ -52,7 +52,18 @@ Deno.serve(async (req) => {
     });
     if (lErr) return json(400, { error: lErr.message });
 
-    return json(200, { ok: true, actionLink: link.properties?.action_link });
+    // Return the raw token_hash, not just action_link: action_link points at
+    // Supabase's own /auth/v1/verify endpoint, which many chat apps
+    // (WhatsApp, Slack, Telegram...) silently "click" server-side to build a
+    // link preview — burning the single-use recovery token before the real
+    // person ever opens it. The frontend builds its own link straight to
+    // /reset?token_hash=...&type=recovery instead, which only performs the
+    // verification when actual JS runs in a real browser.
+    return json(200, {
+      ok: true,
+      actionLink: link.properties?.action_link,
+      tokenHash: link.properties?.hashed_token,
+    });
   } catch (e) {
     return json(500, { error: String(e) });
   }
