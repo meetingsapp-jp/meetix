@@ -72,6 +72,18 @@ export default function Layout({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('mousedown', onDown);
   }, [userMenuOpen]);
 
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+  useEffect(() => {
+    const onOnline = () => setIsOnline(true);
+    const onOffline = () => setIsOnline(false);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  }, []);
+
   return (
     <div className="min-h-full flex flex-col">
       <header
@@ -215,6 +227,14 @@ export default function Layout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
+      {!isOnline && (
+        <div
+          role="status"
+          className="bg-amber-500 px-4 py-1.5 text-center text-xs font-medium text-white"
+        >
+          {t('common.offline')}
+        </div>
+      )}
       <main
         className="flex-1 mx-auto max-w-6xl w-full"
         style={{

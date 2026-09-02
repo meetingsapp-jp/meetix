@@ -26,6 +26,7 @@
     "save": "Guardar", "saving": "Guardando…", "cancel": "Cancelar", "edit": "Editar", "back": "Atrás", "saveChanges": "Guardar cambios", "changesSaved": "Cambios guardados",
     "requiredField": "Este campo es obligatorio", "invalidEmail": "El email no es válido",
     "delete": "Eliminar", "loading": "Cargando…", "pendingModule": "Módulo por construir.",
+    "offline": "Sin conexión — algunos datos pueden no estar actualizados",
     "yes": "Sí", "no": "No", "close": "Cerrar",
     "noAgency": "No se encontró ninguna agencia. Revisa la conexión con la base de datos."
   },
