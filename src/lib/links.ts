@@ -4,8 +4,9 @@ export function googleMapsUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
-// FlightAware's live tracker accepts a bare flight number (airline code + number),
-// e.g. "AA123". It's a reasonable public fallback without needing a flight-status API key.
+// Flightradar24's flight page accepts a bare flight number (airline code + number),
+// e.g. "aa123", and shows schedule/history even for flights that aren't airborne
+// right now — broader coverage than FlightAware for regional/low-cost carriers.
 export function flightStatusUrl(flightNumber: string): string {
-  return `https://www.flightaware.com/live/flight/${encodeURIComponent(flightNumber.replace(/\s+/g, ''))}`;
+  return `https://www.flightradar24.com/data/flights/${encodeURIComponent(flightNumber.replace(/\s+/g, '').toLowerCase())}`;
 }

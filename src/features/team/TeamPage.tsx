@@ -205,14 +205,12 @@ function SendInviteOptions({ member, onDone }: { member: AppUser; onDone: () => 
   const generateLink = async () => {
     if (!member.email || !supabase) return;
     setBusy(true);
-    const { data, error } = await supabase.auth.admin.generateLink({
-      type: 'recovery',
-      email: member.email,
-      options: { redirectTo: `${window.location.origin}/reset` },
+    const { data, error } = await supabase.functions.invoke('agency-reset-password', {
+      body: { memberId: member.id, redirectTo: `${window.location.origin}/reset` },
     });
     setBusy(false);
-    if (error) alert(`Error: ${error.message}`);
-    else setLink(data?.properties?.action_link ?? '');
+    if (error || !data?.ok) alert(`Error: ${data?.error ?? error?.message ?? 'unknown_error'}`);
+    else setLink(data.actionLink ?? '');
   };
 
   if (!member.email) {
