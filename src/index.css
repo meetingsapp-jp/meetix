@@ -5,10 +5,23 @@
 html, body, #root {
   height: 100%;
 }
+html {
+  /* Safety net: never let a stray wide element scroll the whole page
+     sideways (belt-and-suspenders with body's own overflow-x below —
+     which browser scrolls, html or body, differs enough that both need it). */
+  overflow-x: hidden;
+}
 body {
   @apply bg-slate-100 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100;
-  /* Safety net: never let a stray wide row scroll the whole page sideways. */
   overflow-x: hidden;
+  /* Disable the double-tap-to-zoom gesture. Reported bug on Android: some
+     transient reflow (a webfont swap, a native <select> measuring itself,
+     etc.) makes the page briefly wider than the screen, the browser
+     auto-zooms out to fit it, and the whole layout — including the fixed
+     bottom nav — stays shifted until a tap forces a recalculation that
+     snaps it back. Pinning the viewport (see index.html) plus this stops
+     the browser from ever auto-zooming in the first place. */
+  touch-action: manipulation;
 }
 
 /* 100vh on Chrome/Android measures the *layout* viewport (behind the
