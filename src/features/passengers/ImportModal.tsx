@@ -6,6 +6,7 @@ import { inputClass } from '../../components/ui/Field';
 import { downloadPassengerTemplate, parsePassengerFile, type ParsedRow } from '../../lib/import/passengers';
 import { bulkImportPassengers } from '../../data/passengers';
 import { extractItineraryText } from '../../lib/import/ai';
+import { extractTextFromFile } from '../../lib/import/extractText';
 
 interface Props {
   agencyId: string;
@@ -23,8 +24,11 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
   const [fileName, setFileName] = useState('');
   const [aiText, setAiText] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [aiFileName, setAiFileName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const aiFileInputRef = useRef<HTMLInputElement>(null);
 
   const validCount = rows?.filter((r) => r.valid).length ?? 0;
   const invalidCount = (rows?.length ?? 0) - validCount;
@@ -33,8 +37,10 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
     setRows(null);
     setFileName('');
     setAiText('');
+    setAiFileName('');
     setError(null);
     if (inputRef.current) inputRef.current.value = '';
+    if (aiFileInputRef.current) aiFileInputRef.current.value = '';
   }
 
   async function handleAnalyze() {
@@ -50,6 +56,22 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
       setRows(null);
     } finally {
       setAnalyzing(false);
+    }
+  }
+
+  async function handleAiFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    setAiFileName(file.name);
+    setExtracting(true);
+    try {
+      const text = await extractTextFromFile(file);
+      setAiText(text);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setExtracting(false);
     }
   }
 
@@ -127,6 +149,19 @@ export default function ImportModal({ agencyId, eventId, open, onClose, onImport
         ) : (
           <>
             <p className="text-sm text-slate-600">{t('import.aiIntro')}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="secondary" type="button" onClick={() => aiFileInputRef.current?.click()} disabled={extracting}>
+                {extracting ? t('import.aiExtracting') : t('import.aiUploadFile')}
+              </Button>
+              <input
+                ref={aiFileInputRef}
+                type="file"
+                accept=".docx,.xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleAiFile}
+              />
+              {aiFileName && <span className="text-xs text-slate-500">{aiFileName}</span>}
+            </div>
             <textarea
               className={inputClass}
               rows={6}

@@ -145,6 +145,7 @@ export default function EventsPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <CopyClientPortalLink token={ev.client_access_token} />
                     <Link
                       to={`/events/${ev.id}/passengers`}
                       className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
@@ -199,6 +200,7 @@ export default function EventsPage() {
                 {ev.destinations.length ? ` · ${ev.destinations.join(', ')}` : ''}
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
+                <CopyClientPortalLink token={ev.client_access_token} />
                 <Link to={`/events/${ev.id}/passengers`} className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-brand-accent">
                   {t('events.viewPassengers')}
                 </Link>
@@ -234,5 +236,29 @@ export default function EventsPage() {
         />
       </Modal>
     </div>
+  );
+}
+
+// Copies the no-login portal link so the client can plan their own agenda.
+function CopyClientPortalLink({ token }: { token: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}/cliente/${token}`;
+  return (
+    <button
+      type="button"
+      className="mr-1 inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-brand-accent hover:bg-slate-100"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(link);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          /* ignore */
+        }
+      }}
+    >
+      {copied ? t('admin.copied') : t('events.copyClientLink')}
+    </button>
   );
 }

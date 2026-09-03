@@ -47,6 +47,7 @@ export interface EventRow {
   destinations: string[];
   status: EventStatus;
   welcome_sign_url: string | null;
+  client_access_token: string;
   created_at: string;
   updated_at: string;
 }

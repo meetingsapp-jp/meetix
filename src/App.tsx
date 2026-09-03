@@ -20,6 +20,7 @@ const AgendaPage = lazy(() => import('./features/agenda/AgendaPage'));
 const CoordinatorPage = lazy(() => import('./features/coordinator/CoordinatorPage'));
 const TransportPage = lazy(() => import('./features/transport/TransportPage'));
 const EnRoutePage = lazy(() => import('./features/transport/EnRoutePage'));
+const ClientPortalPage = lazy(() => import('./features/client/ClientPortalPage'));
 const TeamPage = lazy(() => import('./features/team/TeamPage'));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
 const AdminPage = lazy(() => import('./features/admin/AdminPage'));
@@ -57,6 +58,17 @@ function AppContent() {
       <Suspense fallback={<div className="flex min-h-full items-center justify-center"><Spinner /></div>}>
         <Routes>
           <Route path="/en-camino/:token" element={<EnRoutePage />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  // Public, no-login page for the agency's own client to plan the agenda.
+  if (location.pathname.startsWith('/cliente/')) {
+    return (
+      <Suspense fallback={<div className="flex min-h-full items-center justify-center"><Spinner /></div>}>
+        <Routes>
+          <Route path="/cliente/:token" element={<ClientPortalPage />} />
         </Routes>
       </Suspense>
     );
