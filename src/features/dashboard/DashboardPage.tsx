@@ -18,15 +18,6 @@ const statusColors: Record<string, string> = {
   cancelado: 'bg-red-100 text-red-700',
 };
 
-function StatCard({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4">
-      <div className="text-2xl font-semibold text-brand sm:text-3xl">{value}</div>
-      <div className="text-xs text-slate-500 sm:text-sm">{label}</div>
-    </div>
-  );
-}
-
 // Format straight from the ISO string (no timezone shift): "dd/mm · HH:mm".
 function fmtFlight(iso: string | null): string {
   if (!iso) return '—';
@@ -138,13 +129,6 @@ export default function DashboardPage() {
             </ul>
           )
         )}
-      </div>
-
-      <div className="mb-6 grid gap-2 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label={t('dashboard.totalEvents')} value={events.length} />
-        <StatCard label={t('dashboard.activeEvents')} value={totals.active} />
-        <StatCard label={t('dashboard.totalPassengers')} value={totals.passengers} />
-        <StatCard label={t('dashboard.vip')} value={totals.vip} />
       </div>
 
       {/* Live operations: upcoming flights + alerts */}
