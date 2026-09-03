@@ -17,8 +17,26 @@ import {
 } from '../../data/sessions';
 import type { EventRow, PassengerWithMeta, SessionType, SessionWithMeta } from '../../types';
 import Spinner from '../../components/ui/Spinner';
+import { exportAgendaCsv } from '../../lib/export/agenda';
 
 const SESSION_TYPES: SessionType[] = ['charla', 'comida', 'traslado', 'actividad', 'libre'];
+
+// Quick-fill templates so planners can start from a common agenda item
+// (lunch, dinner, transfer, talk) instead of typing every field by hand.
+// Duration is only a starting point — end time stays editable afterward.
+const QUICK_TEMPLATES: { key: string; name: string; type: SessionType; start: string; durationMin: number }[] = [
+  { key: 'almuerzo', name: 'Almuerzo', type: 'comida', start: '13:00', durationMin: 60 },
+  { key: 'cena', name: 'Cena', type: 'comida', start: '20:30', durationMin: 90 },
+  { key: 'traslado', name: 'Traslado', type: 'traslado', start: '09:00', durationMin: 30 },
+  { key: 'curso', name: 'Curso / Charla', type: 'charla', start: '10:00', durationMin: 120 },
+];
+
+function addMinutes(time: string, minutes: number): string {
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + minutes;
+  const wrapped = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+  return `${String(Math.floor(wrapped / 60)).padStart(2, '0')}:${String(wrapped % 60).padStart(2, '0')}`;
+}
 
 // Static Tailwind class strings (kept whole so they survive purge).
 const typeStyles: Record<SessionType, { chip: string; bar: string }> = {
@@ -118,9 +136,31 @@ export default function AgendaPage() {
         <Link to="/events" className="hover:underline">{t('nav.events')}</Link>
         <span> / {event?.name ?? '…'}</span>
       </div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t('agenda.title')}</h1>
-        {can.manageEvents && <Button onClick={openCreate}>+ {t('agenda.new')}</Button>}
+        <div className="flex gap-2">
+          {event && sessions.length > 0 && (
+            <Button
+              variant="secondary"
+              onClick={() =>
+                exportAgendaCsv(event, sessions, {
+                  date: t('agenda.form.date'),
+                  start: t('agenda.form.start'),
+                  end: t('agenda.form.end'),
+                  name: t('agenda.form.name'),
+                  type: t('agenda.form.type'),
+                  location: t('agenda.form.location'),
+                  attendees: t('agenda.attendance'),
+                  noDate: t('agenda.noDate'),
+                  typeLabel: (type) => t(`agenda.types.${type}`),
+                })
+              }
+            >
+              {t('events.export')}
+            </Button>
+          )}
+          {can.manageEvents && <Button onClick={openCreate}>+ {t('agenda.new')}</Button>}
+        </div>
       </div>
 
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
@@ -277,9 +317,33 @@ function SessionForm({
     }
   }
 
+  function applyTemplate(tpl: (typeof QUICK_TEMPLATES)[number]) {
+    setName(tpl.name);
+    setType(tpl.type);
+    setStart(tpl.start);
+    setEnd(addMinutes(tpl.start, tpl.durationMin));
+  }
+
   return (
     <form onSubmit={submit} className="space-y-3">
       {err && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+      {!initial && (
+        <div>
+          <span className="mb-1.5 block text-xs font-medium text-slate-600">{t('agenda.form.quickTemplates')}</span>
+          <div className="flex flex-wrap gap-1.5">
+            {QUICK_TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.key}
+                type="button"
+                onClick={() => applyTemplate(tpl)}
+                className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:border-brand-accent hover:text-brand-accent"
+              >
+                {tpl.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <label className="block">
         <span className="mb-1 block text-xs font-medium text-slate-600">{t('agenda.form.name')}</span>
         <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required autoFocus />

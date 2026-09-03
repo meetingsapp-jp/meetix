@@ -67,7 +67,8 @@
     "confirmDelete": "¿Eliminar la sesión \"{{name}}\"?",
     "form": {
       "name": "Nombre de la sesión", "date": "Fecha", "start": "Inicio", "end": "Fin",
-      "type": "Tipo", "noType": "— Sin tipo —", "location": "Lugar / Sala"
+      "type": "Tipo", "noType": "— Sin tipo —", "location": "Lugar / Sala",
+      "quickTemplates": "Plantillas rápidas"
     },
     "types": {
       "charla": "Charla", "comida": "Comida", "traslado": "Traslado",
@@ -82,7 +83,7 @@
     "title": "Eventos", "subtitle": "Listado y gestión de eventos.",
     "new": "Nuevo evento", "editTitle": "Editar evento",
     "empty": "Aún no hay eventos. Crea el primero.",
-    "dates": "Fechas", "passengers": "Pasajeros", "viewPassengers": "Pasajeros",
+    "dates": "Fechas", "passengers": "Pasajeros", "viewPassengers": "Pasajeros", "export": "Exportar",
     "confirmDelete": "¿Eliminar el evento \"{{name}}\"? Esto también borra sus pasajeros.",
     "form": {
       "name": "Nombre del evento", "client": "Cliente", "noClient": "— Sin cliente —",
@@ -168,7 +169,8 @@
     "title": "Checklist", "task": "Tarea", "taskPlaceholder": "Ej.: Confirmar traslados con el proveedor",
     "assignee": "Responsable", "due": "Vence", "add": "Agregar",
     "empty": "Aún no hay tareas. Agregá la primera.",
-    "progress": "{{done}} de {{total}} completadas"
+    "progress": "{{done}} de {{total}} completadas",
+    "status": "Estado", "done": "Hecho", "pending": "Pendiente"
   },
   "settings": {
     "nav": "Ajustes", "title": "Marca de la agencia",
@@ -213,6 +215,7 @@
     "toggleHint": "Clic para cambiar entre VIP y Grupo",
     "provider": "Proveedor", "noProvider": "— Sin proveedor —",
     "providers": "Proveedores", "noProviders": "Aún no hay proveedores cargados.",
+    "enRoute": "En camino", "copyEnRouteLink": "Copiar link \"ya salí\"",
     "addProvider": "Agregar proveedor", "providerName": "Nombre del proveedor",
     "providerPhone": "Teléfono", "providerNotes": "Notas",
     "filter": { "all": "Todos", "vip": "VIP", "group": "Grupo" },
@@ -247,6 +250,15 @@
     "noMessages": "Todavía no hay mensajes. ¡Empezá la conversación!",
     "noHistory": "Todavía no hay actividad registrada.",
     "pendingSync_one": "{{count}} sin sincronizar", "pendingSync_other": "{{count}} sin sincronizar",
+    "qr": {
+      "scan": "Escanear QR", "scanTitle": "Escanear QR de check-in",
+      "scanHint": "Apuntá la cámara al QR del pasajero.",
+      "cameraError": "No se pudo acceder a la cámara. Revisá los permisos del navegador.",
+      "notFound": "Ese QR no corresponde a ningún pasajero de este evento.",
+      "checkedIn": "{{name}} marcado como llegado.",
+      "show": "Ver QR", "hide": "Ocultar QR",
+      "showHint": "Mostrale esta pantalla al coordinador para que te escanee al llegar."
+    },
     "auditAction": {
       "arrived": "Marcado como llegado", "unarrived": "Desmarcado como llegado",
       "create_incident": "Incidencia creada", "resolve_incident": "Incidencia resuelta",

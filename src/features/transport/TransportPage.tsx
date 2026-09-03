@@ -401,9 +401,21 @@ function ProvidersPanel({
         <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
           {providers.map((p) => (
             <li key={p.id} className="px-3 py-2 text-sm">
-              <span className="font-medium">{p.name}</span>
-              {p.contact_phone && <span className="text-slate-500"> · {p.contact_phone}</span>}
-              {p.notes && <div className="text-xs text-slate-400">{p.notes}</div>}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="font-medium">{p.name}</span>
+                  {p.contact_phone && <span className="text-slate-500"> · {p.contact_phone}</span>}
+                  {p.notes && <div className="text-xs text-slate-400">{p.notes}</div>}
+                </div>
+                <div className="flex items-center gap-2">
+                  {p.en_route_at && (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                      {t('transport.enRoute')}
+                    </span>
+                  )}
+                  <CopyEnRouteLink token={p.access_token} />
+                </div>
+              </div>
             </li>
           ))}
         </ul>
@@ -429,5 +441,29 @@ function ProvidersPanel({
         </div>
       </form>
     </div>
+  );
+}
+
+// Copies the no-login "ya salí" link for a driver to share via WhatsApp.
+function CopyEnRouteLink({ token }: { token: string }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}/en-camino/${token}`;
+  return (
+    <button
+      type="button"
+      className="whitespace-nowrap rounded-full border border-slate-300 px-2.5 py-1 text-xs text-slate-600 hover:border-brand-accent hover:text-brand-accent"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(link);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          /* ignore */
+        }
+      }}
+    >
+      {copied ? t('admin.copied') : t('transport.copyEnRouteLink')}
+    </button>
   );
 }

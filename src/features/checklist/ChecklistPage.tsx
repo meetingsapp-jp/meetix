@@ -8,6 +8,7 @@ import { getEvent } from '../../data/passengers';
 import { createTask, deleteTask, listTasks, toggleTask, type EventTask } from '../../data/tasks';
 import type { EventRow } from '../../types';
 import Spinner from '../../components/ui/Spinner';
+import { exportChecklistCsv } from '../../lib/export/checklist';
 
 export default function ChecklistPage() {
   const { eventId = '' } = useParams();
@@ -91,7 +92,26 @@ export default function ChecklistPage() {
         <Link to="/events" className="hover:underline">{t('nav.events')}</Link>
         <span> / {event?.name ?? '…'}</span>
       </div>
-      <h1 className="mb-3 text-2xl font-semibold">{t('checklist.title')}</h1>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h1 className="text-2xl font-semibold">{t('checklist.title')}</h1>
+        {event && tasks.length > 0 && (
+          <Button
+            variant="secondary"
+            onClick={() =>
+              exportChecklistCsv(event, tasks, {
+                task: t('checklist.task'),
+                assignee: t('checklist.assignee'),
+                due: t('checklist.due'),
+                status: t('checklist.status'),
+                done: t('checklist.done'),
+                pending: t('checklist.pending'),
+              })
+            }
+          >
+            {t('events.export')}
+          </Button>
+        )}
+      </div>
 
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

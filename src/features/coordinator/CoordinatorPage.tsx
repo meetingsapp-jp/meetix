@@ -31,6 +31,8 @@ import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 import { listAuditLog, logAudit, type AuditEntry } from '../../data/audit';
 import { enqueueArrival, flushArrivalQueue, getQueuedArrivals } from '../../lib/offlineQueue';
 import Spinner from '../../components/ui/Spinner';
+import QrScanner from '../../components/QrScanner';
+import { passengerIdFromQrPayload } from '../../lib/qrCheckin';
 
 type Tab = 'today' | 'recepcion' | 'despacho' | 'funciones' | 'pasajeros' | 'incidencias' | 'notas' | 'chat' | 'historial';
 
@@ -122,6 +124,8 @@ export default function CoordinatorPage() {
   const [tab, setTab] = useState<Tab>('today');
   const [selectedPassenger, setSelectedPassenger] = useState<PassengerWithMeta | null>(null);
   const [pendingSync, setPendingSync] = useState(0);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanFeedback, setScanFeedback] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Sync any arrivals queued while offline, on load / reconnect / tab focus.
   useEffect(() => {
@@ -265,6 +269,24 @@ export default function CoordinatorPage() {
     }
   }
 
+  async function handleQrScan(text: string) {
+    setScannerOpen(false);
+    const passengerId = passengerIdFromQrPayload(text);
+    const p = passengerId ? passengers.find((x) => x.id === passengerId) : null;
+    if (!p) {
+      setScanFeedback({ ok: false, text: t('coordinator.qr.notFound') });
+      return;
+    }
+    if (!arrived.has(p.id)) await toggleArrived(p);
+    setScanFeedback({ ok: true, text: t('coordinator.qr.checkedIn', { name: p.full_name }) });
+  }
+
+  useEffect(() => {
+    if (!scanFeedback) return;
+    const timer = setTimeout(() => setScanFeedback(null), 3500);
+    return () => clearTimeout(timer);
+  }, [scanFeedback]);
+
   const vipCount = passengers.filter((p) => p.is_vip).length;
   const openIncidents = incidents.filter((i) => !i.resolved).length;
 
@@ -290,7 +312,24 @@ export default function CoordinatorPage() {
             🔄 {t('coordinator.pendingSync', { count: pendingSync })}
           </span>
         )}
+        {eventId && (
+          <Button variant="secondary" className="ml-auto" onClick={() => setScannerOpen(true)}>
+            📷 {t('coordinator.qr.scan')}
+          </Button>
+        )}
       </div>
+
+      {scanFeedback && (
+        <div
+          className={`mb-3 rounded px-3 py-2 text-sm ${
+            scanFeedback.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+          }`}
+        >
+          {scanFeedback.ok ? '✅' : '⚠️'} {scanFeedback.text}
+        </div>
+      )}
+
+      <QrScanner open={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleQrScan} />
 
       <select className={`${inputClass} mb-3`} value={eventId} onChange={(e) => setEventId(e.target.value)}>
         <option value="">{t('transport.selectEvent')}</option>

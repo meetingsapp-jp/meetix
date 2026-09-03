@@ -19,6 +19,7 @@ const ChecklistPage = lazy(() => import('./features/checklist/ChecklistPage'));
 const AgendaPage = lazy(() => import('./features/agenda/AgendaPage'));
 const CoordinatorPage = lazy(() => import('./features/coordinator/CoordinatorPage'));
 const TransportPage = lazy(() => import('./features/transport/TransportPage'));
+const EnRoutePage = lazy(() => import('./features/transport/EnRoutePage'));
 const TeamPage = lazy(() => import('./features/team/TeamPage'));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage'));
 const AdminPage = lazy(() => import('./features/admin/AdminPage'));
@@ -47,6 +48,17 @@ function AppContent() {
       <Routes>
         <Route path="/reset" element={<ResetPasswordPage />} />
       </Routes>
+    );
+  }
+
+  // Public, no-login page for drivers with no MEETIX account.
+  if (location.pathname.startsWith('/en-camino/')) {
+    return (
+      <Suspense fallback={<div className="flex min-h-full items-center justify-center"><Spinner /></div>}>
+        <Routes>
+          <Route path="/en-camino/:token" element={<EnRoutePage />} />
+        </Routes>
+      </Suspense>
     );
   }
 

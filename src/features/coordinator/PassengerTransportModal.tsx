@@ -5,6 +5,7 @@ import Modal from '../../components/ui/Modal';
 import { inputClass } from '../../components/ui/Field';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 import { updatePassengerLogistics, type LogisticsPatch } from '../../data/passengers';
+import PassengerQrCode from '../../components/PassengerQrCode';
 
 const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 const waHref = (phone: string) => `https://wa.me/${phone.replace(/[^\d]/g, '')}`;
@@ -40,6 +41,7 @@ export default function PassengerTransportModal({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   useEffect(() => {
     setReceptionLocation(passenger?.reception_location ?? '');
@@ -49,6 +51,7 @@ export default function PassengerTransportModal({
     setDispatchBy(passenger?.dispatch_by ?? '');
     setSaveError(null);
     setSaved(false);
+    setShowQr(false);
   }, [passenger]);
 
   if (!passenger) return null;
@@ -149,7 +152,21 @@ export default function PassengerTransportModal({
               )}
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowQr((v) => !v)}
+            className="ml-auto shrink-0 rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700"
+          >
+            📱 {showQr ? t('coordinator.qr.hide') : t('coordinator.qr.show')}
+          </button>
         </div>
+
+        {showQr && (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <PassengerQrCode passengerId={passenger.id} />
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400">{t('coordinator.qr.showHint')}</p>
+          </div>
+        )}
 
         {/* 2. Tipo de traslado */}
         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
