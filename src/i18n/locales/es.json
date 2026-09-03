@@ -64,6 +64,7 @@
     "noDate": "Sin fecha",
     "attendance": "Asistencia", "attendees": "{{count}} asistentes",
     "attendeesSelected": "{{count}} de {{total}} seleccionados",
+    "qrAttendance": "Escanear QR", "qrAttendanceOk": "{{name}} — asistencia registrada en \"{{session}}\".",
     "confirmDelete": "¿Eliminar la sesión \"{{name}}\"?",
     "form": {
       "name": "Nombre de la sesión", "date": "Fecha", "start": "Inicio", "end": "Fin",

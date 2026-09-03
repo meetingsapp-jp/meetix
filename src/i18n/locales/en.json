@@ -64,6 +64,7 @@
     "noDate": "No date",
     "attendance": "Attendance", "attendees": "{{count}} attendees",
     "attendeesSelected": "{{count}} of {{total}} selected",
+    "qrAttendance": "Scan QR", "qrAttendanceOk": "{{name}} — attendance logged for \"{{session}}\".",
     "confirmDelete": "Delete the session \"{{name}}\"?",
     "form": {
       "name": "Session name", "date": "Date", "start": "Start", "end": "End",

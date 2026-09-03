@@ -7,7 +7,7 @@ import Button from '../../components/ui/Button';
 import { inputClass } from '../../components/ui/Field';
 import { listAssignedEventIds, listEvents } from '../../data/events';
 import { listPassengers, setDepartureChecklist } from '../../data/passengers';
-import { listSessions } from '../../data/sessions';
+import { listSessions, setAttendance } from '../../data/sessions';
 import {
   addEventNote,
   createIncident,
@@ -454,7 +454,9 @@ export default function CoordinatorPage() {
               {tab === 'despacho' && (
                 <DespachoTab passengers={passengers} onSelectPassenger={setSelectedPassenger} onToggleChecklistItem={toggleChecklistItem} />
               )}
-              {tab === 'funciones' && <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} />}
+              {tab === 'funciones' && (
+                <FuncionesTab sessions={sessions} eventId={eventId} lang={i18n.resolvedLanguage} agencyId={agency?.id ?? ''} passengers={passengers} />
+              )}
               {tab === 'pasajeros' && (
                 <PasajerosTab passengers={passengers} arrived={arrived} onToggleArrived={toggleArrived} onSelectPassenger={setSelectedPassenger} />
               )}
@@ -791,8 +793,22 @@ function PasajerosTab({
   );
 }
 
-function FuncionesTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]; eventId: string; lang: string | undefined }) {
+function FuncionesTab({
+  sessions,
+  eventId,
+  lang,
+  agencyId,
+  passengers,
+}: {
+  sessions: SessionWithMeta[];
+  eventId: string;
+  lang: string | undefined;
+  agencyId: string;
+  passengers: PassengerWithMeta[];
+}) {
   const { t } = useTranslation();
+  const [scanningSession, setScanningSession] = useState<SessionWithMeta | null>(null);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const days = useMemo(() => {
     const map = new Map<string, SessionWithMeta[]>();
     for (const s of sessions) {
@@ -803,11 +819,42 @@ function FuncionesTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]
     return [...map.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   }, [sessions]);
 
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 3500);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  async function handleScan(text: string) {
+    const session = scanningSession;
+    setScanningSession(null);
+    if (!session) return;
+    const passengerId = passengerIdFromQrPayload(text);
+    const p = passengerId ? passengers.find((x) => x.id === passengerId) : null;
+    if (!p) {
+      setFeedback({ ok: false, text: t('coordinator.qr.notFound') });
+      return;
+    }
+    try {
+      await setAttendance(agencyId, session.id, p.id, true);
+      setFeedback({ ok: true, text: t('agenda.qrAttendanceOk', { name: p.full_name, session: session.name }) });
+    } catch (e) {
+      setFeedback({ ok: false, text: (e as Error).message });
+    }
+  }
+
   return (
     <div>
       <div className="mb-3 text-right">
         <Link to={`/events/${eventId}/agenda`} className="text-sm text-brand-accent hover:underline">{t('coordinator.fullAgenda')} →</Link>
       </div>
+
+      {feedback && (
+        <div className={`mb-3 rounded px-3 py-2 text-sm ${feedback.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          {feedback.ok ? '✅' : '⚠️'} {feedback.text}
+        </div>
+      )}
+
       {sessions.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">{t('agenda.empty')}</p>
       ) : (
@@ -830,6 +877,13 @@ function FuncionesTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]
                       </div>
                     </div>
                     {s.session_type && <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${typeChip[s.session_type]}`}>{t(`agenda.types.${s.session_type}`)}</span>}
+                    <button
+                      type="button"
+                      onClick={() => setScanningSession(s)}
+                      className="shrink-0 rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+                    >
+                      📷 {t('agenda.qrAttendance')}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -837,6 +891,13 @@ function FuncionesTab({ sessions, eventId, lang }: { sessions: SessionWithMeta[]
           ))}
         </div>
       )}
+
+      <QrScanner
+        open={scanningSession !== null}
+        onClose={() => setScanningSession(null)}
+        onDetected={handleScan}
+        title={scanningSession ? `${t('agenda.qrAttendance')} — ${scanningSession.name}` : undefined}
+      />
     </div>
   );
 }
