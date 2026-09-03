@@ -14,12 +14,16 @@ import {
   deleteEventNote,
   deleteIncident,
   listArrivedIds,
+  listCheckinEvents,
   listEventMessages,
   listEventNotes,
   listIncidents,
+  logCheckinEvent,
   sendEventMessage,
   setArrived,
   setIncidentResolved,
+  type Checkpoint,
+  type CheckinEvent,
   type EventMessage,
   type EventNote,
   type Incident,
@@ -125,7 +129,11 @@ export default function CoordinatorPage() {
   const [selectedPassenger, setSelectedPassenger] = useState<PassengerWithMeta | null>(null);
   const [pendingSync, setPendingSync] = useState(0);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanMenuOpen, setScanMenuOpen] = useState(false);
+  const [scanCheckpoint, setScanCheckpoint] = useState<'aeropuerto' | Checkpoint>('aeropuerto');
   const [scanFeedback, setScanFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [checkinEvents, setCheckinEvents] = useState<CheckinEvent[]>([]);
+  const scanMenuRef = useRef<HTMLDivElement>(null);
 
   // Sync any arrivals queued while offline, on load / reconnect / tab focus.
   useEffect(() => {
@@ -171,16 +179,18 @@ export default function CoordinatorPage() {
     setLoading(true);
     setError(null);
     try {
-      const [pax, ss, arr, inc] = await Promise.all([
+      const [pax, ss, arr, inc, chk] = await Promise.all([
         listPassengers(eventId),
         listSessions(eventId),
         listArrivedIds(eventId),
         listIncidents(eventId),
+        listCheckinEvents(eventId),
       ]);
       setPassengers(pax);
       setSessions(ss);
       setArrivedSet(new Set(arr));
       setIncidents(inc);
+      setCheckinEvents(chk);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -277,9 +287,41 @@ export default function CoordinatorPage() {
       setScanFeedback({ ok: false, text: t('coordinator.qr.notFound') });
       return;
     }
-    if (!arrived.has(p.id)) await toggleArrived(p);
-    setScanFeedback({ ok: true, text: t('coordinator.qr.checkedIn', { name: p.full_name }) });
+    if (scanCheckpoint === 'aeropuerto') {
+      if (!arrived.has(p.id)) await toggleArrived(p);
+      setScanFeedback({ ok: true, text: t('coordinator.qr.checkedIn', { name: p.full_name }) });
+      return;
+    }
+    if (!agency) return;
+    try {
+      await logCheckinEvent(agency.id, eventId, p.id, scanCheckpoint);
+      setCheckinEvents((prev) => [
+        { id: `${Date.now()}`, passenger_id: p.id, checkpoint: scanCheckpoint, created_at: new Date().toISOString() },
+        ...prev,
+      ]);
+      setScanFeedback({
+        ok: true,
+        text: t(`coordinator.qr.checkedIn${scanCheckpoint === 'hotel' ? 'Hotel' : 'Evento'}`, { name: p.full_name }),
+      });
+    } catch (e) {
+      setScanFeedback({ ok: false, text: (e as Error).message });
+    }
   }
+
+  function startScan(checkpoint: 'aeropuerto' | Checkpoint) {
+    setScanCheckpoint(checkpoint);
+    setScanMenuOpen(false);
+    setScannerOpen(true);
+  }
+
+  useEffect(() => {
+    if (!scanMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (scanMenuRef.current && !scanMenuRef.current.contains(e.target as Node)) setScanMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [scanMenuOpen]);
 
   useEffect(() => {
     if (!scanFeedback) return;
@@ -313,9 +355,24 @@ export default function CoordinatorPage() {
           </span>
         )}
         {eventId && (
-          <Button variant="secondary" className="ml-auto" onClick={() => setScannerOpen(true)}>
-            📷 {t('coordinator.qr.scan')}
-          </Button>
+          <div className="relative ml-auto" ref={scanMenuRef}>
+            <Button variant="secondary" onClick={() => setScanMenuOpen((o) => !o)}>
+              📷 {t('coordinator.qr.scan')} ▾
+            </Button>
+            {scanMenuOpen && (
+              <div className="absolute right-0 z-20 mt-1 w-52 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-600 dark:bg-slate-800">
+                <button onClick={() => startScan('aeropuerto')} className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700">
+                  ✈️ {t('coordinator.qr.checkpointAirport')}
+                </button>
+                <button onClick={() => startScan('hotel')} className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700">
+                  🏨 {t('coordinator.qr.checkpointHotel')}
+                </button>
+                <button onClick={() => startScan('evento')} className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700">
+                  🎫 {t('coordinator.qr.checkpointEvent')}
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -329,7 +386,18 @@ export default function CoordinatorPage() {
         </div>
       )}
 
-      <QrScanner open={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleQrScan} />
+      <QrScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onDetected={handleQrScan}
+        title={
+          scanCheckpoint === 'aeropuerto'
+            ? t('coordinator.qr.checkpointAirport')
+            : scanCheckpoint === 'hotel'
+              ? t('coordinator.qr.checkpointHotel')
+              : t('coordinator.qr.checkpointEvent')
+        }
+      />
 
       <select className={`${inputClass} mb-3`} value={eventId} onChange={(e) => setEventId(e.target.value)}>
         <option value="">{t('transport.selectEvent')}</option>
@@ -428,6 +496,7 @@ export default function CoordinatorPage() {
       <PassengerTransportModal
         open={selectedPassenger !== null}
         passenger={selectedPassenger}
+        checkinEvents={selectedPassenger ? checkinEvents.filter((c) => c.passenger_id === selectedPassenger.id) : []}
         onClose={() => setSelectedPassenger(null)}
         onUpdate={(id, patch) => {
           setPassengers((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));

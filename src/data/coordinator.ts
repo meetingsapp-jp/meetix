@@ -46,6 +46,41 @@ export async function setArrived(agencyId: string, passengerId: string, arrived:
   }
 }
 
+// --- Checkpoints (QR check-in beyond airport arrival) -------------------------
+// A log, not a single boolean per passenger: multiple scans at the same
+// checkpoint are all kept, the UI shows the most recent one.
+
+export type Checkpoint = 'hotel' | 'evento';
+
+export interface CheckinEvent {
+  id: string;
+  passenger_id: string;
+  checkpoint: Checkpoint;
+  created_at: string;
+}
+
+export async function listCheckinEvents(eventId: string): Promise<CheckinEvent[]> {
+  const { data, error } = await client()
+    .from('checkin_events')
+    .select('id, passenger_id, checkpoint, created_at')
+    .eq('event_id', eventId)
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as CheckinEvent[];
+}
+
+export async function logCheckinEvent(
+  agencyId: string,
+  eventId: string,
+  passengerId: string,
+  checkpoint: Checkpoint,
+): Promise<void> {
+  const { error } = await client()
+    .from('checkin_events')
+    .insert({ agency_id: agencyId, event_id: eventId, passenger_id: passengerId, checkpoint });
+  if (error) throw new Error(error.message);
+}
+
 // --- Incidents ---------------------------------------------------------------
 
 export interface IncidentInput {

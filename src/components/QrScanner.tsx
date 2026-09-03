@@ -8,10 +8,12 @@ export default function QrScanner({
   open,
   onClose,
   onDetected,
+  title,
 }: {
   open: boolean;
   onClose: () => void;
   onDetected: (text: string) => void;
+  title?: string;
 }) {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -73,7 +75,7 @@ export default function QrScanner({
   }, [open]);
 
   return (
-    <Modal open={open} title={t('coordinator.qr.scanTitle')} onClose={onClose}>
+    <Modal open={open} title={title ?? t('coordinator.qr.scanTitle')} onClose={onClose}>
       {error ? (
         <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : (
