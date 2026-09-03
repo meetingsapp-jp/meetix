@@ -18,15 +18,6 @@ const statusColors: Record<string, string> = {
   cancelado: 'bg-red-100 text-red-700',
 };
 
-function StatCard({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-3xl font-semibold text-brand">{value}</div>
-      <div className="text-sm text-slate-500">{label}</div>
-    </div>
-  );
-}
-
 // Format straight from the ISO string (no timezone shift): "dd/mm · HH:mm".
 function fmtFlight(iso: string | null): string {
   if (!iso) return '—';
@@ -103,7 +94,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-semibold">{t('dashboard.title')}</h1>
+      <h1 className="mb-3 text-xl font-semibold sm:text-2xl">{t('dashboard.title')}</h1>
 
       <div className="mb-6">
         <input
@@ -111,10 +102,11 @@ export default function DashboardPage() {
           placeholder={t('dashboard.searchPassengerPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          autoComplete="off"
         />
         {search.trim() && (
           searchResults.length === 0 ? (
-            <p className="mt-2 rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">
+            <p className="mt-2 rounded-lg border border-dashed border-slate-300 p-3 text-center text-xs text-slate-500 dark:border-slate-600 dark:text-slate-400 sm:text-sm">
               {t('dashboard.searchNoResults')}
             </p>
           ) : (
@@ -123,12 +115,12 @@ export default function DashboardPage() {
                 <li key={p.id}>
                   <Link
                     to={`/events/${p.event_id}/passengers`}
-                    className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="flex items-center justify-between gap-2 px-3 py-2.5 text-xs active:bg-slate-50 hover:bg-slate-50 dark:active:bg-slate-700 dark:hover:bg-slate-700 sm:gap-3 sm:text-sm"
                   >
                     <span className="min-w-0">
-                      <span className="font-medium">{p.full_name}</span>
-                      {p.is_vip && <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">VIP</span>}
-                      <span className="ml-2 truncate text-slate-500">{p.event?.name ?? '—'}</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100">{p.full_name}</span>
+                      {p.is_vip && <span className="ml-1 inline-block rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800 dark:bg-amber-900 dark:text-amber-100 sm:ml-1.5 sm:text-[10px]">VIP</span>}
+                      <span className="ml-1 truncate text-slate-500 dark:text-slate-400 sm:ml-2">{p.event?.name ?? '—'}</span>
                     </span>
                     <span className="shrink-0 text-brand-accent">{t('dashboard.searchOpen')} →</span>
                   </Link>
@@ -139,17 +131,10 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t('dashboard.totalEvents')} value={events.length} />
-        <StatCard label={t('dashboard.activeEvents')} value={totals.active} />
-        <StatCard label={t('dashboard.totalPassengers')} value={totals.passengers} />
-        <StatCard label={t('dashboard.vip')} value={totals.vip} />
-      </div>
-
       {/* Live operations: upcoming flights + alerts */}
-      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
         <div>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">
             {t('dashboard.upcomingFlights')}
           </h2>
           {upcoming.length === 0 ? (
@@ -157,9 +142,9 @@ export default function DashboardPage() {
               {t('dashboard.noUpcoming')}
             </p>
           ) : (
-            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+            <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
               {upcoming.map((f, i) => (
-                <li key={i} className="flex items-center gap-3 px-3 py-2 text-sm">
+                <li key={i} className="flex items-center gap-2 px-3 py-2.5 text-xs sm:gap-3 sm:text-sm">
                   <span className={f.direction === 'arrival' ? 'text-green-600' : 'text-blue-600'}>
                     {f.direction === 'arrival' ? '↓' : '↑'}
                   </span>
@@ -178,7 +163,7 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">
             {t('dashboard.alerts')}
           </h2>
           {alerts.noHotel + alerts.noRoom + alerts.noArrival === 0 ? (
@@ -201,7 +186,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('dashboard.statusOverview')}</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">{t('dashboard.statusOverview')}</h2>
       <div className="mb-6 flex flex-wrap gap-2">
         {totals.byStatus.map(({ status, count }) => (
           <span key={status} className={`rounded-full px-3 py-1 text-sm ${statusColors[status]}`}>
@@ -210,7 +195,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">{t('dashboard.eventsList')}</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-sm">{t('dashboard.eventsList')}</h2>
       {events.length === 0 ? (
         <p className="rounded border border-dashed border-slate-300 p-6 text-center text-slate-500">
           {t('events.empty')} <Link to="/events" className="text-brand-accent hover:underline">{t('events.new')}</Link>
@@ -260,20 +245,20 @@ export default function DashboardPage() {
             <Link
               key={ev.id}
               to={`/events/${ev.id}/passengers`}
-              className="block rounded-lg border border-slate-200 bg-white p-3"
+              className="block rounded-lg border border-slate-200 bg-white p-3 active:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:active:bg-slate-700"
             >
               <div className="flex items-start justify-between gap-2">
-                <div className="font-medium">{ev.name}</div>
+                <div className="font-medium text-slate-900 dark:text-slate-100">{ev.name}</div>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${statusColors[ev.status] ?? ''}`}>
                   {t(`events.status.${ev.status}`)}
                 </span>
               </div>
-              <div className="mt-1 text-sm text-slate-500">
-                {ev.client?.name ?? '—'}
+              <div className="mt-2 space-y-0.5 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+                <div>{ev.client?.name ?? '—'}</div>
                 {(ev.start_date || ev.end_date) ? (
-                  <span> · {ev.start_date ?? ''}{ev.end_date ? ` → ${ev.end_date}` : ''}</span>
+                  <div>{ev.start_date ?? ''}{ev.end_date ? ` → ${ev.end_date}` : ''}</div>
                 ) : null}
-                <span> · {t('events.passengers')}: {ev.passenger_count}</span>
+                <div>{t('events.passengers')}: {ev.passenger_count}</div>
               </div>
             </Link>
           ))}
@@ -286,11 +271,11 @@ export default function DashboardPage() {
 
 function AlertRow({ label, count }: { label: string; count: number }) {
   return (
-    <li className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-200 font-semibold text-amber-800">
+    <li className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs dark:border-amber-900 dark:bg-amber-950 sm:gap-3 sm:text-sm">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-semibold text-amber-800 dark:bg-amber-900 dark:text-amber-100 sm:h-7 sm:w-7">
         {count}
       </span>
-      <span className="text-amber-900">{label}</span>
+      <span className="text-amber-900 dark:text-amber-200">{label}</span>
     </li>
   );
 }

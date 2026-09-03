@@ -17,18 +17,32 @@ export default defineConfig({
         importScripts: ['push-sw.js'], // web push handlers, see public/push-sw.js
       },
       manifest: {
-        name: 'MEETIX',
+        name: 'MEETIX - Event Management',
         short_name: 'MEETIX',
         description: 'Event / MICE management platform',
         theme_color: '#0f172a',
-        background_color: '#0f172a',
+        background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
+        scope: '/',
         start_url: '/',
+        categories: ['business', 'productivity'],
+        screenshots: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', form_factor: 'narrow' },
+        ],
         icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+        shortcuts: [
+          {
+            name: 'Dashboard',
+            short_name: 'Panel',
+            description: 'View event dashboard',
+            url: '/',
+            icons: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png' }],
+          },
         ],
       },
     }),

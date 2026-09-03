@@ -4,16 +4,21 @@
 
 html, body, #root {
   height: 100%;
+  width: 100%;
 }
 html {
   /* Safety net: never let a stray wide element scroll the whole page
      sideways (belt-and-suspenders with body's own overflow-x below —
      which browser scrolls, html or body, differs enough that both need it). */
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 body {
   @apply bg-slate-100 text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100;
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   /* Disable the double-tap-to-zoom gesture. Reported bug on Android: some
      transient reflow (a webfont swap, a native <select> measuring itself,
      etc.) makes the page briefly wider than the screen, the browser
@@ -38,4 +43,55 @@ body {
 .modal-max-h-90 {
   max-height: 90vh;
   max-height: 90dvh;
+}
+
+/* Touch-friendly targets for mobile: minimum 44x44dp (Apple) or 48x48dp (Google) */
+@supports (touch-action: manipulation) {
+  .touch-target {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
+/* Responsive typography and spacing improvements for mobile */
+@media (max-width: 640px) {
+  /* Prevent text from being larger than 16px to avoid iOS zoom on focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Improve readability of buttons and links on mobile */
+  button, a, [role="button"] {
+    font-size: inherit;
+  }
+}
+
+/* Ensure scrollable areas work properly */
+.scrollable {
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+}
+
+/* Ensure modals don't get cut off by viewport height issues */
+@supports (padding: max(0px)) {
+  .modal-max-h {
+    max-height: calc(100dvh - 5rem);
+  }
+  .modal-max-h-90 {
+    max-height: 90dvh;
+  }
+}
+
+/* Mobile-specific input improvements */
+@media (max-width: 768px) {
+  /* Prevent iOS auto-zoom on input focus by using 16px or larger font */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
 }
