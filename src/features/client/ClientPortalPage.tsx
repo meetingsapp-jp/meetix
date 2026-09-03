@@ -237,7 +237,7 @@ function ClientSessionForm({
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-md space-y-3 overflow-y-auto rounded-t-2xl bg-white p-5 sm:rounded-2xl"
+        className="modal-max-h-90 w-full max-w-md space-y-3 overflow-y-auto rounded-t-2xl bg-white p-5 sm:rounded-2xl"
       >
         <h3 className="text-lg font-semibold text-slate-800">{initial ? 'Editar actividad' : 'Nueva actividad'}</h3>
         {err && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}

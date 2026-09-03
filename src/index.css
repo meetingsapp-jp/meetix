@@ -10,3 +10,19 @@ body {
   /* Safety net: never let a stray wide row scroll the whole page sideways. */
   overflow-x: hidden;
 }
+
+/* 100vh on Chrome/Android measures the *layout* viewport (behind the
+   address bar and on-screen keyboard), not what's actually visible — a
+   modal capped at "100vh - X" can end up taller than the real screen,
+   cutting off its footer buttons or hiding them behind the keyboard.
+   100dvh tracks the *visual* viewport instead and shrinks live as the
+   keyboard opens. Two declarations: older browsers use the first (vh),
+   anything supporting dvh overrides it with the second. */
+.modal-max-h {
+  max-height: calc(100vh - 5rem);
+  max-height: calc(100dvh - 5rem);
+}
+.modal-max-h-90 {
+  max-height: 90vh;
+  max-height: 90dvh;
+}

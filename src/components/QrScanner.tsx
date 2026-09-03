@@ -28,7 +28,14 @@ export default function QrScanner({
 
     async function start() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        // Android camera streams come back in wildly different native aspect
+        // ratios (often landscape even in a portrait app) — asking for an
+        // ideal resolution keeps the preview a predictable size instead of
+        // sometimes rendering huge/tall and pushing the modal's footer text
+        // off-screen.
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 720 } },
+        });
         if (cancelled) {
           stream.getTracks().forEach((tr) => tr.stop());
           return;
@@ -79,8 +86,8 @@ export default function QrScanner({
       {error ? (
         <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : (
-        <div className="overflow-hidden rounded-lg bg-black">
-          <video ref={videoRef} className="w-full" muted playsInline />
+        <div className="aspect-square w-full overflow-hidden rounded-lg bg-black">
+          <video ref={videoRef} className="h-full w-full object-cover" muted playsInline />
         </div>
       )}
       <canvas ref={canvasRef} hidden />

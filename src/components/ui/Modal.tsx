@@ -55,7 +55,7 @@ export default function Modal({ open, title, onClose, children, footer }: Props)
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="mt-10 flex max-h-[calc(100vh-5rem)] w-full max-w-lg flex-col rounded-lg bg-white shadow-xl dark:bg-slate-800"
+        className="modal-max-h mt-10 flex w-full max-w-lg flex-col rounded-lg bg-white shadow-xl dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex shrink-0 items-center justify-between border-b px-4 py-3 dark:border-slate-700">
