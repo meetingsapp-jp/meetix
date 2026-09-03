@@ -91,29 +91,29 @@ export default function Layout({ children }: { children: ReactNode }) {
         style={{ ...(brand ? { backgroundColor: brand } : {}), paddingTop: 'env(safe-area-inset-top)' }}
       >
         {/* Top row: brand + language + user */}
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
           {can.manageTeam ? (
             <div className="relative min-w-0 flex-1" ref={agencyMenuRef}>
               <button
                 type="button"
                 onClick={() => setAgencyMenuOpen((o) => !o)}
-                className="flex min-w-0 items-center gap-2 rounded px-1 py-0.5 hover:bg-white/10"
+                className="flex min-w-0 items-center gap-1.5 rounded px-1 py-0.5 hover:bg-white/10 sm:gap-2"
                 aria-haspopup="menu"
                 aria-expanded={agencyMenuOpen}
               >
                 {agency?.logo_url ? (
-                  <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
+                  <img src={agency.logo_url} alt={agency.name} className="h-7 w-7 shrink-0 rounded object-contain bg-white/10 sm:h-8 sm:w-8" />
                 ) : null}
-                <span className="truncate text-lg font-bold">{agency?.name ?? t('app.name')}</span>
+                <span className="truncate text-base font-bold sm:text-lg">{agency?.name ?? t('app.name')}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-70">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </button>
               {agencyMenuOpen && (
-                <div className="absolute left-0 z-30 mt-1 w-48 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                <div className="absolute left-0 z-30 mt-1 w-40 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 sm:w-48">
                   <button
                     onClick={() => { setAgencyMenuOpen(false); navigate('/settings'); }}
-                    className="block w-full px-4 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="block w-full px-3 py-2 text-left text-xs hover:bg-slate-50 dark:hover:bg-slate-700 sm:px-4 sm:text-sm"
                   >
                     {t('settings.nav')}
                   </button>
@@ -121,11 +121,11 @@ export default function Layout({ children }: { children: ReactNode }) {
               )}
             </div>
           ) : (
-            <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
               {agency?.logo_url ? (
-                <img src={agency.logo_url} alt={agency.name} className="h-8 w-8 shrink-0 rounded object-contain bg-white/10" />
+                <img src={agency.logo_url} alt={agency.name} className="h-7 w-7 shrink-0 rounded object-contain bg-white/10 sm:h-8 sm:w-8" />
               ) : null}
-              <span className="truncate text-lg font-bold">{agency?.name ?? t('app.name')}</span>
+              <span className="truncate text-base font-bold sm:text-lg">{agency?.name ?? t('app.name')}</span>
             </div>
           )}
 
@@ -162,19 +162,19 @@ export default function Layout({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setUserMenuOpen((o) => !o)}
-              className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1.5 text-sm hover:bg-white/20"
+              className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1.5 text-xs hover:bg-white/20 touch-target"
               aria-haspopup="menu"
               aria-expanded={userMenuOpen}
               aria-label={t('auth.signOut')}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="3.2" />
                 <path d="M4.5 20c0-3.6 3.2-6.2 7.5-6.2s7.5 2.6 7.5 6.2" />
               </svg>
-              {appUser && <span className="max-w-[80px] truncate">{appUser.full_name}</span>}
+              {appUser && <span className="max-w-[60px] truncate text-xs">{appUser.full_name}</span>}
             </button>
             {userMenuOpen && (
-              <div className="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-2 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+              <div className="absolute right-0 z-30 mt-1 max-h-96 w-48 overflow-y-auto overflow-x-hidden rounded-lg border border-slate-200 bg-white py-2 text-slate-700 shadow-lg dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 scrollable sm:w-56">
                 {appUser && (
                   <div className="border-b border-slate-100 px-4 pb-2 dark:border-slate-700">
                     <div className="truncate font-medium">{appUser.full_name}</div>
@@ -236,10 +236,10 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
       )}
       <main
-        className="flex-1 mx-auto max-w-6xl w-full"
+        className="flex-1 mx-auto max-w-6xl w-full overflow-hidden"
         style={{
           padding:
-            '1.5rem calc(1rem + env(safe-area-inset-right)) calc(6rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left))',
+            'calc(1rem + env(safe-area-inset-top, 0px)) calc(0.75rem + env(safe-area-inset-right, 0px)) calc(6.5rem + env(safe-area-inset-bottom, 0px)) calc(0.75rem + env(safe-area-inset-left, 0px))',
         }}
       >
         {children}
@@ -256,22 +256,22 @@ export default function Layout({ children }: { children: ReactNode }) {
             to={n.to}
             end={n.end}
             className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
+              `flex min-w-[60px] flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-xs touch-target ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
             }
           >
             {icons[n.icon]}
-            <span className="leading-none">{t(n.key)}</span>
+            <span className="leading-tight text-center">{t(n.key)}</span>
           </NavLink>
         ))}
         {can.manageTeam && (
           <NavLink
             to="/team"
             className={({ isActive }) =>
-              `flex min-w-[64px] flex-1 flex-col items-center gap-0.5 py-2 text-[10px] ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
+              `flex min-w-[60px] flex-1 flex-col items-center justify-center gap-0.5 py-2.5 text-xs touch-target ${isActive ? 'text-brand-accent' : 'text-slate-500 dark:text-slate-400'}`
             }
           >
             {icons.team}
-            <span className="leading-none">{t('team.title')}</span>
+            <span className="leading-tight text-center">{t('team.title')}</span>
           </NavLink>
         )}
       </nav>
