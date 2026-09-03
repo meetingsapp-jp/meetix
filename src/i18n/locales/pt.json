@@ -84,6 +84,7 @@
     "new": "Novo evento", "editTitle": "Editar evento",
     "empty": "Ainda não há eventos. Crie o primeiro.",
     "dates": "Datas", "passengers": "Passageiros", "viewPassengers": "Passageiros", "export": "Exportar",
+    "copyClientLink": "Link para o cliente",
     "confirmDelete": "Excluir o evento \"{{name}}\"? Isso também remove seus passageiros.",
     "form": {
       "name": "Nome do evento", "client": "Cliente", "noClient": "— Sem cliente —",
@@ -199,7 +200,8 @@
     "importAction": "Importar {{count}}", "importing": "Importando…",
     "done": "Pronto! {{count}} passageiros importados.",
     "modeFile": "Arquivo Excel/CSV", "modeAi": "Importar com IA",
-    "aiIntro": "Cole o texto de um e-mail de confirmação, itinerário em PDF, lista de quartos ou manifesto de transporte. A IA monta a lista de passageiros automaticamente.",
+    "aiIntro": "Cole o texto de um e-mail de confirmação, itinerário em PDF, lista de quartos ou manifesto de transporte — ou envie o Word ou Excel como já é usado na sua agência, sem se adaptar a nenhum modelo. A IA monta a lista de passageiros automaticamente.",
+    "aiUploadFile": "Enviar Word/Excel (.docx, .xlsx, .csv)", "aiExtracting": "Lendo arquivo…",
     "aiPlaceholder": "Cole aqui o texto do itinerário, e-mail ou documento…",
     "aiAnalyze": "Analisar com IA", "aiAnalyzing": "Analisando…",
     "aiEmpty": "Nenhum passageiro foi encontrado nesse texto."

@@ -84,6 +84,7 @@
     "new": "New event", "editTitle": "Edit event",
     "empty": "No events yet. Create the first one.",
     "dates": "Dates", "passengers": "Passengers", "viewPassengers": "Passengers", "export": "Export",
+    "copyClientLink": "Client link",
     "confirmDelete": "Delete the event \"{{name}}\"? This also removes its passengers.",
     "form": {
       "name": "Event name", "client": "Client", "noClient": "— No client —",
@@ -199,7 +200,8 @@
     "importAction": "Import {{count}}", "importing": "Importing…",
     "done": "Done! {{count}} passengers imported.",
     "modeFile": "Excel/CSV file", "modeAi": "Import with AI",
-    "aiIntro": "Paste the text of a confirmation email, PDF itinerary, rooming list, or transport manifest. The AI builds the passenger list automatically.",
+    "aiIntro": "Paste the text of a confirmation email, PDF itinerary, rooming list, or transport manifest — or upload your Word or Excel file as-is, no need to match any template. The AI builds the passenger list automatically.",
+    "aiUploadFile": "Upload Word/Excel (.docx, .xlsx, .csv)", "aiExtracting": "Reading file…",
     "aiPlaceholder": "Paste the itinerary, email, or document text here…",
     "aiAnalyze": "Analyze with AI", "aiAnalyzing": "Analyzing…",
     "aiEmpty": "No passengers were found in that text."
