@@ -258,6 +258,9 @@
       "cameraError": "Couldn't access the camera. Check the browser permissions.",
       "notFound": "That QR doesn't match any passenger in this event.",
       "checkedIn": "{{name}} marked as arrived.",
+      "checkedInHotel": "{{name}} — hotel arrival logged.",
+      "checkedInEvento": "{{name}} — event presence logged.",
+      "checkpointAirport": "Airport arrival", "checkpointHotel": "Hotel arrival", "checkpointEvent": "Event presence",
       "show": "Show QR", "hide": "Hide QR",
       "showHint": "Show this screen to the coordinator so they can scan you on arrival."
     },

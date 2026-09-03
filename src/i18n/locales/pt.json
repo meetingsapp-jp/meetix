@@ -258,6 +258,9 @@
       "cameraError": "Não foi possível acessar a câmera. Verifique as permissões do navegador.",
       "notFound": "Esse QR não corresponde a nenhum passageiro deste evento.",
       "checkedIn": "{{name}} marcado como chegou.",
+      "checkedInHotel": "{{name}} — chegada ao hotel registrada.",
+      "checkedInEvento": "{{name}} — presença no evento registrada.",
+      "checkpointAirport": "Chegada ao aeroporto", "checkpointHotel": "Chegada ao hotel", "checkpointEvent": "Presença no evento",
       "show": "Ver QR", "hide": "Ocultar QR",
       "showHint": "Mostre esta tela ao coordenador para que ele escaneie na sua chegada."
     },

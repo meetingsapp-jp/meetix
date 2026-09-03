@@ -6,6 +6,7 @@ import { inputClass } from '../../components/ui/Field';
 import { flightStatusUrl, googleMapsUrl } from '../../lib/links';
 import { updatePassengerLogistics, type LogisticsPatch } from '../../data/passengers';
 import PassengerQrCode from '../../components/PassengerQrCode';
+import type { CheckinEvent } from '../../data/coordinator';
 
 const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`;
 const waHref = (phone: string) => `https://wa.me/${phone.replace(/[^\d]/g, '')}`;
@@ -20,11 +21,13 @@ const dm = (iso: string | null) => {
 export default function PassengerTransportModal({
   open,
   passenger,
+  checkinEvents = [],
   onClose,
   onUpdate,
 }: {
   open: boolean;
   passenger: PassengerWithMeta | null;
+  checkinEvents?: CheckinEvent[];
   onClose: () => void;
   onUpdate?: (id: string, patch: LogisticsPatch) => void;
 }) {
@@ -167,6 +170,26 @@ export default function PassengerTransportModal({
             <p className="text-center text-xs text-slate-500 dark:text-slate-400">{t('coordinator.qr.showHint')}</p>
           </div>
         )}
+
+        {(() => {
+          const latestHotel = checkinEvents.find((c) => c.checkpoint === 'hotel');
+          const latestEvento = checkinEvents.find((c) => c.checkpoint === 'evento');
+          if (!latestHotel && !latestEvento) return null;
+          return (
+            <div className="flex flex-wrap gap-2 text-xs">
+              {latestHotel && (
+                <span className="rounded-full bg-green-100 px-2.5 py-1 font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                  🏨 {t('coordinator.qr.checkpointHotel')} · {new Date(latestHotel.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+              {latestEvento && (
+                <span className="rounded-full bg-green-100 px-2.5 py-1 font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                  🎫 {t('coordinator.qr.checkpointEvent')} · {new Date(latestEvento.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* 2. Tipo de traslado */}
         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
