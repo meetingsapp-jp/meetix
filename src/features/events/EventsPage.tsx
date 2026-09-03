@@ -80,7 +80,7 @@ export default function EventsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t('events.title')}</h1>
         <div className="flex gap-2">
           {events.length > 0 && (

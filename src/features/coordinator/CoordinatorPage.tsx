@@ -346,7 +346,7 @@ export default function CoordinatorPage() {
 
   return (
     <div className="max-w-3xl">
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <h1 className="text-2xl font-semibold">{t('coordinator.title')}</h1>
         <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand">{t('coordinator.onsite')}</span>
         {pendingSync > 0 && (
@@ -866,7 +866,7 @@ function FuncionesTab({
               </h2>
               <ul className="space-y-2">
                 {items.map((s) => (
-                  <li key={s.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+                  <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
                     <div className="w-14 shrink-0 text-sm font-medium text-slate-700">{isoTime(s.starts_at) || '—'}</div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{s.name}</div>
@@ -880,7 +880,7 @@ function FuncionesTab({
                     <button
                       type="button"
                       onClick={() => setScanningSession(s)}
-                      className="shrink-0 rounded-md border border-slate-300 px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100"
+                      className="min-h-[36px] shrink-0 rounded-md border border-slate-300 px-3 py-2 text-xs text-slate-600 hover:bg-slate-100"
                     >
                       📷 {t('agenda.qrAttendance')}
                     </button>

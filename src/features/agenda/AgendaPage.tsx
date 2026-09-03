@@ -136,7 +136,7 @@ export default function AgendaPage() {
         <Link to="/events" className="hover:underline">{t('nav.events')}</Link>
         <span> / {event?.name ?? '…'}</span>
       </div>
-      <div className="mb-4 flex items-center justify-between gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t('agenda.title')}</h1>
         <div className="flex gap-2">
           {event && sessions.length > 0 && (

@@ -92,7 +92,7 @@ export default function ChecklistPage() {
         <Link to="/events" className="hover:underline">{t('nav.events')}</Link>
         <span> / {event?.name ?? '…'}</span>
       </div>
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t('checklist.title')}</h1>
         {event && tasks.length > 0 && (
           <Button
