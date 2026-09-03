@@ -67,7 +67,8 @@
     "confirmDelete": "Delete the session \"{{name}}\"?",
     "form": {
       "name": "Session name", "date": "Date", "start": "Start", "end": "End",
-      "type": "Type", "noType": "— No type —", "location": "Location / Room"
+      "type": "Type", "noType": "— No type —", "location": "Location / Room",
+      "quickTemplates": "Quick templates"
     },
     "types": {
       "charla": "Talk", "comida": "Meal", "traslado": "Transfer",
@@ -82,7 +83,7 @@
     "title": "Events", "subtitle": "Event list and management.",
     "new": "New event", "editTitle": "Edit event",
     "empty": "No events yet. Create the first one.",
-    "dates": "Dates", "passengers": "Passengers", "viewPassengers": "Passengers",
+    "dates": "Dates", "passengers": "Passengers", "viewPassengers": "Passengers", "export": "Export",
     "confirmDelete": "Delete the event \"{{name}}\"? This also removes its passengers.",
     "form": {
       "name": "Event name", "client": "Client", "noClient": "— No client —",
@@ -168,7 +169,8 @@
     "title": "Checklist", "task": "Task", "taskPlaceholder": "e.g.: Confirm transfers with provider",
     "assignee": "Assignee", "due": "Due", "add": "Add",
     "empty": "No tasks yet. Add the first one.",
-    "progress": "{{done}} of {{total}} done"
+    "progress": "{{done}} of {{total}} done",
+    "status": "Status", "done": "Done", "pending": "Pending"
   },
   "settings": {
     "nav": "Settings", "title": "Agency branding",
@@ -213,6 +215,7 @@
     "toggleHint": "Click to switch between VIP and Group",
     "provider": "Provider", "noProvider": "— No provider —",
     "providers": "Providers", "noProviders": "No providers added yet.",
+    "enRoute": "En route", "copyEnRouteLink": "Copy \"on the way\" link",
     "addProvider": "Add provider", "providerName": "Provider name",
     "providerPhone": "Phone", "providerNotes": "Notes",
     "filter": { "all": "All", "vip": "VIP", "group": "Group" },
@@ -247,6 +250,15 @@
     "noMessages": "No messages yet. Start the conversation!",
     "noHistory": "No activity logged yet.",
     "pendingSync_one": "{{count}} pending sync", "pendingSync_other": "{{count}} pending sync",
+    "qr": {
+      "scan": "Scan QR", "scanTitle": "Scan check-in QR",
+      "scanHint": "Point the camera at the passenger's QR.",
+      "cameraError": "Couldn't access the camera. Check the browser permissions.",
+      "notFound": "That QR doesn't match any passenger in this event.",
+      "checkedIn": "{{name}} marked as arrived.",
+      "show": "Show QR", "hide": "Hide QR",
+      "showHint": "Show this screen to the coordinator so they can scan you on arrival."
+    },
     "auditAction": {
       "arrived": "Marked as arrived", "unarrived": "Unmarked as arrived",
       "create_incident": "Incident created", "resolve_incident": "Incident resolved",

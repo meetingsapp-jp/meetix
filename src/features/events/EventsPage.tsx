@@ -9,6 +9,7 @@ import type { EventWithMeta } from '../../types';
 import { createEvent, deleteEvent, listEvents, setEventCoordinators, updateEvent, type EventInput } from '../../data/events';
 import EventForm from './EventForm';
 import Spinner from '../../components/ui/Spinner';
+import { exportEventsCsv } from '../../lib/export/events';
 
 const statusColors: Record<string, string> = {
   planificacion: 'bg-slate-200 text-slate-700',
@@ -79,9 +80,30 @@ export default function EventsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t('events.title')}</h1>
-        {can.manageEvents && <Button onClick={openCreate}>+ {t('events.new')}</Button>}
+        <div className="flex gap-2">
+          {events.length > 0 && (
+            <Button
+              variant="secondary"
+              onClick={() =>
+                exportEventsCsv(agency.name, events, {
+                  name: t('events.form.name'),
+                  client: t('events.form.client'),
+                  startDate: t('events.dates'),
+                  endDate: t('events.form.endDate'),
+                  destinations: t('events.form.destinations'),
+                  passengers: t('events.passengers'),
+                  status: t('events.form.status'),
+                  statusLabel: (status) => t(`events.status.${status}`),
+                })
+              }
+            >
+              {t('events.export')}
+            </Button>
+          )}
+          {can.manageEvents && <Button onClick={openCreate}>+ {t('events.new')}</Button>}
+        </div>
       </div>
 
       {error && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}

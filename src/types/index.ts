@@ -76,6 +76,8 @@ export interface TransportProvider {
   contact_phone: string | null;
   notes: string | null;
   created_at: string;
+  access_token: string;
+  en_route_at: string | null;
 }
 
 export interface Flight {
